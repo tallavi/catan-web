@@ -22,8 +22,8 @@ const AUTO_SAVE_INTERVAL_SECONDS = 10
 export class GameLogic {
   private storage: GameStorage
   private gameState: GameState
-  private turnTimer: Timer
-  private gameTimer: Timer
+  private turnTimer: Timer //TODO: why is the Timer class needed?
+  private gameTimer: Timer //TODO: why is the Timer class needed?
   private isInProgress: boolean = true
   private lastSaveTime: number = 0
 
@@ -32,7 +32,7 @@ export class GameLogic {
    * @param storageKey - LocalStorage key for saving/loading (defaults to 'catan-game-save')
    */
   constructor(storageKey: string = 'catan-game-save') {
-    this.storage = new GameStorage(storageKey)
+    this.storage = new GameStorage(storageKey) //TODO: should I use multiple storage keys, one for initial game data and finished turns (changed just when the turn advances) vs current turn data that is saved again and again every 10 seconds? Or it doesn't matter?
     this.gameState = new GameState()
 
     this.load()
@@ -42,6 +42,7 @@ export class GameLogic {
 
     this.replayTurns()
 
+    //TODO: not sure why two timers are needed, can't we
     // Initialize timers
     const totalGameDuration = this.calculateTotalGameDuration()
     this.gameTimer = new Timer(totalGameDuration)
@@ -350,8 +351,8 @@ export class GameLogic {
     const yellowCube = Math.floor(Math.random() * 6) + 1
     const eventsFace = Math.floor(Math.random() * 6) + 1
 
-    const cubes = new CubesResult(yellowCube, redCube)
-    const eventsCube = eventsCubeFromFaceNumber(eventsFace)
+    const cubes = new CubesResult(yellowCube, redCube) //TODO: consider having a random choice method inside CubeResult type
+    const eventsCube = eventsCubeFromFaceNumber(eventsFace) //TODO: consider having a random choice method inside EventsCubeResult type
 
     return [cubes, eventsCube]
   }
@@ -406,7 +407,7 @@ export class GameLogic {
     stats.currentTurnDuration = this.turnTimer.getCurrentDuration()
 
     // Calculate game duration
-    stats.gameDuration = this.gameTimer.getCurrentDuration()
+    stats.gameDuration = this.gameTimer.getCurrentDuration() //TODO: no need for a timer for game duration. The duration of all finished turns can be precalculated, and then only the current turn duration (which we have) can be added to get the game duration.
 
     // Collect all turn durations with player names
     const allDurations: Duration[] = []
