@@ -8,6 +8,7 @@
     "eamonn.gitlens",
     "bradlc.vscode-tailwindcss",
     "usernamehw.errorlens",
-    "wix.vscode-import-cost"
+    "wix.vscode-import-cost",
+    "vitest.explorer"
   ]
 }
