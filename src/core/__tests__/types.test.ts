@@ -1,60 +1,109 @@
 import { describe, it, expect } from 'vitest'
-import {
-  EventsCubeResult,
-  eventsCubeFromFaceNumber,
-  getEventsCubeName,
-  CubesResult,
-} from '../types'
+import { EventsCubeResult, CubesResult } from '../types'
 
 describe('EventsCubeResult', () => {
-  describe('eventsCubeFromFaceNumber', () => {
+  describe('random', () => {
+    it('should return a valid EventsCubeResult', () => {
+      const result = EventsCubeResult.random()
+      const validValues = [
+        EventsCubeResult.GREEN,
+        EventsCubeResult.BLUE,
+        EventsCubeResult.YELLOW,
+        EventsCubeResult.PIRATES,
+      ]
+      expect(validValues).toContain(result)
+    })
+
+    it('should have proper distribution over many calls', () => {
+      const results: EventsCubeResult[] = []
+      const iterations = 6000
+
+      for (let i = 0; i < iterations; i++) {
+        results.push(EventsCubeResult.random())
+      }
+
+      const greenCount = results.filter(
+        r => r === EventsCubeResult.GREEN
+      ).length
+      const blueCount = results.filter(r => r === EventsCubeResult.BLUE).length
+      const yellowCount = results.filter(
+        r => r === EventsCubeResult.YELLOW
+      ).length
+      const piratesCount = results.filter(
+        r => r === EventsCubeResult.PIRATES
+      ).length
+
+      // Expected: 1/6 GREEN, 1/6 BLUE, 1/6 YELLOW, 3/6 PIRATES
+      const expectedGreen = iterations / 6
+      const expectedBlue = iterations / 6
+      const expectedYellow = iterations / 6
+      const expectedPirates = (iterations * 3) / 6
+
+      // Allow some variance (±10%)
+      const tolerance = 0.1
+
+      expect(greenCount).toBeGreaterThan(expectedGreen * (1 - tolerance))
+      expect(greenCount).toBeLessThan(expectedGreen * (1 + tolerance))
+
+      expect(blueCount).toBeGreaterThan(expectedBlue * (1 - tolerance))
+      expect(blueCount).toBeLessThan(expectedBlue * (1 + tolerance))
+
+      expect(yellowCount).toBeGreaterThan(expectedYellow * (1 - tolerance))
+      expect(yellowCount).toBeLessThan(expectedYellow * (1 + tolerance))
+
+      expect(piratesCount).toBeGreaterThan(expectedPirates * (1 - tolerance))
+      expect(piratesCount).toBeLessThan(expectedPirates * (1 + tolerance))
+    })
+  })
+
+  describe('fromFaceNumber', () => {
     it('should return GREEN for face 1', () => {
-      const result = eventsCubeFromFaceNumber(1)
+      const result = EventsCubeResult.fromFaceNumber(1)
       expect(result).toBe(EventsCubeResult.GREEN)
     })
 
     it('should return BLUE for face 2', () => {
-      const result = eventsCubeFromFaceNumber(2)
+      const result = EventsCubeResult.fromFaceNumber(2)
       expect(result).toBe(EventsCubeResult.BLUE)
     })
 
     it('should return YELLOW for face 3', () => {
-      const result = eventsCubeFromFaceNumber(3)
+      const result = EventsCubeResult.fromFaceNumber(3)
       expect(result).toBe(EventsCubeResult.YELLOW)
     })
 
     it('should return PIRATES for face 4', () => {
-      const result = eventsCubeFromFaceNumber(4)
+      const result = EventsCubeResult.fromFaceNumber(4)
       expect(result).toBe(EventsCubeResult.PIRATES)
     })
 
     it('should return PIRATES for face 5', () => {
-      const result = eventsCubeFromFaceNumber(5)
+      const result = EventsCubeResult.fromFaceNumber(5)
       expect(result).toBe(EventsCubeResult.PIRATES)
     })
 
     it('should return PIRATES for face 6', () => {
-      const result = eventsCubeFromFaceNumber(6)
+      const result = EventsCubeResult.fromFaceNumber(6)
       expect(result).toBe(EventsCubeResult.PIRATES)
     })
 
     it('should throw error for face 0', () => {
-      expect(() => eventsCubeFromFaceNumber(0)).toThrow()
+      expect(() => EventsCubeResult.fromFaceNumber(0)).toThrow()
     })
 
     it('should throw error for face 7', () => {
-      expect(() => eventsCubeFromFaceNumber(7)).toThrow()
+      expect(() => EventsCubeResult.fromFaceNumber(7)).toThrow()
     })
   })
 
-  describe('getEventsCubeName', () => {
+  describe('getName', () => {
     it('should return correct name for GREEN', () => {
-      const name = getEventsCubeName(EventsCubeResult.GREEN)
+      const name = EventsCubeResult.getName(EventsCubeResult.GREEN)
       expect(name).toBe('GREEN')
     })
 
     it('should return correct name for PIRATES', () => {
-      const name = getEventsCubeName(EventsCubeResult.PIRATES)
+      const name = EventsCubeResult.getName(EventsCubeResult.PIRATES)
       expect(name).toBe('PIRATES')
     })
   })
@@ -116,25 +165,43 @@ describe('CubesResult', () => {
     })
   })
 
-  describe('compareTo', () => {
-    it('should compare by total when totals differ', () => {
-      const cubes1 = new CubesResult(2, 3) // total = 5
-      const cubes2 = new CubesResult(3, 4) // total = 7
-      expect(cubes1.compareTo(cubes2)).toBeLessThan(0)
-      expect(cubes2.compareTo(cubes1)).toBeGreaterThan(0)
+  describe('random', () => {
+    it('should return a valid CubesResult', () => {
+      const result = CubesResult.random()
+      expect(result).toBeInstanceOf(CubesResult)
+      expect(result.yellowCube).toBeGreaterThanOrEqual(1)
+      expect(result.yellowCube).toBeLessThanOrEqual(6)
+      expect(result.redCube).toBeGreaterThanOrEqual(1)
+      expect(result.redCube).toBeLessThanOrEqual(6)
+      expect(result.total).toBe(result.yellowCube + result.redCube)
     })
 
-    it('should compare by red cube when totals are equal', () => {
-      const cubes1 = new CubesResult(4, 3) // total = 7, red = 3
-      const cubes2 = new CubesResult(3, 4) // total = 7, red = 4
-      expect(cubes1.compareTo(cubes2)).toBeLessThan(0)
-      expect(cubes2.compareTo(cubes1)).toBeGreaterThan(0)
-    })
+    it('should have uniform distribution over many calls', () => {
+      const results: CubesResult[] = []
+      const iterations = 36000
 
-    it('should return 0 for equal values', () => {
-      const cubes1 = new CubesResult(3, 4)
-      const cubes2 = new CubesResult(3, 4)
-      expect(cubes1.compareTo(cubes2)).toBe(0)
+      for (let i = 0; i < iterations; i++) {
+        results.push(CubesResult.random())
+      }
+
+      // Check distribution for yellow cube (should be roughly uniform)
+      const yellowCounts = [0, 0, 0, 0, 0, 0]
+      const redCounts = [0, 0, 0, 0, 0, 0]
+
+      for (const result of results) {
+        yellowCounts[result.yellowCube - 1]++
+        redCounts[result.redCube - 1]++
+      }
+
+      const expectedCount = iterations / 6
+      const tolerance = 0.05 // ±5%
+
+      for (let i = 0; i < 6; i++) {
+        expect(yellowCounts[i]).toBeGreaterThan(expectedCount * (1 - tolerance))
+        expect(yellowCounts[i]).toBeLessThan(expectedCount * (1 + tolerance))
+        expect(redCounts[i]).toBeGreaterThan(expectedCount * (1 - tolerance))
+        expect(redCounts[i]).toBeLessThan(expectedCount * (1 + tolerance))
+      }
     })
   })
 })

@@ -4,20 +4,9 @@
  */
 
 // Types
-export type {
-  Duration,
-  DurationStats,
-  GameTurn,
-  GameSaveData,
-} from './types'
+export type { Duration, DurationStats, GameTurn, GameSaveData } from './types'
 
-export {
-  EventsCubeResult,
-  CubesResult,
-  GameState,
-  eventsCubeFromFaceNumber,
-  getEventsCubeName,
-} from './types'
+export { EventsCubeResult, CubesResult, GameState } from './types'
 
 // Game Logic
 export { GameLogic } from './game-logic'
@@ -30,8 +19,4 @@ export { Timer, formatTime, formatTimeDetailed } from './timer'
 
 // Renderer
 export type { ColorType, TextPart } from './renderer'
-export {
-  TextRenderer,
-  ColorTags,
-  formatEventsCube,
-} from './renderer'
+export { TextRenderer, ColorTags, formatEventsCube } from './renderer'

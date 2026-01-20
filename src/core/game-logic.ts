@@ -4,12 +4,7 @@
  */
 
 import type { GameTurn, DurationStats, Duration } from './types'
-import {
-  GameState,
-  CubesResult,
-  EventsCubeResult,
-  eventsCubeFromFaceNumber,
-} from './types'
+import { GameState, CubesResult, EventsCubeResult } from './types'
 import { GameStorage } from './storage'
 import { Timer } from './timer'
 
@@ -37,8 +32,8 @@ export class GameLogic {
 
     this.load()
 
-    this.initPossibleCubesResults()
-    this.initPossibleEventsCubeResults()
+    this.gameState.initPossibleCubesResults()
+    this.gameState.initPossibleEventsCubeResults()
 
     this.replayTurns()
 
@@ -70,49 +65,6 @@ export class GameLogic {
    */
   get turnTimerInstance(): Timer {
     return this.turnTimer
-  }
-
-  /**
-   * Initialize the pool of possible cube results (36 combinations)
-   * Filters out blocked results
-   */
-  private initPossibleCubesResults(): void {
-    this.gameState.possibleCubesResults = []
-
-    for (let yellowCube = 1; yellowCube <= 6; yellowCube++) {
-      for (let redCube = 1; redCube <= 6; redCube++) {
-        const cubes = new CubesResult(yellowCube, redCube)
-
-        // Skip blocked results
-        if (
-          this.gameState.gameSaveData?.blockedResults.includes(cubes.total)
-        ) {
-          continue
-        }
-
-        this.gameState.possibleCubesResults.push(cubes)
-      }
-    }
-  }
-
-  /**
-   * Initialize the pool of possible events cube results
-   * 18 PIRATES, 6 GREEN, 6 BLUE, 6 YELLOW (total 36)
-   */
-  private initPossibleEventsCubeResults(): void {
-    this.gameState.possibleEventsCubeResults = []
-
-    // 6 groups of events
-    for (let group = 0; group < 6; group++) {
-      // 3 pirates per group
-      for (let i = 0; i < 3; i++) {
-        this.gameState.possibleEventsCubeResults.push(EventsCubeResult.PIRATES)
-      }
-      // 1 of each color per group
-      this.gameState.possibleEventsCubeResults.push(EventsCubeResult.GREEN)
-      this.gameState.possibleEventsCubeResults.push(EventsCubeResult.BLUE)
-      this.gameState.possibleEventsCubeResults.push(EventsCubeResult.YELLOW)
-    }
   }
 
   /**
@@ -214,11 +166,7 @@ export class GameLogic {
 
     // Remove events cube from pool
     found = false
-    for (
-      let i = 0;
-      i < this.gameState.possibleEventsCubeResults.length;
-      i++
-    ) {
+    for (let i = 0; i < this.gameState.possibleEventsCubeResults.length; i++) {
       if (this.gameState.possibleEventsCubeResults[i] === gameTurn.eventsCube) {
         this.gameState.possibleEventsCubeResults.splice(i, 1)
         found = true
@@ -244,11 +192,11 @@ export class GameLogic {
 
     // Replenish pools if empty
     if (this.gameState.possibleCubesResults.length === 0) {
-      this.initPossibleCubesResults()
+      this.gameState.initPossibleCubesResults()
     }
 
     if (this.gameState.possibleEventsCubeResults.length === 0) {
-      this.initPossibleEventsCubeResults()
+      this.gameState.initPossibleEventsCubeResults()
     }
   }
 
@@ -347,12 +295,8 @@ export class GameLogic {
    * @returns A tuple of [CubesResult, EventsCubeResult]
    */
   static getFreeThrow(): [CubesResult, EventsCubeResult] {
-    const redCube = Math.floor(Math.random() * 6) + 1
-    const yellowCube = Math.floor(Math.random() * 6) + 1
-    const eventsFace = Math.floor(Math.random() * 6) + 1
-
-    const cubes = new CubesResult(yellowCube, redCube) //TODO: consider having a random choice method inside CubeResult type
-    const eventsCube = eventsCubeFromFaceNumber(eventsFace) //TODO: consider having a random choice method inside EventsCubeResult type
+    const cubes = CubesResult.random()
+    const eventsCube = EventsCubeResult.random()
 
     return [cubes, eventsCube]
   }
@@ -433,9 +377,7 @@ export class GameLogic {
     // Add current turn if game is in progress
     if (this.isInProgress) {
       const currentPlayerName =
-        this.gameState.gameSaveData.players[
-          this.gameState.currentPlayerIndex
-        ]
+        this.gameState.gameSaveData.players[this.gameState.currentPlayerIndex]
       const currentDuration = this.turnTimer.getCurrentDuration()
 
       allDurations.push({

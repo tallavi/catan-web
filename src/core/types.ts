@@ -25,45 +25,52 @@ export interface DurationStats {
 /**
  * Events cube results
  * Represents the possible outcomes of the events die
+ * Object-oriented class with built-in randomization methods
  */
-export const EventsCubeResult = {
-  GREEN: 0,
-  BLUE: 1,
-  YELLOW: 2,
-  PIRATES: 3,
-} as const
+export class EventsCubeResult {
+  static readonly GREEN = 0
+  static readonly BLUE = 1
+  static readonly YELLOW = 2
+  static readonly PIRATES = 3
 
-export type EventsCubeResult =
-  (typeof EventsCubeResult)[keyof typeof EventsCubeResult]
-
-/**
- * Convert a die face number (1-6) to an EventsCubeResult
- * Face 1 = GREEN, 2 = BLUE, 3 = YELLOW, 4-6 = PIRATES
- */
-export function eventsCubeFromFaceNumber(n: number): EventsCubeResult {
-  switch (n) {
-    case 1:
-      return EventsCubeResult.GREEN
-    case 2:
-      return EventsCubeResult.BLUE
-    case 3:
-      return EventsCubeResult.YELLOW
-    case 4:
-    case 5:
-    case 6:
-      return EventsCubeResult.PIRATES
-    default:
-      throw new Error(`Invalid face number: ${n}. Must be 1-6.`)
+  /**
+   * Generate a random EventsCubeResult based on die probabilities
+   * Face 1 = GREEN, 2 = BLUE, 3 = YELLOW, 4-6 = PIRATES
+   */
+  static random(): EventsCubeResult {
+    const face = Math.floor(Math.random() * 6) + 1
+    return this.fromFaceNumber(face)
   }
-}
 
-/**
- * Get the name of an EventsCubeResult
- */
-export function getEventsCubeName(result: EventsCubeResult): string {
-  const entries = Object.entries(EventsCubeResult) as [string, number][]
-  const entry = entries.find(([, value]) => value === result)
-  return entry ? entry[0] : 'UNKNOWN'
+  /**
+   * Convert a die face number (1-6) to an EventsCubeResult
+   * Face 1 = GREEN, 2 = BLUE, 3 = YELLOW, 4-6 = PIRATES
+   */
+  static fromFaceNumber(n: number): EventsCubeResult {
+    switch (n) {
+      case 1:
+        return EventsCubeResult.GREEN
+      case 2:
+        return EventsCubeResult.BLUE
+      case 3:
+        return EventsCubeResult.YELLOW
+      case 4:
+      case 5:
+      case 6:
+        return EventsCubeResult.PIRATES
+      default:
+        throw new Error(`Invalid face number: ${n}. Must be 1-6.`)
+    }
+  }
+
+  /**
+   * Get the name of an EventsCubeResult
+   */
+  static getName(result: EventsCubeResult): string {
+    const entries = Object.entries(this) as [string, number][]
+    const entry = entries.find(([, value]) => value === result)
+    return entry ? entry[0] : 'UNKNOWN'
+  }
 }
 
 /**
@@ -106,14 +113,12 @@ export class CubesResult {
   }
 
   /**
-   * Compare with another CubesResult for sorting
-   * Sorts by total first, then by red cube value
+   * Generate a random CubesResult with values 1-6 for both dice
    */
-  compareTo(other: CubesResult): number {
-    if (this.total === other.total) {
-      return this.redCube - other.redCube
-    }
-    return this.total - other.total
+  static random(): CubesResult {
+    const yellowCube = Math.floor(Math.random() * 6) + 1
+    const redCube = Math.floor(Math.random() * 6) + 1
+    return new CubesResult(yellowCube, redCube)
   }
 }
 
@@ -150,5 +155,46 @@ export class GameState {
 
   constructor() {
     // Initialize with default values
+  }
+
+  /**
+   * Initialize the pool of possible cube results (36 combinations)
+   * Filters out blocked results
+   */
+  initPossibleCubesResults(): void {
+    this.possibleCubesResults = []
+
+    for (let yellowCube = 1; yellowCube <= 6; yellowCube++) {
+      for (let redCube = 1; redCube <= 6; redCube++) {
+        const cubes = new CubesResult(yellowCube, redCube)
+
+        // Skip blocked results
+        if (this.gameSaveData?.blockedResults.includes(cubes.total)) {
+          continue
+        }
+
+        this.possibleCubesResults.push(cubes)
+      }
+    }
+  }
+
+  /**
+   * Initialize the pool of possible events cube results
+   * 18 PIRATES, 6 GREEN, 6 BLUE, 6 YELLOW (total 36)
+   */
+  initPossibleEventsCubeResults(): void {
+    this.possibleEventsCubeResults = []
+
+    // 6 groups of events
+    for (let group = 0; group < 6; group++) {
+      // 3 pirates per group
+      for (let i = 0; i < 3; i++) {
+        this.possibleEventsCubeResults.push(EventsCubeResult.PIRATES)
+      }
+      // 1 of each color per group
+      this.possibleEventsCubeResults.push(EventsCubeResult.GREEN)
+      this.possibleEventsCubeResults.push(EventsCubeResult.BLUE)
+      this.possibleEventsCubeResults.push(EventsCubeResult.YELLOW)
+    }
   }
 }
