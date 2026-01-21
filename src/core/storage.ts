@@ -118,7 +118,7 @@ export class GameStorage {
     const plain = {
       players: data.players,
       blockedResults: data.blockedResults,
-      gameTurns: data.gameTurns.map((turn) => ({
+      gameTurns: data.gameTurns.map(turn => ({
         turnNumber: turn.turnNumber,
         playerIndex: turn.playerIndex,
         cubes: {
@@ -157,21 +157,41 @@ export class GameStorage {
     }
 
     // Reconstruct GameTurns with proper types
-    const gameTurns: GameTurn[] = plain.gameTurns.map((turn: any) => {
-      if (!turn.cubes) {
-        throw new Error('Invalid turn: missing cubes')
+    const gameTurns: GameTurn[] = plain.gameTurns.map((turn: unknown) => {
+      if (typeof turn !== 'object' || turn === null) {
+        throw new Error('Invalid turn: not an object')
       }
 
+      const t = turn as Record<string, unknown>
+
+      if (
+        !t.cubes ||
+        typeof t.turnNumber !== 'number' ||
+        typeof t.playerIndex !== 'number' ||
+        typeof t.turnDuration !== 'number'
+      ) {
+        throw new Error('Invalid turn: missing or invalid fields')
+      }
+
+      const cubesObj = t.cubes as Record<string, unknown>
+
+      const yellow = Number(cubesObj.yellowCube)
+      const red = Number(cubesObj.redCube)
+      const predetermined =
+        cubesObj.predetermined === undefined
+          ? undefined
+          : Boolean(cubesObj.predetermined)
+
       return {
-        turnNumber: turn.turnNumber,
-        playerIndex: turn.playerIndex,
+        turnNumber: Number(t.turnNumber),
+        playerIndex: Number(t.playerIndex),
         cubes: new CubesResult(
-          turn.cubes.yellowCube,
-          turn.cubes.redCube,
-          turn.cubes.predetermined
+          yellow,
+          red,
+          predetermined as boolean | undefined
         ),
-        eventsCube: turn.eventsCube as EventsCubeResult,
-        turnDuration: turn.turnDuration,
+        eventsCube: t.eventsCube as EventsCubeResult,
+        turnDuration: Number(t.turnDuration),
       }
     })
 
