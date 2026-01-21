@@ -3,8 +3,9 @@
  * Ported from Python version in catan-cli/logic/game_logic.py
  */
 
-import type { GameTurn, DurationStats, Duration } from './types'
-import { GameState, CubesResult, EventsCubeResult } from './types'
+import type { GameTurn, DurationStats, Duration } from './types/index'
+import { CubesResult, EventsCubeResult } from './types/index'
+import { GameState } from './types/game-state'
 import { GameStorage } from './storage'
 import { Timer } from './timer'
 

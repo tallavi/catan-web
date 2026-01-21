@@ -4,9 +4,15 @@
  */
 
 // Types
-export type { Duration, DurationStats, GameTurn, GameSaveData } from './types'
+export type {
+  Duration,
+  DurationStats,
+  GameTurn,
+  GameSaveData,
+} from './types/index'
 
-export { EventsCubeResult, CubesResult, GameState } from './types'
+export { EventsCubeResult, CubesResult } from './types/index'
+export { GameState } from './types/game-state'
 
 // Game Logic
 export { GameLogic } from './game-logic'
