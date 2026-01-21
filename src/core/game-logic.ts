@@ -35,14 +35,14 @@ export class GameLogic {
     this.gameState.initPossibleCubesResults()
     this.gameState.initPossibleEventsCubeResults()
 
-    this.replayTurns()
+    this.gameState.replayTurns()
 
     //TODO: not sure why two timers are needed, can't we
     // Initialize timers
-    const totalGameDuration = this.calculateTotalGameDuration()
+    const totalGameDuration = this.gameState.calculateTotalGameDuration()
     this.gameTimer = new Timer(totalGameDuration)
 
-    const lastTurnDuration = this.getLastTurnDuration()
+    const lastTurnDuration = this.gameState.getLastTurnDuration()
     this.turnTimer = new Timer(lastTurnDuration)
   }
 
@@ -80,124 +80,6 @@ export class GameLogic {
     }
 
     this.gameState.gameSaveData = saveData
-  }
-
-  /**
-   * Calculate total game duration from all turns
-   */
-  private calculateTotalGameDuration(): number {
-    if (!this.gameState.gameSaveData) return 0
-
-    let total = 0
-    for (const turn of this.gameState.gameSaveData.gameTurns) {
-      total += turn.turnDuration
-    }
-    return total
-  }
-
-  /**
-   * Get the duration of the last turn (or 0 if no turns)
-   */
-  private getLastTurnDuration(): number {
-    if (!this.gameState.gameSaveData) return 0
-
-    const turns = this.gameState.gameSaveData.gameTurns
-    if (turns.length === 0) return 0
-
-    return turns[turns.length - 1].turnDuration
-  }
-
-  /**
-   * Replay all saved turns to restore game state
-   */
-  private replayTurns(): void {
-    if (!this.gameState.gameSaveData) return
-
-    for (const gameTurn of this.gameState.gameSaveData.gameTurns) {
-      this.gameState.currentPlayerIndex =
-        (this.gameState.currentPlayerIndex + 1) %
-        this.gameState.gameSaveData.players.length
-      this.gameState.currentTurnNumber += 1
-
-      this.playTurn(gameTurn)
-    }
-  }
-
-  /**
-   * Play a turn (used for both replay and new turns)
-   * Updates game state by removing used cubes/events and managing pirates track
-   */
-  private playTurn(gameTurn: GameTurn): void {
-    if (!this.gameState.gameSaveData) {
-      throw new Error('No game save data')
-    }
-
-    // Validate turn number
-    if (this.gameState.currentTurnNumber !== gameTurn.turnNumber) {
-      throw new Error(
-        `Invalid turn number: expected ${this.gameState.currentTurnNumber}, got ${gameTurn.turnNumber}`
-      )
-    }
-
-    // Validate player index
-    if (this.gameState.currentPlayerIndex !== gameTurn.playerIndex) {
-      throw new Error(
-        `Invalid player index: expected ${this.gameState.currentPlayerIndex}, got ${gameTurn.playerIndex}`
-      )
-    }
-
-    // Remove cubes from pool (unless predetermined)
-    let found = false
-    if (gameTurn.cubes.predetermined === true) {
-      found = true
-    } else {
-      for (let i = 0; i < this.gameState.possibleCubesResults.length; i++) {
-        if (this.gameState.possibleCubesResults[i].equals(gameTurn.cubes)) {
-          this.gameState.possibleCubesResults.splice(i, 1)
-          found = true
-          break
-        }
-      }
-    }
-
-    if (!found) {
-      throw new Error('Invalid cubes in turn: not found in possible results')
-    }
-
-    // Remove events cube from pool
-    found = false
-    for (let i = 0; i < this.gameState.possibleEventsCubeResults.length; i++) {
-      if (this.gameState.possibleEventsCubeResults[i] === gameTurn.eventsCube) {
-        this.gameState.possibleEventsCubeResults.splice(i, 1)
-        found = true
-        break
-      }
-    }
-
-    if (!found) {
-      throw new Error(
-        'Invalid events cube in turn: not found in possible results'
-      )
-    }
-
-    // Reset pirates track if >= 8
-    if (this.gameState.piratesTrack >= 8) {
-      this.gameState.piratesTrack = 1
-    }
-
-    // Increment pirates track if pirates was rolled
-    if (gameTurn.eventsCube === EventsCubeResult.PIRATES) {
-      this.gameState.piratesTrack += 1
-    }
-
-    // Replenish pools if empty
-    if (this.gameState.possibleCubesResults.length === 0) {
-      this.gameState.initPossibleCubesResults()
-    }
-
-    if (this.gameState.possibleEventsCubeResults.length === 0) {
-      this.gameState.initPossibleEventsCubeResults()
-    }
   }
 
   /**
@@ -255,7 +137,7 @@ export class GameLogic {
     }
 
     // Play the turn and add to history
-    this.playTurn(gameTurn)
+    this.gameState.playTurn(gameTurn)
     this.gameState.gameSaveData.gameTurns.push(gameTurn)
 
     // Reset turn timer for new turn
@@ -444,23 +326,13 @@ export class GameLogic {
    * Get the current player's name
    */
   getCurrentPlayerName(): string {
-    if (!this.gameState.gameSaveData) return ''
-    if (this.gameState.currentPlayerIndex < 0) return ''
-
-    return this.gameState.gameSaveData.players[
-      this.gameState.currentPlayerIndex
-    ]
+    return this.gameState.getCurrentPlayerName()
   }
 
   /**
    * Get the last turn (most recent)
    */
   getLastTurn(): GameTurn | null {
-    if (!this.gameState.gameSaveData) return null
-
-    const turns = this.gameState.gameSaveData.gameTurns
-    if (turns.length === 0) return null
-
-    return turns[turns.length - 1]
+    return this.gameState.getLastTurn()
   }
 }
