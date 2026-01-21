@@ -23,14 +23,14 @@ export const CubeStatistics: React.FC<CubeStatisticsProps> = ({
 
   return (
     <div className={className}>
-      <h3>Cube Statistics</h3>
+      <h3 className="card-title">Cube Statistics</h3>
       <div className="table-wrapper">
         <table className="cube-stats">
           <thead>
             <tr>
-              <th>Total</th>
-              <th>Count</th>
-              <th>Percentage</th>
+              <th>Cubes</th>
+              <th>Times</th>
+              <th>Chance</th>
             </tr>
           </thead>
           <tbody>

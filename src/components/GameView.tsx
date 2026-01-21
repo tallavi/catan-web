@@ -1,19 +1,28 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import './game.css'
 import mockGameState from '../mocks/mockGameState'
-import NormalView from './NormalView.tsx'
-import PauseView from './PauseView.tsx'
+import NormalView from './NormalView'
+import PauseView from './PauseView'
 
 export const GameView: React.FC = () => {
   const [view, setView] = useState<'normal' | 'pause'>('normal')
 
+  // Toggle between normal and pause when Space is pressed
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      // Only react to space key
+      if (e.code === 'Space' || e.key === ' ') {
+        e.preventDefault()
+        setView(prev => (prev === 'normal' ? 'pause' : 'normal'))
+      }
+    }
+
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
   return (
     <div className="game-view">
-      <div className="view-controls">
-        <button onClick={() => setView('normal')}>Normal</button>
-        <button onClick={() => setView('pause')}>Pause</button>
-      </div>
-
       <div className="view-content">
         {view === 'normal' ? (
           <NormalView

@@ -9,10 +9,11 @@
   --green: #38a169;
   --blue: #3182ce;
   --bold: #2d3748;
+  --action-bar-height: 72px; /* space reserved for fixed action bar */
 }
 
 .game-view {
-  background: var(--bg);
+  background: transparent;
   color: var(--bold);
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
@@ -35,11 +36,11 @@
 }
 
 .view-content {
-  background: var(--panel);
+  background: transparent;
   padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 6px 18px rgba(18, 38, 63, 0.06);
-  border: 1px solid #e2e8f0;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
 }
 
 /* Layout for NormalView to keep info/action bars visible at bottom */
@@ -47,6 +48,12 @@
   display: flex;
   flex-direction: column;
   min-height: calc(100vh - 2rem);
+  padding-bottom: 72px; /* reserve space for fixed action bar */
+  margin-left: calc(
+    -2rem
+  ); /* offset all parent padding (game-view + view-content) */
+  margin-right: calc(-2rem); /* offset all parent padding on right side too */
+  width: 100vw; /* full viewport width */
 }
 
 .normal-view .columns {
@@ -153,11 +160,23 @@ table {
 
 /* New: web-like card layout for NormalView */
 .normal-top {
-  display: grid;
-  grid-template-columns: 50% 50%; /* tables take 50% each */
-  gap: 1rem;
+  display: flex;
+  gap: 1rem; /* add margins between the cards */
   align-items: stretch;
   flex: 1;
+  height: calc(
+    100vh - var(--action-bar-height) - 4rem
+  ); /* full viewport height minus action bar and padding */
+  background: transparent; /* make parent invisible */
+  border: none; /* remove any border */
+  padding: 1rem; /* add padding so cards aren't at viewport edges */
+  box-sizing: border-box;
+}
+
+/* Ensure the cards have equal widths and heights */
+.normal-top > .card {
+  flex: 1; /* each card takes equal width, flexbox handles gaps automatically */
+  height: 500px; /* fixed height to ensure all cards are same height */
 }
 
 .card {
@@ -178,6 +197,40 @@ table {
 
 .card .card-content {
   margin-top: 0.5rem;
+}
+
+/* Info grid inside the right-most card */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  column-gap: 2rem;
+  row-gap: 0.5rem;
+  height: 50%; /* keep the grid height as requested */
+  align-content: center; /* center the grid vertically within the card */
+  width: calc(
+    100% - 1rem
+  ); /* take full width of the right card minus right margin */
+  margin-right: 1rem;
+  margin-top: 1.5rem;
+}
+
+.info-cell {
+  background: #f8fafc;
+  border: 1px solid #eef2f7;
+  padding: 0.6rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch; /* stretch to full cell width */
+  color: var(--bold);
+  width: 100%;
+}
+
+.info-cell.empty {
+  background: transparent;
+  border: none;
 }
 
 .info-bar {
@@ -223,18 +276,19 @@ table {
 }
 
 .action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   gap: 0.5rem;
-  margin-top: 0.8rem;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  flex-shrink: 0; /* always visible */
-  width: 100%;
-  border-top: 1px solid #eef2f7;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0), var(--panel));
-  padding: 0.5rem 0;
-  position: sticky;
-  bottom: 0; /* stick to bottom of the viewport */
+  padding: 0.6rem;
+  border-radius: 0;
+  justify-content: center;
+  background: rgb(102, 126, 234);
+  border: 1px solid #eef2f7;
+  box-shadow: 0 6px 20px rgba(16, 24, 40, 0.06);
+  z-index: 1000;
 }
 
 .action-bar button {
@@ -246,9 +300,10 @@ table {
 }
 
 .action-bar button.primary {
-  background: var(--accent);
-  color: #ffffff;
-  box-shadow: 0 6px 12px rgba(102, 126, 234, 0.18);
+  background: #ffffff;
+  color: var(--muted);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 6px rgba(16, 24, 40, 0.04);
 }
 
 .action-bar button.secondary {
@@ -273,7 +328,7 @@ table {
 /* responsive adjustments */
 @media (max-width: 800px) {
   .normal-top {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     height: auto;
   }
 
@@ -287,4 +342,8 @@ table {
   .normal-view .columns {
     grid-template-columns: 1fr;
   }
+}
+
+.card-title {
+  text-align: center;
 }

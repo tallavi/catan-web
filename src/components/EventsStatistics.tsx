@@ -26,13 +26,13 @@ export const EventsStatistics: React.FC<EventsStatisticsProps> = ({
 
   return (
     <div className={className}>
-      <h3>Events Statistics</h3>
+      <h3 className="card-title">Events Statistics</h3>
       <table className="events-stats">
         <thead>
           <tr>
             <th>Event</th>
-            <th>Count</th>
-            <th>Percentage</th>
+            <th>Times</th>
+            <th>Chance</th>
           </tr>
         </thead>
         <tbody>
