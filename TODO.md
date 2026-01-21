@@ -1,9 +1,11 @@
 # Catan Web App Implementation Plan
 
 ## Overview
+
 Create a web-based UI that mirrors the curses game interface using React + TypeScript, served from a simple static file setup (no backend needed).
 
 ## Stack
+
 - **Frontend:** React 19 + TypeScript
 - **Build Tool:** Vite
 - **Development:** Hot Module Replacement
@@ -13,6 +15,7 @@ Create a web-based UI that mirrors the curses game interface using React + TypeS
 ## Architecture
 
 ### Project Structure
+
 ```
 catan-web/
 ├── src/
@@ -54,6 +57,7 @@ catan-web/
 ## Key Design Decisions
 
 ### 1. State Management (React Hooks + Context)
+
 **Why not Redux/Zustand?** Overkill for this game. React's built-in state management is sufficient:
 
 ```typescript
@@ -63,84 +67,188 @@ const [view, setView] = useState<'normal' | 'pause' | 'freeThrow'>('normal')
 ```
 
 ### 2. Component Architecture
+
 - **Container/Presentational Pattern**: `GameView` manages state, child components are pure
 - **Reusable Components**: Stats tables, timers can be used in multiple views
 - **Custom Hooks**: Extract game logic, timers, keyboard handling
 
 ### 3. Text Rendering (Curses Compatibility)
+
 - `ColoredText` component parses `{bold}`, `{red}`, `{yellow}` tags
 - Converts to styled `<span>` elements
 - Maintains monospace layout with CSS Grid
 - Matches curses color scheme exactly
 
 ### 4. Client-Side Timers (No Backend)
+
 - **Challenge**: Python has server-side timer ticks
 - **Solution**: Client-side timers with pause/resume
 - Start from API-provided durations, increment locally
 - Pause when in pause state, resume when back to normal
 
 ### 5. LocalStorage Persistence
+
 - **Why LocalStorage?** Simple, no backend, persists across sessions
 - **Structure**: JSON with game state, timestamps, player data
 - **Migration**: Can import from Python save files via copy-paste
 
 ## Implementation Phases
 
-### Phase 1: Core Game Logic Port (Types + Logic)
+### Phase 1: Core Game Logic Port (Types + Logic) ✅ COMPLETED
+
 **Goal:** Port Python game logic to TypeScript
 
-#### 1.1 Create Type Definitions (`src/core/types.ts`)
-- Port Python dataclasses to TypeScript interfaces
-- Define enums for EventsCubeResult
-- Create CubesResult class (with total getter)
-- Define GameTurn, GameSaveData, GameState interfaces
-- Add DurationStats and related types
-- Define error types and free throw results
+#### 1.1 Create Type Definitions ✅
 
-#### 1.2 Implement Game Logic (`src/core/game-logic.ts`)
-- Port `GameLogic` class from Python
-- Key methods:
-  - `initPossibleCubesResults()` - Generate 36 possible cube combos
-  - `initPossibleEventsCubeResults()` - Generate 36 events (18 Pirates, 6×3 colors)
-  - `nextTurn()` - Core game progression
-  - `nextTurnWithPredeterminedCubes()` - Manual cube input
-  - `getFreeThrow()` - Practice throws
-  - `pause()` / `resume()` - Timer control
-  - `getDurationStats()` - Statistics calculation
-- Handle pirates track logic (1-8, reset at 8)
-- Pool replenishment when empty
-- Turn validation and replay
+- ✅ Port Python dataclasses to TypeScript interfaces
+- ✅ Define enums for EventsCubeResult
+- ✅ Create CubesResult class (with total getter)
+- ✅ Define GameTurn, GameSaveData interfaces
+- ✅ Create GameState class with game state management
+- ✅ Add DurationStats and related types
+- Files: `src/core/types/index.ts`, `src/core/types/game-state.ts`
 
-#### 1.3 Create Storage Layer (`src/core/storage.ts`)
-- `GameStorage` class with LocalStorage wrapper
-- Methods: `save()`, `load()`, `clear()`, `createNewGame()`
-- Error handling for JSON parsing
-- Type-safe operations
+#### 1.2 Implement Game Logic ✅
 
-#### 1.4 Add Timer Logic (`src/core/timer.ts`)
-- `Timer` class for client-side duration tracking
-- Constructor accepts initial seconds
-- Methods: `getCurrentDuration()`, `pause()`, `resume()`, `reset()`
-- Handle paused state properly
-- `formatTime()` utility function
+- ✅ Port `GameLogic` class from Python
+- ✅ Implement all key methods (nextTurn, pause/resume, statistics, etc.)
+- ✅ Handle pirates track logic (1-8, reset at 8)
+- ✅ Pool replenishment when empty
+- ✅ Turn validation and replay
+- File: `src/core/game-logic.ts`
 
-#### 1.5 Create Text Renderer (`src/core/renderer.ts`)
-- `TextRenderer` class for parsing color tags
-- Parse `{bold}`, `{red}`, `{yellow}`, `{green}`, `{blue}` tags
-- Use regex and stack-based approach (like curses)
-- Return HTML strings safe for `innerHTML`
-- Handle nested tags properly
+#### 1.3 Create Storage Layer ✅
 
-### Phase 2: React Components & Hooks
-**Goal:** Build UI components mirroring curses states
+- ✅ `GameStorage` class with LocalStorage wrapper
+- ✅ Methods: `save()`, `load()`, `clear()`, `createNewGame()`
+- ✅ Error handling for JSON parsing
+- ✅ Type-safe operations
+- File: `src/core/storage.ts`
+
+#### 1.4 Add Timer Logic ✅
+
+- ✅ `Timer` class for client-side duration tracking
+- ✅ Constructor accepts initial seconds
+- ✅ Methods: `getCurrentDuration()`, `pause()`, `resume()`, `reset()`
+- ✅ Handle paused state properly
+- ✅ `formatTime()` utility function
+- File: `src/core/timer.ts`
+
+#### 1.5 Create Text Renderer ✅
+
+- ✅ `TextRenderer` class for parsing color tags
+- ✅ Parse `{bold}`, `{red}`, `{yellow}`, `{green}`, `{blue}` tags
+- ✅ Use regex and stack-based approach (like curses)
+- ✅ Return HTML strings safe for `innerHTML`
+- ✅ Handle nested tags properly
+- File: `src/core/renderer.ts`
+
+### Phase 2: Static View Components (Current Phase) 🔄 IN PROGRESS
+
+**Goal:** Create static view components without logic, focusing on layout and styling first
+
+#### 2.1 Create Static Mock Data
+
+- [x] Create a file with static mock game state data
+- [x] Include sample GameSaveData with players, turns, etc.
+- [x] Create initialized GameState instance with mock data
+- [x] Include various game states (early game, mid game, different events)
+- File: `src/mocks/mockGameState.ts`
+
+#### 2.2 Build Core Reusable Components
+
+- [x] `ColoredText.tsx` - Component to render text with color tags
+  - Parse `{bold}`, `{red}`, `{yellow}`, `{green}`, `{blue}` tags
+  - Convert to styled spans
+  - Integrate with TextRenderer from core
+- [x] `Timer.tsx` - Display timer component (static for now)
+  - Show formatted time (mm:ss or hh:mm:ss)
+  - Props: duration in seconds, label
+- [x] `CubeStatistics.tsx` - Table showing cube result probabilities
+  - Display possible cube combinations
+  - Show counts and percentages
+  - Highlight depleted pools
+- [x] `EventsStatistics.tsx` - Table showing events result probabilities
+  - Display remaining events (PIRATES, GREEN, BLUE, YELLOW)
+  - Show counts and percentages
+- [x] `DurationStats.tsx` - Display player turn duration statistics
+  - Show shortest, longest, average turn times per player
+  - Format times nicely
+- Files: `src/components/*.tsx`
+
+#### 2.3 Create View Components (Static Layout)
+
+- [ ] `NormalView.tsx` - Main game interface
+  - Layout: Two-column design (Cube Stats | Events Stats)
+  - Display turn information (current player, turn number)
+  - Show last roll results (cubes, events, pirates track)
+  - Display timers (game duration, current turn duration)
+  - Show instructions/keyboard shortcuts
+  - Use static mock data for all content
+- [ ] `PauseView.tsx` - Pause menu interface
+  - Display "GAME PAUSED" header
+  - Show game statistics (total turns, game duration)
+  - Display DurationStats component with player statistics
+  - Show CubeStatistics component (remaining cubes)
+  - Show EventsStatistics component (remaining events)
+  - List menu options (Resume, Free Throw, Cube Options, Quit)
+  - Use static mock data for all content
+- [ ] `GameView.tsx` - Top-level container
+  - State management for current view ('normal' | 'pause')
+  - Simple button controls to switch between views (for development)
+  - Render appropriate child view component
+  - Accept gameState as prop
+- Files: `src/components/*.tsx`
+
+#### 2.4 Component Styling (CSS)
+
+- [ ] `GameView.css` - Top-level game layout
+  - Full-screen layout
+  - View switcher controls (development only)
+  - Dark terminal-like theme
+- [ ] `NormalView.css` - Normal view layout
+  - Two-column grid layout
+  - Monospace font for game elements
+  - Terminal color scheme (match curses)
+  - Responsive spacing
+- [ ] `PauseView.css` - Pause view layout
+  - Centered layout with sections
+  - Table styling for statistics
+  - Menu options styling
+- [ ] Component-specific CSS files as needed
+- Files: `src/components/*.css`
+
+#### 2.5 Integration with App
+
+- [ ] Update `App.tsx` to use GameView component
+- [ ] Import and initialize mock game state
+- [ ] Pass mock state to GameView
+- [ ] Remove hello world content
+- [ ] Update `App.css` for game-appropriate global styles
+- Files: `src/App.tsx`, `src/App.css`
+
+#### 2.6 Browser Testing
+
+- [ ] Run dev server and view in browser
+- [ ] Test view switching (Normal ↔ Pause)
+- [ ] Verify layout and styling
+- [ ] Check that mock data displays correctly
+- [ ] Take screenshots for documentation
+- [ ] Iterate on styling until satisfied
+
+### Phase 3: React Components & Hooks (Logic Implementation)
+
+**Goal:** Add interactivity and game logic to components
 
 #### 2.1 Create Custom Hooks
+
 - `useGameLogic()` - Wraps GameLogic class in React
 - `useTimer()` - Manages Timer instances with useEffect
 - `useKeyboard()` - Keyboard event handling
 - `useLocalStorage()` - React integration with storage
 
 #### 2.2 Build Core Components
+
 - `ColoredText` - Render formatted text with colors
 - `Timer` - Display and manage timers
 - `CubeStatistics` - Table showing cube result probabilities
@@ -148,57 +256,68 @@ const [view, setView] = useState<'normal' | 'pause' | 'freeThrow'>('normal')
 - `DurationStats` - Display player turn durations
 
 #### 2.3 Create View Components
+
 - `NormalView` - Main game interface (cubes + events tables, turn info)
 - `PauseView` - Pause menu with statistics
 - `FreeThrowView` - Practice throw display
 - `CubeOptionsView` - Show remaining possible cubes
 
 #### 2.4 Create Main Container (`GameView`)
+
 - State management for current view
 - Keyboard event delegation
 - Game state persistence
 - View transitions
 
 ### Phase 3: Integration & Polish
+
 **Goal:** Connect everything and add finishing touches
 
 #### 3.1 Update App.tsx
+
 - Replace hello world with GameView
 - Add game initialization logic
 - Handle new game / load game flows
 
 #### 3.2 Add Error Handling
+
 - Try-catch around game operations
 - User-friendly error messages
 - Recovery options
 
 #### 3.3 Add Game Controls
+
 - New Game button
 - Load/Save game
 - Settings (blocked results, etc.)
 - Clear storage option
 
 #### 3.4 Responsive Design
+
 - Mobile-friendly layout
 - Touch controls for mobile
 - Keyboard shortcuts help
 
 ### Phase 4: Testing & Deployment
+
 **Goal:** Ensure quality and deploy
 
 #### 4.1 Unit Tests
+
 - Test game logic port (cube generation, turn progression)
 - Test storage operations
 - Test timer calculations
 - Component testing with React Testing Library
 
 #### 4.2 Integration Testing
+
 - End-to-end game flow
 - State persistence across reloads
 - Timer accuracy
 - Keyboard controls
 
 #### 4.3 Deployment Setup
+
 - GitHub Pages configuration
 - Build optimization
 - Static asset handling
@@ -208,6 +327,7 @@ const [view, setView] = useState<'normal' | 'pause' | 'freeThrow'>('normal')
 ### Game Logic Porting Strategy
 
 #### Python → TypeScript Mapping
+
 ```typescript
 // Python dataclass
 @dataclass
@@ -215,7 +335,7 @@ class CubesResult:
     yellow_cube: int
     red_cube: int
     predetermined: Optional[bool] = None
-    
+
     @property
     def total(self) -> int:
         return self.yellow_cube + self.red_cube
@@ -244,6 +364,7 @@ export class CubesResult {
 ```
 
 #### Timer Implementation (Client-side)
+
 ```typescript
 export class Timer {
   private startTime: number
@@ -285,6 +406,7 @@ export class Timer {
 ### Component Architecture
 
 #### NormalView Component
+
 ```typescript
 interface NormalViewProps {
   gameState: GameState
@@ -346,6 +468,7 @@ export function NormalView({
 ```
 
 ### Keyboard Handling
+
 ```typescript
 // Custom hook for keyboard events
 export function useKeyboard(onKey: (key: string) => void) {
@@ -394,6 +517,7 @@ export function GameView() {
 ```
 
 ### Text Rendering with Color Tags
+
 ```typescript
 interface ColoredTextProps {
   text: string
@@ -430,6 +554,7 @@ function parseColorTags(text: string): ColorPart[] {
 ## Testing Strategy
 
 ### Unit Tests (Jest + React Testing Library)
+
 ```typescript
 // Test game logic
 describe('GameLogic', () => {
@@ -469,6 +594,7 @@ describe('NormalView', () => {
 ```
 
 ### Integration Tests (Manual)
+
 - Play through complete game
 - Verify state persistence
 - Test all keyboard shortcuts
@@ -478,6 +604,7 @@ describe('NormalView', () => {
 ## Deployment & Distribution
 
 ### GitHub Pages Deployment
+
 ```bash
 # Install gh-pages package
 npm install --save-dev gh-pages
@@ -496,12 +623,14 @@ npm run deploy
 ```
 
 ### Netlify Deployment
+
 - Connect GitHub repo
 - Set build command: `npm run build`
 - Publish directory: `dist`
 - Auto-deploy on push
 
 ### Local Distribution
+
 - Run `npm run build`
 - Zip the `dist/` folder
 - Share as standalone web app
@@ -515,7 +644,7 @@ npm run deploy
 ✅ **Testable** - Unit and integration tests  
 ✅ **Deploy Anywhere** - Static hosting options  
 ✅ **Mobile Friendly** - Responsive design  
-✅ **Maintainable** - Clean component architecture  
+✅ **Maintainable** - Clean component architecture
 
 ## Success Criteria
 
