@@ -1,8 +1,8 @@
 import React from 'react'
 import type { GameState } from '../core'
+import { EventsCubeResult } from '../core'
 import CubeStatistics from './CubeStatistics'
 import EventsStatistics from './EventsStatistics'
-import ColoredText from './ColoredText'
 import Timer from './Timer'
 
 interface NormalViewProps {
@@ -19,46 +19,84 @@ export const NormalView: React.FC<NormalViewProps> = ({
 
   return (
     <div className="normal-view">
-      <div className="columns">
-        <div className="left-column">
-          <CubeStatistics possibleResults={gameState.possibleCubesResults} />
+      <div className="normal-top">
+        <div className="card cube-card">
+          <CubeStatistics
+            className="card-content"
+            possibleResults={gameState.possibleCubesResults}
+          />
         </div>
 
-        <div className="right-column">
+        <div className="card events-card">
           <EventsStatistics
+            className="card-content"
             possibleEvents={gameState.possibleEventsCubeResults}
           />
         </div>
       </div>
 
-      <div className="turn-info">
-        <ColoredText
-          text={`Turn #${gameState.currentTurnNumber}, {bold}${currentPlayer}{/bold} to play!`}
-        />
-        <div className="last-roll">
-          <ColoredText
-            text={`Total: {bold}${lastTurn?.cubes.total ?? 0}{/bold}`}
-          />
-          <ColoredText text={`Pirates track: ${gameState.piratesTrack}`} />
+      <div className="info-bar" role="status" aria-live="polite">
+        <div className="info-item">
+          <div className="info-label">Turn</div>
+          <div className="info-value">#{gameState.currentTurnNumber}</div>
         </div>
 
-        <div className="timers">
+        <div className="info-item">
+          <div className="info-label">Player</div>
+          <div className="info-value">{currentPlayer}</div>
+        </div>
+
+        <div className="info-item">
+          <div className="info-label">Total</div>
+          <div className="info-value">{lastTurn?.cubes.total ?? 0}</div>
+        </div>
+
+        <div className="info-item">
+          <div className="info-label">Red cube</div>
+          <div className="info-value">{lastTurn?.cubes.redCube ?? '-'}</div>
+        </div>
+
+        <div className="info-item">
+          <div className="info-label">Event</div>
+          <div className="info-value">
+            {lastTurn ? EventsCubeResult.getName(lastTurn.eventsCube) : '-'}
+          </div>
+        </div>
+
+        <div className="info-item">
+          <div className="info-label">Pirates</div>
+          <div className="info-value">{gameState.piratesTrack}</div>
+        </div>
+
+        <div className="info-item timer-item">
           <Timer
+            className="small-timer"
+            durationSeconds={gameState.getLastTurnDuration()}
+            label="Turn"
+          />
+        </div>
+
+        <div className="info-item timer-item">
+          <Timer
+            className="small-timer"
             durationSeconds={gameState.calculateTotalGameDuration()}
             label="Game"
           />
-          <Timer
-            durationSeconds={gameState.getLastTurnDuration()}
-            label="Last Turn"
-          />
         </div>
+      </div>
 
-        <div className="instructions">
-          <p>Enter - next turn</p>
-          <p>Space - pause</p>
-          <p>q - quit</p>
-          <button onClick={onPause}>Pause</button>
-        </div>
+      <div className="action-bar">
+        <button className="primary" onClick={onPause}>
+          Pause <span className="kbd">Space</span>
+        </button>
+
+        <button className="secondary" disabled>
+          Next Turn <span className="kbd">Enter</span>
+        </button>
+
+        <button className="secondary">
+          Quit <span className="kbd">q</span>
+        </button>
       </div>
     </div>
   )
