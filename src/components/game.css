@@ -163,10 +163,7 @@ table {
   display: flex;
   gap: 1rem; /* add margins between the cards */
   align-items: stretch;
-  flex: 1;
-  height: calc(
-    100vh - var(--action-bar-height) - 4rem
-  ); /* full viewport height minus action bar and padding */
+  /* flex: 1; */
   background: transparent; /* make parent invisible */
   border: none; /* remove any border */
   padding: 1rem; /* add padding so cards aren't at viewport edges */
@@ -176,7 +173,7 @@ table {
 /* Ensure the cards have equal widths and heights */
 .normal-top > .card {
   flex: 1; /* each card takes equal width, flexbox handles gaps automatically */
-  height: 500px; /* fixed height to ensure all cards are same height */
+  height: auto; /* was 550px, now auto to fit content */
 }
 
 .card {

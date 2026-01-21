@@ -34,18 +34,33 @@ export const CubeStatistics: React.FC<CubeStatisticsProps> = ({
             </tr>
           </thead>
           <tbody>
-            {Object.keys(counts).map(k => {
-              const t = Number(k)
-              const c = counts[t]
-              return (
-                <tr key={k} className={c === 0 ? 'depleted' : ''}>
-                  <td>{t}</td>
-                  <td>{c}</td>
-                  <td>{((c / totalCombos) * 100).toFixed(1)}%</td>
-                </tr>
-              )
-            })}
+            {Object.keys(counts)
+              .filter(k => counts[Number(k)] > 0)
+              .map(k => {
+                const t = Number(k)
+                const c = counts[t]
+                return (
+                  <tr key={k}>
+                    <td>{t}</td>
+                    <td>{c}</td>
+                    <td>{((c / totalCombos) * 100).toFixed(1)}%</td>
+                  </tr>
+                )
+              })}
           </tbody>
+          <tfoot>
+            <tr>
+              <td>
+                <b>total</b>
+              </td>
+              <td>
+                <b>{possibleResults.length}</b>
+              </td>
+              <td>
+                <b>100%</b>
+              </td>
+            </tr>
+          </tfoot>
         </table>
       </div>
     </div>
