@@ -23,14 +23,13 @@ export const CubeStatistics: React.FC<CubeStatisticsProps> = ({
 
   return (
     <div className={className}>
-      <h3 className="card-title">Cube Statistics</h3>
       <div className="table-wrapper">
         <table className="cube-stats">
           <thead>
             <tr>
-              <th>Cubes</th>
-              <th>Times</th>
-              <th>Chance</th>
+              <th className="text-center">Cubes</th>
+              <th className="text-center">Times</th>
+              <th className="text-right">Chance</th>
             </tr>
           </thead>
           <tbody>
@@ -41,22 +40,24 @@ export const CubeStatistics: React.FC<CubeStatisticsProps> = ({
                 const c = counts[t]
                 return (
                   <tr key={k}>
-                    <td>{t}</td>
-                    <td>{c}</td>
-                    <td>{((c / totalCombos) * 100).toFixed(1)}%</td>
+                    <td className="text-center">{t}</td>
+                    <td className="text-center">{c}</td>
+                    <td className="text-right">
+                      {((c / totalCombos) * 100).toFixed(1)}%
+                    </td>
                   </tr>
                 )
               })}
           </tbody>
           <tfoot>
             <tr>
-              <td>
+              <td className="text-center">
                 <b>total</b>
               </td>
-              <td>
+              <td className="text-center">
                 <b>{possibleResults.length}</b>
               </td>
-              <td>
+              <td className="text-right">
                 <b>100%</b>
               </td>
             </tr>

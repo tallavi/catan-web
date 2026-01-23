@@ -35,16 +35,14 @@ export const NormalView: React.FC<NormalViewProps> = ({
         </div>
 
         <div className="card info-card">
-          <h3 className="card-title">Game Info</h3>
           <div className="info-grid">
-            <div className="info-cell">
-              <div className="info-label">Turn</div>
-              <div className="info-value">#{gameState.currentTurnNumber}</div>
-            </div>
-
-            <div className="info-cell">
-              <div className="info-label">Player</div>
-              <div className="info-value">{currentPlayer}</div>
+            <div className="info-cell span-2">
+              <div className="info-label text-center">
+                Turn <b>#{gameState.currentTurnNumber}</b>
+              </div>
+              <div className="info-value current-player">
+                <b>{currentPlayer}</b> to play
+              </div>
             </div>
 
             <div className="info-cell">
@@ -54,23 +52,31 @@ export const NormalView: React.FC<NormalViewProps> = ({
 
             <div className="info-cell">
               <div className="info-label">Red cube</div>
-              <div className="info-value">{lastTurn?.cubes.redCube ?? '-'}</div>
+              <div className="info-value text-red">
+                {lastTurn?.cubes.redCube ?? '-'}
+              </div>
             </div>
 
             <div className="info-cell">
-              <div className="info-label">Event</div>
-              <div className="info-value">
+              <div className="info-label">Events cube</div>
+              <div
+                className={`info-value ${
+                  lastTurn
+                    ? EventsCubeResult.getColorClass(lastTurn.eventsCube)
+                    : ''
+                }`}
+              >
                 {lastTurn ? EventsCubeResult.getName(lastTurn.eventsCube) : '-'}
               </div>
             </div>
 
             <div className="info-cell">
-              <div className="info-label">Pirates</div>
+              <div className="info-label">Pirates track</div>
               <div className="info-value">{gameState.piratesTrack}</div>
             </div>
 
             <div className="info-cell">
-              <div className="info-label">Turn timer</div>
+              <div className="info-label">Turn time</div>
               <Timer
                 className="small-timer"
                 durationSeconds={gameState.getLastTurnDuration()}
@@ -79,7 +85,7 @@ export const NormalView: React.FC<NormalViewProps> = ({
             </div>
 
             <div className="info-cell">
-              <div className="info-label">Game timer</div>
+              <div className="info-label">Game time</div>
               <Timer
                 className="small-timer"
                 durationSeconds={gameState.calculateTotalGameDuration()}

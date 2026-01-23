@@ -59,7 +59,7 @@ export class EventsCubeResult {
       case 6:
         return EventsCubeResult.PIRATES
       default:
-        throw new Error(`Invalid face number: ${n}. Must be 1-6.`)
+        throw new Error(`Invalid face number: \${n}. Must be 1-6.`)
     }
   }
 
@@ -70,6 +70,24 @@ export class EventsCubeResult {
     const entries = Object.entries(this) as [string, number][]
     const entry = entries.find(([, value]) => value === result)
     return entry ? entry[0] : 'UNKNOWN'
+  }
+
+  /**
+   * Get the CSS class for an EventsCubeResult
+   */
+  static getColorClass(result: EventsCubeResult): string {
+    switch (result) {
+      case EventsCubeResult.GREEN:
+        return 'text-green'
+      case EventsCubeResult.BLUE:
+        return 'text-blue'
+      case EventsCubeResult.YELLOW:
+        return 'text-yellow'
+      case EventsCubeResult.PIRATES:
+        return 'text-muted'
+      default:
+        return ''
+    }
   }
 }
 

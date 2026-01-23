@@ -24,26 +24,53 @@ export const EventsStatistics: React.FC<EventsStatisticsProps> = ({
 
   const total = possibleEvents.length || 1
 
+  const eventResultByName: Record<string, EventsCubeResult> = {
+    GREEN: EventsCubeResult.GREEN,
+    BLUE: EventsCubeResult.BLUE,
+    YELLOW: EventsCubeResult.YELLOW,
+    PIRATES: EventsCubeResult.PIRATES,
+  }
+
   return (
     <div className={className}>
-      <h3 className="card-title">Events Statistics</h3>
       <table className="events-stats">
         <thead>
           <tr>
-            <th>Event</th>
-            <th>Times</th>
-            <th>Chance</th>
+            <th className="text-left">Event</th>
+            <th className="text-center">Times</th>
+            <th className="text-right">Chance</th>
           </tr>
         </thead>
         <tbody>
           {Object.keys(counts).map(k => (
             <tr key={k} className={counts[k] === 0 ? 'depleted' : ''}>
-              <td>{k}</td>
-              <td>{counts[k]}</td>
-              <td>{((counts[k] / total) * 100).toFixed(1)}%</td>
+              <td
+                className={`text-left ${EventsCubeResult.getColorClass(
+                  eventResultByName[k]
+                )}`}
+              >
+                {k}
+              </td>
+              <td className="text-center">{counts[k]}</td>
+              <td className="text-right">
+                {((counts[k] / total) * 100).toFixed(1)}%
+              </td>
             </tr>
           ))}
         </tbody>
+        <tfoot>
+          <tr>
+            <td className="text-left">
+              <b>total</b>
+            </td>
+            <td className="text-center">
+              <b>{possibleEvents.length}</b>
+            </td>
+            <td className="text-right">
+              <b>100%</b>
+            </td>
+          </tr>
+        </tfoot>
       </table>
     </div>
   )

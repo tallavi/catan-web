@@ -101,21 +101,20 @@ table {
 }
 .cube-stats th,
 .events-stats th {
-  text-align: left;
   padding: 6px;
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 1.4rem;
 }
 .cube-stats td,
 .events-stats td {
   padding: 6px;
-  color: var(--muted);
-  font-size: 0.95rem;
+  /* color: var(--muted); */
+  font-size: 1.5rem;
 }
-.cube-stats tr.depleted td,
+/* .cube-stats tr.depleted td,
 .events-stats tr.depleted td {
   opacity: 0.45;
-}
+} */
 
 /* color classes from renderer */
 .text-red {
@@ -129,6 +128,9 @@ table {
 }
 .text-blue {
   color: var(--blue);
+}
+.text-muted {
+  color: var(--muted);
 }
 .text-bold {
   color: var(--bold);
@@ -178,7 +180,7 @@ table {
 
 .card {
   background: var(--panel);
-  padding: 1rem;
+  padding: 0.5rem 1rem 0.5rem 1rem;
   border-radius: 10px;
   border: 1px solid #e6eef9;
   box-shadow: 0 6px 16px rgba(16, 24, 40, 0.04);
@@ -192,37 +194,48 @@ table {
   color: var(--muted);
 }
 
+/* .events-card,
+.cubes-card {
+  padding-right: 5rem;
+} */
+
 .card .card-content {
-  margin-top: 0.5rem;
+  padding-right: 1.5rem;
 }
 
 /* Info grid inside the right-most card */
+.info-card {
+  justify-content: top;
+}
+
 .info-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(4, 1fr);
+  /* grid-template-rows: repeat(4, 1fr); */
   column-gap: 2rem;
-  row-gap: 0.5rem;
-  height: 50%; /* keep the grid height as requested */
-  align-content: center; /* center the grid vertically within the card */
+  row-gap: 1rem;
   width: calc(
     100% - 1rem
   ); /* take full width of the right card minus right margin */
+  margin-top: 0.5rem;
   margin-right: 1rem;
-  margin-top: 1.5rem;
+}
+
+.info-grid > .info-cell:first-child {
+  margin-bottom: 0.75rem;
 }
 
 .info-cell {
   background: #f8fafc;
   border: 1px solid #eef2f7;
-  padding: 0.6rem;
+  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: stretch; /* stretch to full cell width */
   color: var(--bold);
-  width: 100%;
+  width: calc(100% - 0rem);
 }
 
 .info-cell.empty {
@@ -255,21 +268,30 @@ table {
 }
 
 .info-label {
+  text-align: center;
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: 1.3rem;
 }
 
 .info-value {
-  color: var(--bold);
+  text-align: center;
+  /* color: var(--bold); */
+  font-size: 1.8rem;
   font-weight: 700;
 }
 
+.current-player {
+  font-weight: 400;
+}
+
 .timer-item .timer-label {
-  font-size: 0.7rem;
+  text-align: center;
+  font-size: 1.8rem;
 }
 
 .small-timer .timer-value {
-  font-size: 0.95rem;
+  text-align: center;
+  font-size: 1.8rem;
 }
 
 .action-bar {
@@ -299,7 +321,7 @@ table {
 .action-bar button.primary {
   background: #ffffff;
   color: var(--muted);
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e2eef0;
   box-shadow: 0 2px 6px rgba(16, 24, 40, 0.04);
 }
 
@@ -341,6 +363,18 @@ table {
   }
 }
 
-.card-title {
+.text-left {
+  text-align: left;
+}
+
+.text-center {
   text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.info-cell.span-2 {
+  grid-column: span 2;
 }
