@@ -1,7 +1,5 @@
 import React from 'react'
 import { GameState, formatTimeDetailed } from '../core'
-import CubeStatistics from './CubeStatistics'
-import EventsStatistics from './EventsStatistics'
 import DurationTable from './DurationTable'
 
 interface PauseViewProps {
@@ -13,9 +11,7 @@ export const PauseView: React.FC<PauseViewProps> = ({
   gameState,
   onResume,
 }) => {
-  const shortestTurns = gameState.getShortestTurns(3)
-  const longestTurns = gameState.getLongestTurns(3)
-  const averageTurnDurations = gameState.getAverageTurnDurations()
+  const stats = gameState.getDurationStats()
 
   return (
     <div className="view">
@@ -24,21 +20,20 @@ export const PauseView: React.FC<PauseViewProps> = ({
       <div className="stats">
         <div className="duration-tables">
           <div className="card">
-            <DurationTable title="Longest Turns" data={longestTurns} />
+            <DurationTable title="Longest Turns" data={stats.longest} />
           </div>
           <div className="card">
-            <DurationTable title="Shortest Turns" data={shortestTurns} />
+            <DurationTable title="Shortest Turns" data={stats.shortest} />
           </div>
           <div className="card">
             <DurationTable
               title="Average Turn Durations"
-              data={averageTurnDurations}
+              data={stats.average}
             />
           </div>
         </div>
         <div className="game-duration">
-          Game duration:{' '}
-          {formatTimeDetailed(gameState.calculateTotalGameDuration())}
+          Game duration: {formatTimeDetailed(stats.gameDuration)}
         </div>
       </div>
 

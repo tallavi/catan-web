@@ -7,6 +7,7 @@ interface DurationStatsProps {
   className?: string
 }
 
+//TODO: this file is unsued, consider removing it
 export const DurationStatsView: React.FC<DurationStatsProps> = ({
   stats,
   className,
@@ -17,7 +18,6 @@ export const DurationStatsView: React.FC<DurationStatsProps> = ({
     <div className={className}>
       <h3>Duration Statistics</h3>
       <div>Total game duration: {formatTimeDetailed(stats.gameDuration)}</div>
-      <div>Current turn: {formatTimeDetailed(stats.currentTurnDuration)}</div>
 
       <div className="duration-lists">
         <div>

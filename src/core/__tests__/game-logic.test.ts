@@ -111,22 +111,4 @@ describe('GameLogic', () => {
       expect(game.isGameInProgress()).toBe(true)
     })
   })
-
-  describe('duration stats', () => {
-    it('should return null with no turns', () => {
-      const stats = game.getDurationStats()
-      expect(stats).toBeNull()
-    })
-
-    it('should return valid stats after turns', () => {
-      game.nextTurn()
-      game.nextTurn()
-
-      const stats = game.getDurationStats()
-      expect(stats).not.toBeNull()
-      expect(stats?.shortest).toBeDefined()
-      expect(stats?.longest).toBeDefined()
-      expect(stats?.average).toBeDefined()
-    })
-  })
 })

@@ -1,10 +1,11 @@
 /**
  * Game state management for the Catan game
  */
-import type { Duration, GameSaveData, GameTurn } from './index'
+import type { Duration, DurationStats, GameSaveData, GameTurn } from './index'
 import { CubesResult, EventsCubeResult } from './index'
 
 export class GameState {
+  //TODO: consider having the memebers be private, but then we'll need more getters. Perhaps a getter for "normal view data" and "pause view data"
   gameSaveData: GameSaveData | null = null
   possibleCubesResults: CubesResult[] = []
   possibleEventsCubeResults: EventsCubeResult[] = []
@@ -12,15 +13,20 @@ export class GameState {
   currentTurnNumber: number = 0
   piratesTrack: number = 1
 
-  constructor() {
+  constructor(saveData: GameSaveData | null = null) {
+    this.gameSaveData = saveData
     // Initialize with default values
+    this.initPossibleCubesResults()
+    this.initPossibleEventsCubeResults()
+
+    this.replayTurns()
   }
 
   /**
    * Initialize the pool of possible cube results (36 combinations)
    * Filters out blocked results
    */
-  initPossibleCubesResults(): void {
+  private initPossibleCubesResults(): void {
     this.possibleCubesResults = []
 
     for (let yellowCube = 1; yellowCube <= 6; yellowCube++) {
@@ -41,7 +47,7 @@ export class GameState {
    * Initialize the pool of possible events cube results
    * 18 PIRATES, 6 GREEN, 6 BLUE, 6 YELLOW (total 36)
    */
-  initPossibleEventsCubeResults(): void {
+  private initPossibleEventsCubeResults(): void {
     this.possibleEventsCubeResults = []
 
     // 6 groups of events
@@ -162,7 +168,7 @@ export class GameState {
   /**
    * Replay all saved turns to restore game state
    */
-  replayTurns(): void {
+  private replayTurns(): void {
     if (!this.gameSaveData) return
 
     for (const gameTurn of this.gameSaveData.gameTurns) {
@@ -197,43 +203,41 @@ export class GameState {
   }
 
   /**
-   * Get the shortest turns
+   * Get various duration statistics for the game.
    */
-  getShortestTurns(count: number): Duration[] {
-    if (!this.gameSaveData) return []
+  getDurationStats(): DurationStats {
+    if (!this.gameSaveData) {
+      return {
+        shortest: [],
+        longest: [],
+        average: [],
+        gameDuration: 0,
+      }
+    }
 
     const turns = [...this.gameSaveData.gameTurns]
-    turns.sort((a, b) => a.turnDuration - b.turnDuration)
+    const count = this.gameSaveData.players.length
 
-    return turns.slice(0, count).map(turn => ({
+    // Shortest turns
+    const sortedByShortest = [...turns].sort(
+      (a, b) => a.turnDuration - b.turnDuration
+    )
+    const shortest = sortedByShortest.slice(0, count).map(turn => ({
       playerName: this.gameSaveData!.players[turn.playerIndex],
       duration: turn.turnDuration,
     }))
-  }
 
-  /**
-   * Get the longest turns
-   */
-  getLongestTurns(count: number): Duration[] {
-    if (!this.gameSaveData) return []
-
-    const turns = [...this.gameSaveData.gameTurns]
-    turns.sort((a, b) => b.turnDuration - a.turnDuration)
-
-    return turns.slice(0, count).map(turn => ({
+    // Longest turns
+    const sortedByLongest = [...turns].sort(
+      (a, b) => b.turnDuration - a.turnDuration
+    )
+    const longest = sortedByLongest.slice(0, count).map(turn => ({
       playerName: this.gameSaveData!.players[turn.playerIndex],
       duration: turn.turnDuration,
     }))
-  }
 
-  /**
-   * Get the average turn duration for each player
-   */
-  getAverageTurnDurations(): Duration[] {
-    if (!this.gameSaveData) return []
-
+    // Average turn durations
     const playerDurations: { [playerName: string]: number[] } = {}
-
     for (const turn of this.gameSaveData.gameTurns) {
       const playerName = this.gameSaveData!.players[turn.playerIndex]
       if (!playerDurations[playerName]) {
@@ -242,17 +246,22 @@ export class GameState {
       playerDurations[playerName].push(turn.turnDuration)
     }
 
-    const averageDurations: Duration[] = []
+    const average: Duration[] = []
     for (const playerName in playerDurations) {
       const durations = playerDurations[playerName]
       const totalDuration = durations.reduce(
         (sum, duration) => sum + duration,
         0
       )
-      const average = totalDuration / durations.length
-      averageDurations.push({ playerName, duration: average })
+      const avg = totalDuration / durations.length
+      average.push({ playerName, duration: avg })
     }
 
-    return averageDurations
+    return {
+      shortest,
+      longest,
+      average,
+      gameDuration: this.calculateTotalGameDuration(),
+    }
   }
 }

@@ -61,12 +61,6 @@ export const mockGameSaveData: GameSaveData = {
 }
 
 // Create and initialize a GameState instance seeded with the mock data
-export const mockGameState = new GameState()
-mockGameState.gameSaveData = mockGameSaveData
-mockGameState.initPossibleCubesResults()
-mockGameState.initPossibleEventsCubeResults()
-
-// Replay saved turns so the gameState pools and trackers reflect the recorded history
-mockGameState.replayTurns()
+export const mockGameState = new GameState(mockGameSaveData)
 
 export default mockGameState

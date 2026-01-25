@@ -16,7 +16,6 @@ export interface Duration {
  */
 export interface DurationStats {
   gameDuration: number
-  currentTurnDuration: number
   shortest: Duration[]
   longest: Duration[]
   average: Duration[]
