@@ -33,7 +33,7 @@ export const EventsStatistics: React.FC<EventsStatisticsProps> = ({
 
   return (
     <div className={className}>
-      <table className="events-stats">
+      <table className="table">
         <thead>
           <tr>
             <th className="text-left">Event</th>

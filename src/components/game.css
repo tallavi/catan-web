@@ -43,8 +43,8 @@
   border: none;
 }
 
-/* Layout for NormalView to keep info/action bars visible at bottom */
-.normal-view {
+/* Layout for views to keep info/action bars visible at bottom */
+.view {
   display: flex;
   flex-direction: column;
   min-height: calc(100vh - 2rem);
@@ -56,7 +56,7 @@
   width: 100vw; /* full viewport width */
 }
 
-.normal-view .columns {
+.view .columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
@@ -88,7 +88,6 @@
   font-weight: 700;
 }
 
-.table,
 table {
   width: 100%;
   border-collapse: collapse;
@@ -99,14 +98,12 @@ table {
   overflow: auto; /* only table scrolls if it's too tall */
   flex: 1 1 auto;
 }
-.cube-stats th,
-.events-stats th {
+.table th {
   padding: 6px;
   color: var(--muted);
   font-size: 1.4rem;
 }
-.cube-stats td,
-.events-stats td {
+.table td {
   padding: 6px;
   /* color: var(--muted); */
   font-size: 1.5rem;
@@ -137,27 +134,20 @@ table {
   font-weight: 700;
 }
 
-.pause-view {
-  text-align: center;
-  color: var(--muted);
-}
-.pause-view h2 {
+.view-title {
   color: var(--accent);
-  margin-bottom: 0.75rem;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
 }
 
-.menu {
-  margin-top: 1rem;
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-}
-.menu button {
-  padding: 0.5rem 0.8rem;
-  border-radius: 6px;
-  background: #1f2937;
+.table-title {
   color: var(--muted);
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
 }
 
 /* New: web-like card layout for NormalView */
@@ -187,11 +177,6 @@ table {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-}
-
-.card h3 {
-  margin-top: 0;
-  color: var(--muted);
 }
 
 /* .events-card,
@@ -351,13 +336,14 @@ table {
     height: auto;
   }
 
+  .duration-tables {
+    flex-direction: column;
+  }
+
   .info-item {
     min-width: 60px;
   }
-}
 
-/* responsive */
-@media (max-width: 800px) {
   .normal-view .columns {
     grid-template-columns: 1fr;
   }
@@ -377,4 +363,60 @@ table {
 
 .info-cell.span-2 {
   grid-column: span 2;
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.duration-tables {
+  display: flex;
+  width: 100%;
+  margin-bottom: 2em;
+  gap: 1rem;
+}
+
+.duration-tables .card {
+  flex: 1;
+}
+
+.pool-stats {
+  display: flex;
+  width: 100%;
+  gap: 1rem;
+}
+
+.pool-stats .card {
+  flex: 1;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 0.5em;
+  text-align: left;
+}
+
+tbody tr {
+  border-top: 1px solid #ddd;
+}
+
+tbody tr:first-child {
+  border-top: 3px solid #ddd;
+}
+
+tfoot tr {
+  border-top: 2px solid var(--muted);
+}
+
+.game-duration {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 1.3rem;
 }

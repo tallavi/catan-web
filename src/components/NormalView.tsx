@@ -18,7 +18,7 @@ export const NormalView: React.FC<NormalViewProps> = ({
   const currentPlayer = gameState.getCurrentPlayerName() || 'Unknown'
 
   return (
-    <div className="normal-view">
+    <div className="view">
       <div className="normal-top">
         <div className="card cube-card">
           <CubeStatistics

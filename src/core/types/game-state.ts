@@ -1,7 +1,7 @@
 /**
  * Game state management for the Catan game
  */
-import type { GameSaveData, GameTurn } from './index'
+import type { Duration, GameSaveData, GameTurn } from './index'
 import { CubesResult, EventsCubeResult } from './index'
 
 export class GameState {
@@ -194,5 +194,65 @@ export class GameState {
     if (turns.length === 0) return null
 
     return turns[turns.length - 1]
+  }
+
+  /**
+   * Get the shortest turns
+   */
+  getShortestTurns(count: number): Duration[] {
+    if (!this.gameSaveData) return []
+
+    const turns = [...this.gameSaveData.gameTurns]
+    turns.sort((a, b) => a.turnDuration - b.turnDuration)
+
+    return turns.slice(0, count).map(turn => ({
+      playerName: this.gameSaveData!.players[turn.playerIndex],
+      duration: turn.turnDuration,
+    }))
+  }
+
+  /**
+   * Get the longest turns
+   */
+  getLongestTurns(count: number): Duration[] {
+    if (!this.gameSaveData) return []
+
+    const turns = [...this.gameSaveData.gameTurns]
+    turns.sort((a, b) => b.turnDuration - a.turnDuration)
+
+    return turns.slice(0, count).map(turn => ({
+      playerName: this.gameSaveData!.players[turn.playerIndex],
+      duration: turn.turnDuration,
+    }))
+  }
+
+  /**
+   * Get the average turn duration for each player
+   */
+  getAverageTurnDurations(): Duration[] {
+    if (!this.gameSaveData) return []
+
+    const playerDurations: { [playerName: string]: number[] } = {}
+
+    for (const turn of this.gameSaveData.gameTurns) {
+      const playerName = this.gameSaveData!.players[turn.playerIndex]
+      if (!playerDurations[playerName]) {
+        playerDurations[playerName] = []
+      }
+      playerDurations[playerName].push(turn.turnDuration)
+    }
+
+    const averageDurations: Duration[] = []
+    for (const playerName in playerDurations) {
+      const durations = playerDurations[playerName]
+      const totalDuration = durations.reduce(
+        (sum, duration) => sum + duration,
+        0
+      )
+      const average = totalDuration / durations.length
+      averageDurations.push({ playerName, duration: average })
+    }
+
+    return averageDurations
   }
 }

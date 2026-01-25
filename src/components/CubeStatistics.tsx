@@ -24,7 +24,7 @@ export const CubeStatistics: React.FC<CubeStatisticsProps> = ({
   return (
     <div className={className}>
       <div className="table-wrapper">
-        <table className="cube-stats">
+        <table className="table">
           <thead>
             <tr>
               <th className="text-center">Cubes</th>

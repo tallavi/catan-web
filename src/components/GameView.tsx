@@ -5,7 +5,7 @@ import NormalView from './NormalView'
 import PauseView from './PauseView'
 
 export const GameView: React.FC = () => {
-  const [view, setView] = useState<'normal' | 'pause'>('normal')
+  const [view, setView] = useState<'normal' | 'pause'>('pause')
 
   // Toggle between normal and pause when Space is pressed
   useEffect(() => {
