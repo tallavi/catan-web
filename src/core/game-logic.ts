@@ -54,7 +54,7 @@ export class GameLogic {
     const totalGameDuration = this.gameState.calculateTotalGameDuration()
     this.gameTimer = new Timer(totalGameDuration)
 
-    const lastTurnDuration = this.gameState.getLastTurnDuration()
+    const lastTurnDuration = this.gameState.getLastTurn().turnDuration
     this.turnTimer = new Timer(lastTurnDuration)
   }
 

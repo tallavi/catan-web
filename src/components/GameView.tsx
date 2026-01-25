@@ -18,7 +18,7 @@ if (USE_MOCK_DATA) {
 }
 
 export const GameView: React.FC = () => {
-  const [view, setView] = useState<'normal' | 'pause'>('pause')
+  const [view, setView] = useState<'normal' | 'pause'>('normal')
 
   // Toggle between normal and pause when Space is pressed
   useEffect(() => {

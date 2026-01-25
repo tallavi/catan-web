@@ -48,13 +48,13 @@ export const NormalView: React.FC<NormalViewProps> = ({
 
             <div className="info-cell">
               <div className="info-label">Total</div>
-              <div className="info-value">{lastTurn?.cubes.total ?? 0}</div>
+              <div className="info-value">{lastTurn.cubes.total}</div>
             </div>
 
             <div className="info-cell">
               <div className="info-label">Red cube</div>
               <div className="info-value text-red">
-                {lastTurn?.cubes.redCube ?? '-'}
+                {lastTurn.cubes.redCube}
               </div>
             </div>
 
@@ -80,7 +80,7 @@ export const NormalView: React.FC<NormalViewProps> = ({
               <div className="info-label">Turn time</div>
               <Timer
                 className="small-timer"
-                durationSeconds={gameState.getLastTurnDuration()}
+                durationSeconds={lastTurn.turnDuration}
                 label=""
               />
             </div>

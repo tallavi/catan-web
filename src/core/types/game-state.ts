@@ -6,22 +6,20 @@ import { CubesResult, EventsCubeResult } from './index'
 
 export class GameState {
   //TODO: consider having the memebers be private, but then we'll need more getters. Perhaps a getter for "normal view data" and "pause view data"
-  gameSaveData: GameSaveData | null = null
+  gameSaveData: GameSaveData
   possibleCubesResults: CubesResult[] = []
   possibleEventsCubeResults: EventsCubeResult[] = []
   currentPlayerIndex: number = -1
   currentTurnNumber: number = 0
   piratesTrack: number = 1
-  // durationStats: DurationStats
 
-  constructor(saveData: GameSaveData | null = null) {
+  constructor(saveData: GameSaveData) {
     this.gameSaveData = saveData
     // Initialize with default values
     this.initPossibleCubesResults()
     this.initPossibleEventsCubeResults()
 
     this.replayTurns()
-    // this.durationStats = new DurationStats()
   }
 
   /**
@@ -76,18 +74,6 @@ export class GameState {
       total += turn.turnDuration
     }
     return total
-  }
-
-  /**
-   * Get the duration of the last turn (or 0 if no turns)
-   */
-  getLastTurnDuration(): number {
-    if (!this.gameSaveData) return 0
-
-    const turns = this.gameSaveData.gameTurns
-    if (turns.length === 0) return 0
-
-    return turns[turns.length - 1].turnDuration
   }
 
   /**
@@ -195,11 +181,9 @@ export class GameState {
   /**
    * Get the last turn (most recent)
    */
-  getLastTurn(): GameTurn | null {
-    if (!this.gameSaveData) return null
-
+  getLastTurn(): GameTurn {
+    //TODO: make sure this is not called when there are no turns. If there are no turns we should not be in normal view, we should be in StartGameView.
     const turns = this.gameSaveData.gameTurns
-    if (turns.length === 0) return null
 
     return turns[turns.length - 1]
   }
