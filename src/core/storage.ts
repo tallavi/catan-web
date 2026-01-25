@@ -83,12 +83,19 @@ export class GameStorage {
    * Create a new game save file with specified players and blocked results
    * @param players - List of player names
    * @param blockedResults - Optional list of blocked cube totals (2-12)
+   * @param initialData - Optional initial game data to use instead of creating a new game
    * @returns The created GameSaveData object
    */
-  static createNewGame(
+  createNewGame(
     players: string[],
-    blockedResults: number[] = []
+    blockedResults: number[] = [],
+    initialData: GameSaveData | null = null
   ): GameSaveData {
+    if (initialData) {
+      this.save(initialData)
+      return initialData
+    }
+
     if (players.length === 0) {
       throw new Error('At least one player is required')
     }
@@ -102,11 +109,13 @@ export class GameStorage {
       }
     }
 
-    return {
+    const newGame: GameSaveData = {
       players,
       blockedResults,
       gameTurns: [],
     }
+    this.save(newGame)
+    return newGame
   }
 
   /**

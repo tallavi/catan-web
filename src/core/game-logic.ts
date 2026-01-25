@@ -3,7 +3,12 @@
  * Ported from Python version in catan-cli/logic/game_logic.py
  */
 
-import type { GameTurn } from './types/index'
+import type {
+  Duration,
+  DurationStats,
+  GameSaveData,
+  GameTurn,
+} from './types/index'
 import { CubesResult, EventsCubeResult } from './types/index'
 import { GameState } from './types/game-state'
 import { GameStorage } from './storage'
@@ -26,11 +31,15 @@ export class GameLogic {
   /**
    * Initialize the game logic
    * @param storageKey - LocalStorage key for saving/loading (defaults to 'catan-game-save')
+   * @param initialData - Optional initial game data to use instead of loading from storage
    */
-  constructor(storageKey: string = 'catan-game-save') {
+  constructor(
+    storageKey: string = 'catan-game-save',
+    initialData: GameSaveData | null = null
+  ) {
     this.storage = new GameStorage(storageKey) //TODO: should I use multiple storage keys, one for initial game data and finished turns (changed just when the turn advances) vs current turn data that is saved again and again every 10 seconds? Or it doesn't matter?
 
-    const saveData = this.storage.load()
+    const saveData = initialData ?? this.storage.load()
 
     if (saveData === null) {
       throw new Error(
@@ -234,5 +243,63 @@ export class GameLogic {
    */
   getLastTurn(): GameTurn | null {
     return this.gameState.getLastTurn()
+  }
+
+  /**
+   * Get various duration statistics for the game.
+   */
+  getDurationStats(): DurationStats | null {
+    if (!this.gameState.gameSaveData) {
+      return null
+    }
+
+    const turns = [...this.gameState.gameSaveData.gameTurns]
+    const count = this.gameState.gameSaveData.players.length
+
+    // Shortest turns
+    const sortedByShortest = [...turns].sort(
+      (a, b) => a.turnDuration - b.turnDuration
+    )
+    const shortest = sortedByShortest.slice(0, count).map(turn => ({
+      playerName: this.gameState.gameSaveData!.players[turn.playerIndex],
+      duration: turn.turnDuration,
+    }))
+
+    // Longest turns
+    const sortedByLongest = [...turns].sort(
+      (a, b) => b.turnDuration - a.turnDuration
+    )
+    const longest = sortedByLongest.slice(0, count).map(turn => ({
+      playerName: this.gameState.gameSaveData!.players[turn.playerIndex],
+      duration: turn.turnDuration,
+    }))
+
+    // Average turn durations
+    const playerDurations: { [playerName: string]: number[] } = {}
+    for (const turn of this.gameState.gameSaveData.gameTurns) {
+      const playerName = this.gameState.gameSaveData!.players[turn.playerIndex]
+      if (!playerDurations[playerName]) {
+        playerDurations[playerName] = []
+      }
+      playerDurations[playerName].push(turn.turnDuration)
+    }
+
+    const average: Duration[] = []
+    for (const playerName in playerDurations) {
+      const durations = playerDurations[playerName]
+      const totalDuration = durations.reduce(
+        (sum, duration) => sum + duration,
+        0
+      )
+      const avg = totalDuration / durations.length
+      average.push({ playerName, duration: avg })
+    }
+
+    return {
+      shortest,
+      longest,
+      average,
+      gameDuration: this.gameState.calculateTotalGameDuration(),
+    }
   }
 }

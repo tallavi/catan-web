@@ -1,17 +1,21 @@
 import React from 'react'
-import { GameState, formatTimeDetailed } from '../core'
+import { GameLogic, formatTimeDetailed } from '../core'
 import DurationTable from './DurationTable'
 
 interface PauseViewProps {
-  gameState: GameState
+  gameLogic: GameLogic
   onResume: () => void
 }
 
 export const PauseView: React.FC<PauseViewProps> = ({
-  gameState,
+  gameLogic,
   onResume,
 }) => {
-  const stats = gameState.getDurationStats()
+  const stats = gameLogic.getDurationStats()
+
+  if (!stats) {
+    throw new Error('PauseView rendered with no stats')
+  }
 
   return (
     <div className="view">

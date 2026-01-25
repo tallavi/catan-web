@@ -23,13 +23,13 @@ describe('GameStorage', () => {
     })
 
     it('should return true after saving data', () => {
-      const saveData = GameStorage.createNewGame(['Alice', 'Bob'])
+      const saveData = storage.createNewGame(['Alice', 'Bob'])
       storage.save(saveData)
       expect(storage.exists()).toBe(true)
     })
 
     it('should return false after clearing', () => {
-      const saveData = GameStorage.createNewGame(['Alice', 'Bob'])
+      const saveData = storage.createNewGame(['Alice', 'Bob'])
       storage.save(saveData)
       storage.clear()
       expect(storage.exists()).toBe(false)
@@ -38,33 +38,33 @@ describe('GameStorage', () => {
 
   describe('createNewGame', () => {
     it('should create game with players', () => {
-      const saveData = GameStorage.createNewGame(['Alice', 'Bob', 'Charlie'])
+      const saveData = storage.createNewGame(['Alice', 'Bob', 'Charlie'])
       expect(saveData.players).toEqual(['Alice', 'Bob', 'Charlie'])
       expect(saveData.blockedResults).toEqual([])
       expect(saveData.gameTurns).toEqual([])
     })
 
     it('should create game with blocked results', () => {
-      const saveData = GameStorage.createNewGame(['Player1'], [2, 12])
+      const saveData = storage.createNewGame(['Player1'], [2, 12])
       expect(saveData.blockedResults).toEqual([2, 12])
     })
 
     it('should throw error with empty players array', () => {
-      expect(() => GameStorage.createNewGame([])).toThrow()
+      expect(() => storage.createNewGame([])).toThrow()
     })
 
     it('should throw error with blocked result below 2', () => {
-      expect(() => GameStorage.createNewGame(['Alice'], [1])).toThrow()
+      expect(() => storage.createNewGame(['Alice'], [1])).toThrow()
     })
 
     it('should throw error with blocked result above 12', () => {
-      expect(() => GameStorage.createNewGame(['Alice'], [13])).toThrow()
+      expect(() => storage.createNewGame(['Alice'], [13])).toThrow()
     })
   })
 
   describe('save and load', () => {
     it('should save and load data correctly', () => {
-      const saveData = GameStorage.createNewGame(['Alice', 'Bob'])
+      const saveData = storage.createNewGame(['Alice', 'Bob'])
       storage.save(saveData)
 
       const loaded = storage.load()
@@ -78,7 +78,7 @@ describe('GameStorage', () => {
     })
 
     it('should preserve blocked results in save/load cycle', () => {
-      const saveData = GameStorage.createNewGame(['Alice'], [2, 7, 12])
+      const saveData = storage.createNewGame(['Alice'], [2, 7, 12])
       storage.save(saveData)
 
       const loaded = storage.load()
@@ -86,7 +86,7 @@ describe('GameStorage', () => {
     })
 
     it('should preserve game turns in save/load cycle', () => {
-      const saveData = GameStorage.createNewGame(['Alice', 'Bob'])
+      const saveData = storage.createNewGame(['Alice', 'Bob'])
 
       // Add a turn
       saveData.gameTurns.push({
@@ -108,7 +108,7 @@ describe('GameStorage', () => {
     })
 
     it('should preserve predetermined flag in CubesResult', () => {
-      const saveData = GameStorage.createNewGame(['Alice'])
+      const saveData = storage.createNewGame(['Alice'])
 
       saveData.gameTurns.push({
         turnNumber: 1,
@@ -127,7 +127,7 @@ describe('GameStorage', () => {
 
   describe('clear', () => {
     it('should remove saved data', () => {
-      const saveData = GameStorage.createNewGame(['Alice'])
+      const saveData = storage.createNewGame(['Alice'])
       storage.save(saveData)
 
       expect(storage.exists()).toBe(true)

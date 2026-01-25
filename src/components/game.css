@@ -138,14 +138,14 @@ table {
   color: var(--accent);
   text-align: center;
   font-size: 1.5rem;
-  font-weight: bold;
+  font-weight: 600;
   margin-bottom: 1rem;
 }
 
 .table-title {
   color: var(--muted);
   text-align: center;
-  font-weight: bold;
+  font-weight: 450;
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
 }
@@ -369,6 +369,7 @@ table {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 1rem;
 }
 
 .duration-tables {

@@ -1,7 +1,7 @@
 /**
  * Game state management for the Catan game
  */
-import type { Duration, DurationStats, GameSaveData, GameTurn } from './index'
+import type { GameSaveData, GameTurn } from './index'
 import { CubesResult, EventsCubeResult } from './index'
 
 export class GameState {
@@ -12,6 +12,7 @@ export class GameState {
   currentPlayerIndex: number = -1
   currentTurnNumber: number = 0
   piratesTrack: number = 1
+  // durationStats: DurationStats
 
   constructor(saveData: GameSaveData | null = null) {
     this.gameSaveData = saveData
@@ -20,6 +21,7 @@ export class GameState {
     this.initPossibleEventsCubeResults()
 
     this.replayTurns()
+    // this.durationStats = new DurationStats()
   }
 
   /**
@@ -200,68 +202,5 @@ export class GameState {
     if (turns.length === 0) return null
 
     return turns[turns.length - 1]
-  }
-
-  /**
-   * Get various duration statistics for the game.
-   */
-  getDurationStats(): DurationStats {
-    if (!this.gameSaveData) {
-      return {
-        shortest: [],
-        longest: [],
-        average: [],
-        gameDuration: 0,
-      }
-    }
-
-    const turns = [...this.gameSaveData.gameTurns]
-    const count = this.gameSaveData.players.length
-
-    // Shortest turns
-    const sortedByShortest = [...turns].sort(
-      (a, b) => a.turnDuration - b.turnDuration
-    )
-    const shortest = sortedByShortest.slice(0, count).map(turn => ({
-      playerName: this.gameSaveData!.players[turn.playerIndex],
-      duration: turn.turnDuration,
-    }))
-
-    // Longest turns
-    const sortedByLongest = [...turns].sort(
-      (a, b) => b.turnDuration - a.turnDuration
-    )
-    const longest = sortedByLongest.slice(0, count).map(turn => ({
-      playerName: this.gameSaveData!.players[turn.playerIndex],
-      duration: turn.turnDuration,
-    }))
-
-    // Average turn durations
-    const playerDurations: { [playerName: string]: number[] } = {}
-    for (const turn of this.gameSaveData.gameTurns) {
-      const playerName = this.gameSaveData!.players[turn.playerIndex]
-      if (!playerDurations[playerName]) {
-        playerDurations[playerName] = []
-      }
-      playerDurations[playerName].push(turn.turnDuration)
-    }
-
-    const average: Duration[] = []
-    for (const playerName in playerDurations) {
-      const durations = playerDurations[playerName]
-      const totalDuration = durations.reduce(
-        (sum, duration) => sum + duration,
-        0
-      )
-      const avg = totalDuration / durations.length
-      average.push({ playerName, duration: avg })
-    }
-
-    return {
-      shortest,
-      longest,
-      average,
-      gameDuration: this.calculateTotalGameDuration(),
-    }
   }
 }

@@ -1,19 +1,20 @@
 import React from 'react'
-import type { GameState } from '../core'
+import type { GameLogic } from '../core'
 import { EventsCubeResult } from '../core'
 import CubeStatistics from './CubeStatistics'
 import EventsStatistics from './EventsStatistics'
 import Timer from './Timer'
 
 interface NormalViewProps {
-  gameState: GameState
+  gameLogic: GameLogic
   onPause: () => void
 }
 
 export const NormalView: React.FC<NormalViewProps> = ({
-  gameState,
+  gameLogic,
   onPause,
 }) => {
+  const gameState = gameLogic.state
   const lastTurn = gameState.getLastTurn()
   const currentPlayer = gameState.getCurrentPlayerName() || 'Unknown'
 
