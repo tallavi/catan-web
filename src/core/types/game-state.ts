@@ -12,14 +12,22 @@ export class GameState {
   currentPlayerIndex: number = -1
   currentTurnNumber: number = 0
   piratesTrack: number = 1
+  totalTimeOfFinishedTurns: number = 0
 
   constructor(saveData: GameSaveData) {
+    // Create a new GameSaveData object, copying players and blockedResults,
+    // but initializing gameTurns as an empty array.
+
+    const gameTurns = saveData.gameTurns //TODO: this is a bit icky. We get the basic data on the game plus the turns in a single object and we separate it. The basic data is saved in a member without the turns, and the turns are passed into replayTurns so that they will be added back one by one into the same member.
+    saveData.gameTurns = []
     this.gameSaveData = saveData
+
     // Initialize with default values
     this.initPossibleCubesResults()
     this.initPossibleEventsCubeResults()
 
-    this.replayTurns()
+    // Replay turns from the original saveData to populate the new gameTurns array
+    this.replayTurns(gameTurns)
   }
 
   /**
@@ -66,14 +74,12 @@ export class GameState {
   /**
    * Calculate total game duration from all turns
    */
-  calculateTotalGameDuration(): number {
+  getGameDuration(): number {
     if (!this.gameSaveData) return 0
 
-    let total = 0
-    for (const turn of this.gameSaveData.gameTurns) {
-      total += turn.turnDuration
-    }
-    return total
+    const currentTurn = this.getCurrentTurn()
+    const currentTurnDuration = currentTurn ? currentTurn.turnDuration : 0
+    return this.totalTimeOfFinishedTurns + currentTurnDuration
   }
 
   /**
@@ -83,6 +89,13 @@ export class GameState {
   playTurn(gameTurn: GameTurn): void {
     if (!this.gameSaveData) {
       throw new Error('No game save data')
+    }
+
+    // Add the duration of the previous turn (if it exists) to the total
+    if (this.gameSaveData.gameTurns.length > 0) {
+      const previousTurn =
+        this.gameSaveData.gameTurns[this.gameSaveData.gameTurns.length - 1]
+      this.totalTimeOfFinishedTurns += previousTurn.turnDuration
     }
 
     // Validate turn number
@@ -151,15 +164,18 @@ export class GameState {
     if (this.possibleEventsCubeResults.length === 0) {
       this.initPossibleEventsCubeResults()
     }
+
+    // Add the turn to the history
+    this.gameSaveData.gameTurns.push(gameTurn)
   }
 
   /**
    * Replay all saved turns to restore game state
    */
-  private replayTurns(): void {
+  private replayTurns(turnsToReplay: GameTurn[]): void {
     if (!this.gameSaveData) return
 
-    for (const gameTurn of this.gameSaveData.gameTurns) {
+    for (const gameTurn of turnsToReplay) {
       this.currentPlayerIndex =
         (this.currentPlayerIndex + 1) % this.gameSaveData.players.length
       this.currentTurnNumber += 1
@@ -179,9 +195,9 @@ export class GameState {
   }
 
   /**
-   * Get the last turn (most recent)
+   * Get the current turn (which is the last one in the list)
    */
-  getLastTurn(): GameTurn {
+  getCurrentTurn(): GameTurn {
     //TODO: make sure this is not called when there are no turns. If there are no turns we should not be in normal view, we should be in StartGameView.
     const turns = this.gameSaveData.gameTurns
 

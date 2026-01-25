@@ -51,10 +51,9 @@ export class GameLogic {
 
     //TODO: not sure why two timers are needed, can't we
     // Initialize timers
-    const totalGameDuration = this.gameState.calculateTotalGameDuration()
-    this.gameTimer = new Timer(totalGameDuration)
+    this.gameTimer = new Timer(this.gameState.getGameDuration())
 
-    const lastTurnDuration = this.gameState.getLastTurn().turnDuration
+    const lastTurnDuration = this.gameState.getCurrentTurn()?.turnDuration ?? 0
     this.turnTimer = new Timer(lastTurnDuration)
   }
 
@@ -135,7 +134,6 @@ export class GameLogic {
 
     // Play the turn and add to history
     this.gameState.playTurn(gameTurn)
-    this.gameState.gameSaveData.gameTurns.push(gameTurn)
 
     // Reset turn timer for new turn
     this.turnTimer.reset()
@@ -232,20 +230,6 @@ export class GameLogic {
   }
 
   /**
-   * Get the current player's name
-   */
-  getCurrentPlayerName(): string {
-    return this.gameState.getCurrentPlayerName()
-  }
-
-  /**
-   * Get the last turn (most recent)
-   */
-  getLastTurn(): GameTurn | null {
-    return this.gameState.getLastTurn()
-  }
-
-  /**
    * Get various duration statistics for the game.
    */
   getDurationStats(): DurationStats | null {
@@ -299,7 +283,7 @@ export class GameLogic {
       shortest,
       longest,
       average,
-      gameDuration: this.gameState.calculateTotalGameDuration(),
+      gameDuration: this.gameState.getGameDuration(),
     }
   }
 }

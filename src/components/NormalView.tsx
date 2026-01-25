@@ -15,7 +15,7 @@ export const NormalView: React.FC<NormalViewProps> = ({
   onPause,
 }) => {
   const gameState = gameLogic.state
-  const lastTurn = gameState.getLastTurn()
+  const currentTurn = gameLogic.state.getCurrentTurn()
   const currentPlayer = gameState.getCurrentPlayerName() || 'Unknown'
 
   return (
@@ -48,13 +48,13 @@ export const NormalView: React.FC<NormalViewProps> = ({
 
             <div className="info-cell">
               <div className="info-label">Total</div>
-              <div className="info-value">{lastTurn.cubes.total}</div>
+              <div className="info-value">{currentTurn.cubes.total}</div>
             </div>
 
             <div className="info-cell">
               <div className="info-label">Red cube</div>
               <div className="info-value text-red">
-                {lastTurn.cubes.redCube}
+                {currentTurn.cubes.redCube}
               </div>
             </div>
 
@@ -62,12 +62,14 @@ export const NormalView: React.FC<NormalViewProps> = ({
               <div className="info-label">Events cube</div>
               <div
                 className={`info-value ${
-                  lastTurn
-                    ? EventsCubeResult.getColorClass(lastTurn.eventsCube)
+                  currentTurn
+                    ? EventsCubeResult.getColorClass(currentTurn.eventsCube)
                     : ''
                 }`}
               >
-                {lastTurn ? EventsCubeResult.getName(lastTurn.eventsCube) : '-'}
+                {currentTurn
+                  ? EventsCubeResult.getName(currentTurn.eventsCube)
+                  : '-'}
               </div>
             </div>
 
@@ -80,7 +82,7 @@ export const NormalView: React.FC<NormalViewProps> = ({
               <div className="info-label">Turn time</div>
               <Timer
                 className="small-timer"
-                durationSeconds={lastTurn.turnDuration}
+                durationSeconds={currentTurn.turnDuration}
                 label=""
               />
             </div>
@@ -89,7 +91,7 @@ export const NormalView: React.FC<NormalViewProps> = ({
               <div className="info-label">Game time</div>
               <Timer
                 className="small-timer"
-                durationSeconds={gameState.calculateTotalGameDuration()}
+                durationSeconds={gameState.getGameDuration()}
                 label=""
               />
             </div>
