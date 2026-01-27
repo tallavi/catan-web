@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import type { GameLogic } from '../core'
+import { IconButton } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
+import { EditableRow } from './EditableRow'
 
 interface StartViewProps {
   gameLogic: GameLogic
@@ -16,9 +19,42 @@ export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
     gameLogic.state.gameSaveData.blockedResults
   )
   const [newBlockedNumber, setNewBlockedNumber] = useState('')
+  const [newPlayerName, setNewPlayerName] = useState('')
+
+  const validationErrors: string[] = []
+  if (players.length === 0) {
+    validationErrors.push('• There must be at least one player.')
+  }
+  const playerNames = new Set()
+  for (const player of players) {
+    const trimmed = player.trim()
+
+    if (!trimmed) {
+      validationErrors.push('• Player names must not be empty.')
+      break
+    }
+    if (playerNames.has(trimmed)) {
+      validationErrors.push('• Player names must be unique.')
+      break
+    }
+    playerNames.add(trimmed)
+  }
+  if (blockedNumbers.length >= 11) {
+    const allBlocked = new Set(blockedNumbers)
+    let allPossibleBlocked = true
+    for (let i = 2; i <= 12; i++) {
+      if (!allBlocked.has(i)) {
+        allPossibleBlocked = false
+        break
+      }
+    }
+    if (allPossibleBlocked) {
+      validationErrors.push('• There must be at least one unblocked result.')
+    }
+  }
 
   useEffect(() => {
-    gameLogic.setPlayers(players)
+    gameLogic.setPlayers(players.map(p => p.trim()))
   }, [players, gameLogic])
 
   useEffect(() => {
@@ -26,13 +62,21 @@ export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
   }, [blockedNumbers, gameLogic])
 
   const addPlayer = () => {
-    setPlayers([...players, `Player ${players.length + 1}`])
+    const nameToAdd = newPlayerName.trim()
+    if (nameToAdd) {
+      setPlayers([...players, nameToAdd])
+      setNewPlayerName('')
+    }
+  }
+
+  const isPlayerNameValid = newPlayerName.trim() !== ''
+
+  const isBlockedNumberValid = () => {
+    const num = parseInt(newBlockedNumber, 10)
+    return !isNaN(num) && num >= 2 && num <= 12 && !blockedNumbers.includes(num)
   }
 
   const removePlayer = (index: number) => {
-    if (players.length <= 1) {
-      return // Don't allow removing the last player
-    }
     setPlayers(players.filter((_, i) => i !== index))
   }
 
@@ -70,69 +114,159 @@ export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
 
   return (
     <div className="view">
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-around',
-          width: '100%',
-        }}
-      >
-        <div style={{ width: '45%' }}>
-          <h2>Players</h2>
-          <table style={{ width: '100%' }}>
-            <tbody>
-              {players.map((player, index) => (
-                <tr key={index}>
-                  <td>
+      <div className="view-title" style={{ fontSize: '1.2rem' }}>
+        Start Game
+      </div>
+
+      <div className="stats">
+        <div className="duration-tables">
+          <div className="card">
+            <div className="table-title">Players</div>
+            <table style={{ width: '100%', fontSize: '1.5rem' }}>
+              <tbody style={{ borderTop: 'none' }}>
+                {players.map((player, index) => (
+                  <EditableRow
+                    key={index}
+                    firstColumnContent={
+                      <input
+                        type="text"
+                        value={player}
+                        onChange={e => updatePlayerName(index, e.target.value)}
+                        style={{ fontSize: 'inherit', width: '100%' }}
+                      />
+                    }
+                    showMoveUp={true}
+                    onMoveUp={() => movePlayer(index, 'up')}
+                    isMoveUpDisabled={index === 0}
+                    showMoveDown={true}
+                    onMoveDown={() => movePlayer(index, 'down')}
+                    isMoveDownDisabled={index === players.length - 1}
+                    showDelete={true}
+                    onDelete={() => removePlayer(index)}
+                    isDeleteDisabled={false}
+                  />
+                ))}
+                <tr style={{ borderTop: '3px solid #ddd' }}>
+                  <td style={{ paddingTop: '10px', width: '50%' }}>
                     <input
                       type="text"
-                      value={player}
-                      onChange={e => updatePlayerName(index, e.target.value)}
+                      value={newPlayerName}
+                      onChange={e => setNewPlayerName(e.target.value)}
+                      placeholder="Add player"
+                      onKeyDown={e => {
+                        e.stopPropagation()
+                        if (e.key === 'Enter' && isPlayerNameValid) {
+                          addPlayer()
+                        }
+                      }}
+                      style={{ fontSize: 'inherit', width: '100%' }}
                     />
                   </td>
-                  <td>
-                    <button onClick={() => movePlayer(index, 'up')}>↑</button>
-                    <button onClick={() => movePlayer(index, 'down')}>↓</button>
-                    <button onClick={() => removePlayer(index)}>Remove</button>
+                  <td
+                    style={{
+                      paddingTop: '10px',
+                      textAlign: 'right',
+                      width: '50%',
+                    }}
+                  >
+                    <IconButton
+                      size="small"
+                      onClick={addPlayer}
+                      tabIndex={-1}
+                      disabled={!isPlayerNameValid}
+                      style={{ outline: 'none' }}
+                    >
+                      <AddIcon
+                        style={{
+                          color: isPlayerNameValid ? 'green' : 'lightgray',
+                        }}
+                      />
+                    </IconButton>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <button onClick={addPlayer}>Add Player</button>
-        </div>
-
-        <div style={{ width: '45%' }}>
-          <h2>Blocked Results</h2>
-          <div>
-            <input
-              type="number"
-              value={newBlockedNumber}
-              onChange={e => setNewBlockedNumber(e.target.value)}
-              min="2"
-              max="12"
-            />
-            <button onClick={addBlockedNumber}>Add</button>
+              </tbody>
+            </table>
           </div>
-          <table style={{ width: '100%' }}>
-            <tbody>
-              {blockedNumbers.map(num => (
-                <tr key={num}>
-                  <td>{num}</td>
-                  <td>
-                    <button onClick={() => removeBlockedNumber(num)}>
-                      Remove
-                    </button>
+
+          <div className="card">
+            <div className="table-title">Blocked Results</div>
+            <table style={{ width: '100%', fontSize: '1.5rem' }}>
+              <tbody style={{ borderTop: 'none' }}>
+                {blockedNumbers.map(num => (
+                  <EditableRow
+                    key={num}
+                    firstColumnContent={num}
+                    showDelete={true}
+                    onDelete={() => removeBlockedNumber(num)}
+                  />
+                ))}
+                <tr style={{ borderTop: '3px solid #ddd' }}>
+                  <td style={{ paddingTop: '10px', width: '50%' }}>
+                    <input
+                      type="number"
+                      value={newBlockedNumber}
+                      onChange={e => setNewBlockedNumber(e.target.value)}
+                      placeholder="Add blocked number (2-12)"
+                      min="2"
+                      max="12"
+                      style={{
+                        fontSize: 'inherit',
+                        width: '100%',
+                      }}
+                      onKeyDown={e => {
+                        e.stopPropagation()
+                        if (e.key === 'Enter' && isBlockedNumberValid()) {
+                          addBlockedNumber()
+                        }
+                      }}
+                    />
+                  </td>
+                  <td
+                    style={{
+                      paddingTop: '10px',
+                      textAlign: 'right',
+                      width: '50%',
+                    }}
+                  >
+                    <IconButton
+                      size="small"
+                      onClick={addBlockedNumber}
+                      tabIndex={-1}
+                      disabled={!isBlockedNumberValid()}
+                      style={{ outline: 'none' }}
+                    >
+                      <AddIcon
+                        style={{
+                          color: isBlockedNumberValid() ? 'green' : 'lightgray',
+                        }}
+                      />
+                    </IconButton>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         </div>
+        {validationErrors.length > 0 && (
+          <div style={{ color: 'red', textAlign: 'center', marginTop: '1rem' }}>
+            {validationErrors.map((error, index) => (
+              <div key={index}>{error}</div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="action-bar">
-        <button className="primary" onClick={() => gameLogic.nextTurn()}>
+        <button
+          className="primary"
+          onClick={() => gameLogic.nextTurn()}
+          disabled={validationErrors.length > 0}
+          style={{
+            backgroundColor: validationErrors.length > 0 ? 'lightgray' : '',
+            cursor: validationErrors.length > 0 ? 'not-allowed' : 'pointer',
+            opacity: validationErrors.length > 0 ? 0.5 : 1,
+          }}
+        >
           Start <span className="kbd">Enter</span>
         </button>
       </div>

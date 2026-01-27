@@ -421,3 +421,14 @@ tfoot tr {
   text-align: center;
   font-size: 1.3rem;
 }
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.card table {
+  font-size: 1.1em;
+}

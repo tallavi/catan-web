@@ -7,13 +7,13 @@ export const mockGameSaveData: GameSaveData = {
   // Example of blocked totals (these totals will be removed from initial cube pool)
   blockedResults: [7],
   gameTurns: [
-    // {
-    //   turnNumber: 1,
-    //   playerIndex: 0,
-    //   cubes: new CubesResult(2, 3), // total 5
-    //   eventsCube: EventsCubeResult.GREEN,
-    //   turnDuration: 12,
-    // },
+    {
+      turnNumber: 1,
+      playerIndex: 0,
+      cubes: new CubesResult(2, 3), // total 5
+      eventsCube: EventsCubeResult.GREEN,
+      turnDuration: 12,
+    },
     // {
     //   turnNumber: 2,
     //   playerIndex: 1,
