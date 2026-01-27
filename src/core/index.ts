@@ -11,7 +11,7 @@ export type {
   GameSaveData,
 } from './types/index'
 
-export { EventsCubeResult, CubesResult } from './types/index'
+export { EventsCubeResult, CubesResult, GameStatus } from './types/index'
 export { GameState } from './types/game-state'
 
 // Game Logic

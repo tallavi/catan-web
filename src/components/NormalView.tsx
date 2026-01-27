@@ -104,7 +104,7 @@ export const NormalView: React.FC<NormalViewProps> = ({
           Pause <span className="kbd">Space</span>
         </button>
 
-        <button className="secondary" disabled>
+        <button className="secondary" onClick={() => gameLogic.nextTurn()}>
           Next Turn <span className="kbd">Enter</span>
         </button>
       </div>

@@ -8,13 +8,9 @@ import type {
   DurationStats,
   GameSaveData,
   GameTurn,
+  GameStatus as GameStatusType,
 } from './types/index'
-import {
-  CubesResult,
-  EventsCubeResult,
-  GameStatus,
-  type GameStatus as GameStatusType,
-} from './types/index'
+import { CubesResult, EventsCubeResult, GameStatus } from './types/index'
 import { GameState } from './types/game-state'
 import { GameStorage } from './storage'
 import { Timer } from './timer'
@@ -30,8 +26,9 @@ export class GameLogic {
   private gameState: GameState
   private turnTimer: Timer //TODO: why is the Timer class needed?
   private gameTimer: Timer //TODO: why is the Timer class needed?
-  status: GameStatusType
+  private _status: GameStatusType
   private lastSaveTime: number = 0
+  private onStatusChange: (status: GameStatusType) => void
 
   /**
    * Initialize the game logic
@@ -40,9 +37,11 @@ export class GameLogic {
    */
   constructor(
     storageKey: string = 'catan-game-save',
-    initialData: GameSaveData | null = null
+    initialData: GameSaveData | null = null,
+    onStatusChange: (status: GameStatusType) => void = () => {}
   ) {
     this.storage = new GameStorage(storageKey) //TODO: should I use multiple storage keys, one for initial game data and finished turns (changed just when the turn advances) vs current turn data that is saved again and again every 10 seconds? Or it doesn't matter?
+    this.onStatusChange = onStatusChange
 
     const saveData = initialData ?? this.storage.load()
 
@@ -54,11 +53,11 @@ export class GameLogic {
 
     this.gameState = new GameState(saveData)
 
-    if (this.gameState.gameSaveData.gameTurns.length === 0) {
-      this.status = GameStatus.Start
-    } else {
-      this.status = GameStatus.InProgress
-    }
+    // Set initial status without calling callback
+    this._status =
+      this.gameState.gameSaveData.gameTurns.length === 0
+        ? GameStatus.Start
+        : GameStatus.InProgress
 
     //TODO: not sure why two timers are needed, can't we
     // Initialize timers
@@ -73,6 +72,23 @@ export class GameLogic {
    */
   get state(): GameState {
     return this.gameState
+  }
+
+  /**
+   * Get the current game status
+   */
+  get status(): GameStatusType {
+    return this._status
+  }
+
+  /**
+   * Set the game status and notify listener
+   */
+  private setStatus(newStatus: GameStatusType): void {
+    if (this._status !== newStatus) {
+      this._status = newStatus
+      this.onStatusChange(newStatus)
+    }
   }
 
   /**
@@ -122,7 +138,7 @@ export class GameLogic {
     }
 
     if (this.status === GameStatus.Start) {
-      this.status = GameStatus.InProgress
+      this.setStatus(GameStatus.InProgress)
     }
 
     // Move to next player
@@ -204,7 +220,7 @@ export class GameLogic {
     this.updateTurnDuration()
     this.gameTimer.pause()
     this.turnTimer.pause()
-    this.status = GameStatus.Paused
+    this.setStatus(GameStatus.Paused)
   }
 
   /**
@@ -216,7 +232,7 @@ export class GameLogic {
 
     this.gameTimer.resume()
     this.turnTimer.resume()
-    this.status = GameStatus.InProgress
+    this.setStatus(GameStatus.InProgress)
   }
 
   /**
