@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { GameLogic } from '../game-logic'
 import { GameStorage } from '../storage'
-import { CubesResult, EventsCubeResult } from '../types'
+import { CubesResult, EventsCubeResult, GameStatus } from '../types'
 
 describe('GameLogic', () => {
   let storage: GameStorage
@@ -104,11 +104,18 @@ describe('GameLogic', () => {
 
   describe('pause and resume', () => {
     it('should pause and resume without errors', () => {
+      // can't pause if not in progress
       game.pause()
-      expect(game.isGameInProgress()).toBe(false)
+      expect(game.status).toBe(GameStatus.Start)
+
+      game.nextTurn()
+      expect(game.status).toBe(GameStatus.InProgress)
+
+      game.pause()
+      expect(game.status).toBe(GameStatus.Paused)
 
       game.resume()
-      expect(game.isGameInProgress()).toBe(true)
+      expect(game.status).toBe(GameStatus.InProgress)
     })
   })
 })

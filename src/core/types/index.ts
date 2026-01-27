@@ -158,3 +158,14 @@ export interface GameSaveData {
   blockedResults: number[]
   gameTurns: GameTurn[]
 }
+
+/**
+ * Represents the current status of the game
+ */
+export const GameStatus = {
+  Start: 'Start',
+  InProgress: 'InProgress',
+  Paused: 'Paused',
+} as const
+
+export type GameStatus = keyof typeof GameStatus

@@ -9,7 +9,12 @@ import type {
   GameSaveData,
   GameTurn,
 } from './types/index'
-import { CubesResult, EventsCubeResult } from './types/index'
+import {
+  CubesResult,
+  EventsCubeResult,
+  GameStatus,
+  type GameStatus as GameStatusType,
+} from './types/index'
 import { GameState } from './types/game-state'
 import { GameStorage } from './storage'
 import { Timer } from './timer'
@@ -25,7 +30,7 @@ export class GameLogic {
   private gameState: GameState
   private turnTimer: Timer //TODO: why is the Timer class needed?
   private gameTimer: Timer //TODO: why is the Timer class needed?
-  private isInProgress: boolean = true
+  status: GameStatusType
   private lastSaveTime: number = 0
 
   /**
@@ -48,6 +53,12 @@ export class GameLogic {
     }
 
     this.gameState = new GameState(saveData)
+
+    if (this.gameState.gameSaveData.gameTurns.length === 0) {
+      this.status = GameStatus.Start
+    } else {
+      this.status = GameStatus.InProgress
+    }
 
     //TODO: not sure why two timers are needed, can't we
     // Initialize timers
@@ -110,6 +121,10 @@ export class GameLogic {
       throw new Error('No game save data')
     }
 
+    if (this.status === GameStatus.Start) {
+      this.status = GameStatus.InProgress
+    }
+
     // Move to next player
     this.gameState.currentPlayerIndex =
       (this.gameState.currentPlayerIndex + 1) %
@@ -146,6 +161,7 @@ export class GameLogic {
    * Execute the next turn with random cubes
    */
   nextTurn(): void {
+    //TODO: this method should only be called when the status is Start or InProgress. Should we assert that or ignore invalid calls like today?
     const cubes = this.randomChoice(this.gameState.possibleCubesResults)
     this.innerNextTurn(cubes)
   }
@@ -182,36 +198,32 @@ export class GameLogic {
    * Pause the game (stops timers)
    */
   pause(): void {
-    if (!this.isInProgress) return
+    //TODO: this method should only be called when the status is InProgress. Should we assert that or ignore invalid calls like today?
+    if (this.status !== GameStatus.InProgress) return
 
     this.updateTurnDuration()
     this.gameTimer.pause()
     this.turnTimer.pause()
-    this.isInProgress = false
+    this.status = GameStatus.Paused
   }
 
   /**
    * Resume the game (starts timers)
    */
   resume(): void {
-    if (this.isInProgress) return
+    //TODO: this method should only be called when the status is Paused. Should we assert that or ignore invalid calls like today?
+    if (this.status !== GameStatus.Paused) return
 
     this.gameTimer.resume()
     this.turnTimer.resume()
-    this.isInProgress = true
-  }
-
-  /**
-   * Check if game is in progress (not paused)
-   */
-  isGameInProgress(): boolean {
-    return this.isInProgress
+    this.status = GameStatus.InProgress
   }
 
   /**
    * Auto-save timer tick - call this periodically to enable auto-save
    */
   timerTick(): void {
+    //TODO: this method should only be called when the status is InProgress. Should we assert that?
     const currentTime = Date.now() / 1000
     if (currentTime - this.lastSaveTime >= AUTO_SAVE_INTERVAL_SECONDS) {
       this.save()
