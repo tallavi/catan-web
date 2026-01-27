@@ -43,13 +43,12 @@ export class GameLogic {
     this._storage = new GameStorage(storageKey) //TODO: should I use multiple storage keys, one for initial game data and finished turns (changed just when the turn advances) vs current turn data that is saved again and again every 10 seconds? Or it doesn't matter?
     this._onStatusChange = onStatusChange
 
-    const saveData = initialData ?? this._storage.load()
-
-    if (saveData === null) {
-      throw new Error(
-        'No save data found. Create a new game using GameStorage.createNewGame()'
-      )
-    }
+    const saveData = initialData ??
+      this._storage.load() ?? {
+        players: [],
+        blockedResults: [],
+        gameTurns: [],
+      }
 
     this._gameState = new GameState(saveData)
 
@@ -65,6 +64,28 @@ export class GameLogic {
 
     const lastTurnDuration = this._gameState.getCurrentTurn()?.turnDuration ?? 0
     this._turnTimer = new Timer(lastTurnDuration)
+  }
+
+  setOnStatusChange(onStatusChange: (status: GameStatusType) => void): void {
+    this._onStatusChange = onStatusChange
+  }
+
+  setPlayers(players: string[]): void {
+    if (this.status !== GameStatus.Start) {
+      console.warn('Cannot set players when game is in progress')
+      return
+    }
+    this._gameState.gameSaveData.players = players
+    this._save()
+  }
+
+  setBlockedResults(results: number[]): void {
+    if (this.status !== GameStatus.Start) {
+      console.warn('Cannot set blocked results when game is in progress')
+      return
+    }
+    this._gameState.gameSaveData.blockedResults = results
+    this._save()
   }
 
   /**

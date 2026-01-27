@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import './game.css'
-import { GameLogic, GameStorage, GameStatus } from '../core'
+import { GameLogic, GameStatus } from '../core'
 import type { GameStatus as GameStatusType } from '../core/types'
 import { mockGameSaveData } from '../mocks/mockGameState'
 import NormalView from './NormalView'
 import PauseView from './PauseView'
 import StartView from './StartView'
 
-const USE_MOCK_DATA = true
+const USE_MOCK_DATA = false
 
 // This is a development-only feature to force a re-render when the mock data changes.
 // In a production build, import.meta.hot will be undefined.
@@ -22,22 +22,19 @@ if ((import.meta as any).hot) {
 }
 
 export const GameView: React.FC = () => {
-  const [gameStatus, setGameStatus] = useState<GameStatusType>(() => {
-    const storage = new GameStorage()
-    if (USE_MOCK_DATA) {
-      storage.createNewGame([], [], mockGameSaveData)
-    }
-    const logic = new GameLogic(undefined, null, () => {})
-    return logic.status
-  })
-
   const gameLogic = useMemo(() => {
-    const storage = new GameStorage()
-    if (USE_MOCK_DATA) {
-      storage.createNewGame([], [], mockGameSaveData)
-    }
-    return new GameLogic(undefined, null, setGameStatus)
-  }, [setGameStatus])
+    return new GameLogic(
+      undefined,
+      USE_MOCK_DATA ? mockGameSaveData : null,
+      () => {}
+    )
+  }, [])
+
+  const [gameStatus, setGameStatus] = useState<GameStatusType>(gameLogic.status)
+
+  useEffect(() => {
+    gameLogic.setOnStatusChange(setGameStatus)
+  }, [gameLogic])
 
   // Toggle between normal and pause when Space is pressed
   useEffect(() => {

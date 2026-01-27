@@ -1,37 +1,45 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import type { GameLogic } from '../core'
 
 interface StartViewProps {
   gameLogic: GameLogic
 }
 
-interface Player {
-  id: number
-  name: string
-}
-
 export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
-  const [players, setPlayers] = useState<Player[]>([
-    { id: 1, name: 'Player 1' },
-    { id: 2, name: 'Player 2' },
-    { id: 3, name: 'Player 3' },
-    { id: 4, name: 'Player 4' },
-  ])
-  const [blockedNumbers, setBlockedNumbers] = useState<number[]>([])
+  const [players, setPlayers] = useState<string[]>(() => {
+    const initialPlayers = gameLogic.state.gameSaveData.players
+    return initialPlayers.length > 0
+      ? initialPlayers
+      : ['Player 1', 'Player 2', 'Player 3']
+  })
+  const [blockedNumbers, setBlockedNumbers] = useState<number[]>(
+    gameLogic.state.gameSaveData.blockedResults
+  )
   const [newBlockedNumber, setNewBlockedNumber] = useState('')
 
+  useEffect(() => {
+    gameLogic.setPlayers(players)
+  }, [players, gameLogic])
+
+  useEffect(() => {
+    gameLogic.setBlockedResults(blockedNumbers)
+  }, [blockedNumbers, gameLogic])
+
   const addPlayer = () => {
-    const newId =
-      players.length > 0 ? Math.max(...players.map(p => p.id)) + 1 : 1
-    setPlayers([...players, { id: newId, name: `Player ${newId}` }])
+    setPlayers([...players, `Player ${players.length + 1}`])
   }
 
-  const removePlayer = (id: number) => {
-    setPlayers(players.filter(p => p.id !== id))
+  const removePlayer = (index: number) => {
+    if (players.length <= 1) {
+      return // Don't allow removing the last player
+    }
+    setPlayers(players.filter((_, i) => i !== index))
   }
 
-  const updatePlayerName = (id: number, name: string) => {
-    setPlayers(players.map(p => (p.id === id ? { ...p, name } : p)))
+  const updatePlayerName = (index: number, name: string) => {
+    const newPlayers = [...players]
+    newPlayers[index] = name
+    setPlayers(newPlayers)
   }
 
   const movePlayer = (index: number, direction: 'up' | 'down') => {
@@ -74,22 +82,18 @@ export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
           <table style={{ width: '100%' }}>
             <tbody>
               {players.map((player, index) => (
-                <tr key={player.id}>
+                <tr key={index}>
                   <td>
                     <input
                       type="text"
-                      value={player.name}
-                      onChange={e =>
-                        updatePlayerName(player.id, e.target.value)
-                      }
+                      value={player}
+                      onChange={e => updatePlayerName(index, e.target.value)}
                     />
                   </td>
                   <td>
                     <button onClick={() => movePlayer(index, 'up')}>↑</button>
                     <button onClick={() => movePlayer(index, 'down')}>↓</button>
-                    <button onClick={() => removePlayer(player.id)}>
-                      Remove
-                    </button>
+                    <button onClick={() => removePlayer(index)}>Remove</button>
                   </td>
                 </tr>
               ))}
