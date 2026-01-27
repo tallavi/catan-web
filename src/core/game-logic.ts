@@ -22,13 +22,13 @@ const AUTO_SAVE_INTERVAL_SECONDS = 10
  * Manages game state, turn progression, and statistics
  */
 export class GameLogic {
-  private storage: GameStorage
-  private gameState: GameState
-  private turnTimer: Timer //TODO: why is the Timer class needed?
-  private gameTimer: Timer //TODO: why is the Timer class needed?
+  private _storage: GameStorage
+  private _gameState: GameState
+  private _turnTimer: Timer //TODO: why is the Timer class needed?
+  private _gameTimer: Timer //TODO: why is the Timer class needed?
   private _status: GameStatusType
-  private lastSaveTime: number = 0
-  public onStatusChange: (status: GameStatusType) => void
+  private _lastSaveTime: number = 0
+  private _onStatusChange: (status: GameStatusType) => void
 
   /**
    * Initialize the game logic
@@ -40,10 +40,10 @@ export class GameLogic {
     initialData: GameSaveData | null = null,
     onStatusChange: (status: GameStatusType) => void = () => {}
   ) {
-    this.storage = new GameStorage(storageKey) //TODO: should I use multiple storage keys, one for initial game data and finished turns (changed just when the turn advances) vs current turn data that is saved again and again every 10 seconds? Or it doesn't matter?
-    this.onStatusChange = onStatusChange
+    this._storage = new GameStorage(storageKey) //TODO: should I use multiple storage keys, one for initial game data and finished turns (changed just when the turn advances) vs current turn data that is saved again and again every 10 seconds? Or it doesn't matter?
+    this._onStatusChange = onStatusChange
 
-    const saveData = initialData ?? this.storage.load()
+    const saveData = initialData ?? this._storage.load()
 
     if (saveData === null) {
       throw new Error(
@@ -51,27 +51,27 @@ export class GameLogic {
       )
     }
 
-    this.gameState = new GameState(saveData)
+    this._gameState = new GameState(saveData)
 
     // Set initial status without calling callback
     this._status =
-      this.gameState.gameSaveData.gameTurns.length === 0
+      this._gameState.gameSaveData.gameTurns.length === 0
         ? GameStatus.Start
         : GameStatus.InProgress
 
     //TODO: not sure why two timers are needed, can't we
     // Initialize timers
-    this.gameTimer = new Timer(this.gameState.getGameDuration())
+    this._gameTimer = new Timer(this._gameState.getGameDuration())
 
-    const lastTurnDuration = this.gameState.getCurrentTurn()?.turnDuration ?? 0
-    this.turnTimer = new Timer(lastTurnDuration)
+    const lastTurnDuration = this._gameState.getCurrentTurn()?.turnDuration ?? 0
+    this._turnTimer = new Timer(lastTurnDuration)
   }
 
   /**
    * Get the current game state (read-only)
    */
   get state(): GameState {
-    return this.gameState
+    return this._gameState
   }
 
   /**
@@ -84,10 +84,10 @@ export class GameLogic {
   /**
    * Set the game status and notify listener
    */
-  private setStatus(newStatus: GameStatusType): void {
+  private _setStatus(newStatus: GameStatusType): void {
     if (this._status !== newStatus) {
       this._status = newStatus
-      this.onStatusChange(newStatus)
+      this._onStatusChange(newStatus)
     }
   }
 
@@ -95,82 +95,82 @@ export class GameLogic {
    * Get the game timer
    */
   get gameTimerInstance(): Timer {
-    return this.gameTimer
+    return this._gameTimer
   }
 
   /**
    * Get the turn timer
    */
   get turnTimerInstance(): Timer {
-    return this.turnTimer
+    return this._turnTimer
   }
 
   /**
    * Update the current turn's duration based on elapsed time
    */
-  private updateTurnDuration(): void {
-    if (!this.gameState.gameSaveData) return
+  private _updateTurnDuration(): void {
+    if (!this._gameState.gameSaveData) return
 
-    const turns = this.gameState.gameSaveData.gameTurns
+    const turns = this._gameState.gameSaveData.gameTurns
     if (turns.length === 0) return
 
     const currentTurn = turns[turns.length - 1]
-    currentTurn.turnDuration = Math.floor(this.turnTimer.getCurrentDuration())
+    currentTurn.turnDuration = Math.floor(this._turnTimer.getCurrentDuration())
   }
 
   /**
    * Save game state to storage
    */
-  private save(): void {
-    if (!this.gameState.gameSaveData) return
+  private _save(): void {
+    if (!this._gameState.gameSaveData) return
 
-    this.updateTurnDuration()
-    this.storage.save(this.gameState.gameSaveData)
-    this.lastSaveTime = Date.now() / 1000
+    this._updateTurnDuration()
+    this._storage.save(this._gameState.gameSaveData)
+    this._lastSaveTime = Date.now() / 1000
   }
 
   /**
    * Internal method to execute a turn with given cubes
    */
-  private innerNextTurn(cubes: CubesResult): void {
-    if (!this.gameState.gameSaveData) {
+  private _innerNextTurn(cubes: CubesResult): void {
+    if (!this._gameState.gameSaveData) {
       throw new Error('No game save data')
     }
 
     if (this.status === GameStatus.Start) {
-      this.setStatus(GameStatus.InProgress)
+      this._setStatus(GameStatus.InProgress)
     }
 
     // Move to next player
-    this.gameState.currentPlayerIndex =
-      (this.gameState.currentPlayerIndex + 1) %
-      this.gameState.gameSaveData.players.length
-    this.gameState.currentTurnNumber += 1
+    this._gameState.currentPlayerIndex =
+      (this._gameState.currentPlayerIndex + 1) %
+      this._gameState.gameSaveData.players.length
+    this._gameState.currentTurnNumber += 1
 
     // Update previous turn duration
-    this.updateTurnDuration()
+    this._updateTurnDuration()
 
     // Create new turn
-    const eventsCube = this.randomChoice(
-      this.gameState.possibleEventsCubeResults
+    const eventsCube = this._randomChoice(
+      this._gameState.possibleEventsCubeResults
     )
 
     const gameTurn: GameTurn = {
-      turnNumber: this.gameState.currentTurnNumber,
-      playerIndex: this.gameState.currentPlayerIndex,
+      turnNumber: this._gameState.currentTurnNumber,
+      playerIndex: this._gameState.currentPlayerIndex,
       cubes,
       eventsCube,
       turnDuration: 0,
     }
 
     // Play the turn and add to history
-    this.gameState.playTurn(gameTurn)
+    this._gameState.playTurn(gameTurn)
 
     // Reset turn timer for new turn
-    this.turnTimer.reset()
+    this._turnTimer.reset()
 
     // Save
-    this.save()
+    this._save()
   }
 
   /**
@@ -178,8 +178,8 @@ export class GameLogic {
    */
   nextTurn(): void {
     //TODO: this method should only be called when the status is Start or InProgress. Should we assert that or ignore invalid calls like today?
-    const cubes = this.randomChoice(this.gameState.possibleCubesResults)
-    this.innerNextTurn(cubes)
+    const cubes = this._randomChoice(this._gameState.possibleCubesResults)
+    this._innerNextTurn(cubes)
   }
 
   /**
@@ -196,7 +196,7 @@ export class GameLogic {
     }
 
     const cubes = new CubesResult(yellowCube, redCube, true)
-    this.innerNextTurn(cubes)
+    this._innerNextTurn(cubes)
   }
 
   /**
@@ -217,10 +217,10 @@ export class GameLogic {
     //TODO: this method should only be called when the status is InProgress. Should we assert that or ignore invalid calls like today?
     if (this.status !== GameStatus.InProgress) return
 
-    this.updateTurnDuration()
-    this.gameTimer.pause()
-    this.turnTimer.pause()
-    this.setStatus(GameStatus.Paused)
+    this._updateTurnDuration()
+    this._gameTimer.pause()
+    this._turnTimer.pause()
+    this._setStatus(GameStatus.Paused)
   }
 
   /**
@@ -230,9 +230,9 @@ export class GameLogic {
     //TODO: this method should only be called when the status is Paused. Should we assert that or ignore invalid calls like today?
     if (this.status !== GameStatus.Paused) return
 
-    this.gameTimer.resume()
-    this.turnTimer.resume()
-    this.setStatus(GameStatus.InProgress)
+    this._gameTimer.resume()
+    this._turnTimer.resume()
+    this._setStatus(GameStatus.InProgress)
   }
 
   /**
@@ -241,15 +241,15 @@ export class GameLogic {
   timerTick(): void {
     //TODO: this method should only be called when the status is InProgress. Should we assert that?
     const currentTime = Date.now() / 1000
-    if (currentTime - this.lastSaveTime >= AUTO_SAVE_INTERVAL_SECONDS) {
-      this.save()
+    if (currentTime - this._lastSaveTime >= AUTO_SAVE_INTERVAL_SECONDS) {
+      this._save()
     }
   }
 
   /**
    * Utility method to get a random element from an array
    */
-  private randomChoice<T>(array: T[]): T {
+  private _randomChoice<T>(array: T[]): T {
     if (array.length === 0) {
       throw new Error('Cannot choose from empty array')
     }
@@ -261,19 +261,19 @@ export class GameLogic {
    * Get various duration statistics for the game.
    */
   getDurationStats(): DurationStats | null {
-    if (!this.gameState.gameSaveData) {
+    if (!this._gameState.gameSaveData) {
       return null
     }
 
-    const turns = [...this.gameState.gameSaveData.gameTurns]
-    const count = this.gameState.gameSaveData.players.length
+    const turns = [...this._gameState.gameSaveData.gameTurns]
+    const count = this._gameState.gameSaveData.players.length
 
     // Shortest turns
     const sortedByShortest = [...turns].sort(
       (a, b) => a.turnDuration - b.turnDuration
     )
     const shortest = sortedByShortest.slice(0, count).map(turn => ({
-      playerName: this.gameState.gameSaveData!.players[turn.playerIndex],
+      playerName: this._gameState.gameSaveData!.players[turn.playerIndex],
       duration: turn.turnDuration,
     }))
 
@@ -282,14 +282,14 @@ export class GameLogic {
       (a, b) => b.turnDuration - a.turnDuration
     )
     const longest = sortedByLongest.slice(0, count).map(turn => ({
-      playerName: this.gameState.gameSaveData!.players[turn.playerIndex],
+      playerName: this._gameState.gameSaveData!.players[turn.playerIndex],
       duration: turn.turnDuration,
     }))
 
     // Average turn durations
     const playerDurations: { [playerName: string]: number[] } = {}
-    for (const turn of this.gameState.gameSaveData.gameTurns) {
-      const playerName = this.gameState.gameSaveData!.players[turn.playerIndex]
+    for (const turn of this._gameState.gameSaveData.gameTurns) {
+      const playerName = this._gameState.gameSaveData!.players[turn.playerIndex]
       if (!playerDurations[playerName]) {
         playerDurations[playerName] = []
       }
@@ -311,7 +311,7 @@ export class GameLogic {
       shortest,
       longest,
       average,
-      gameDuration: this.gameState.getGameDuration(),
+      gameDuration: this._gameState.getGameDuration(),
     }
   }
 }
