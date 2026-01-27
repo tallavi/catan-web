@@ -111,10 +111,10 @@ export class GameLogic {
   private _updateTurnDuration(): void {
     if (!this._gameState.gameSaveData) return
 
-    const turns = this._gameState.gameSaveData.gameTurns
-    if (turns.length === 0) return
+    const currentTurn = this._gameState.getCurrentTurn()
 
-    const currentTurn = turns[turns.length - 1]
+    if (!currentTurn) return
+
     currentTurn.turnDuration = Math.floor(this._turnTimer.getCurrentDuration())
   }
 
@@ -233,6 +233,22 @@ export class GameLogic {
     this._gameTimer.resume()
     this._turnTimer.resume()
     this._setStatus(GameStatus.InProgress)
+  }
+
+  /**
+   * Start a new game
+   */
+  newGame(): void {
+    this._storage.clear()
+    const newSaveData: GameSaveData = {
+      gameTurns: [],
+      players: this._gameState.gameSaveData.players,
+      blockedResults: this._gameState.gameSaveData.blockedResults,
+    }
+    this._gameState = new GameState(newSaveData)
+    this._gameTimer.reset()
+    this._turnTimer.reset()
+    this._setStatus(GameStatus.Start)
   }
 
   /**

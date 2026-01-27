@@ -5,11 +5,13 @@ import DurationTable from './DurationTable'
 interface PauseViewProps {
   gameLogic: GameLogic
   onResume: () => void
+  onNewGame: () => void
 }
 
 export const PauseView: React.FC<PauseViewProps> = ({
   gameLogic,
   onResume,
+  onNewGame,
 }) => {
   const stats = gameLogic.getDurationStats()
 
@@ -50,6 +52,9 @@ export const PauseView: React.FC<PauseViewProps> = ({
         </button>
         <button className="secondary" disabled>
           Cube Options <span className="kbd">c</span>
+        </button>
+        <button className="secondary" onClick={onNewGame}>
+          New Game <span className="kbd">n</span>
         </button>
       </div>
     </div>

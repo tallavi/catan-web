@@ -58,6 +58,11 @@ export const GameView: React.FC = () => {
           gameLogic.nextTurn()
           e.preventDefault()
         }
+      } else if (e.key === 'n') {
+        if (gameLogic.status === GameStatus.Paused) {
+          gameLogic.newGame()
+          e.preventDefault()
+        }
       }
     }
 
@@ -78,6 +83,7 @@ export const GameView: React.FC = () => {
           <PauseView
             gameLogic={gameLogic}
             onResume={() => gameLogic.resume()}
+            onNewGame={() => gameLogic.newGame()}
           />
         )
       default:
