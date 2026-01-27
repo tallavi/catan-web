@@ -87,6 +87,7 @@ export class GameStorage {
    * @returns The created GameSaveData object
    */
   createNewGame(
+    //TODO: this method does double duty, either creating a new game according to params, or directly saves a precreated game (for mocking). We probably want to separate to two methods for clarity.
     players: string[],
     blockedResults: number[] = [],
     initialData: GameSaveData | null = null

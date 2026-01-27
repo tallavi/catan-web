@@ -28,7 +28,7 @@ export class GameLogic {
   private gameTimer: Timer //TODO: why is the Timer class needed?
   private _status: GameStatusType
   private lastSaveTime: number = 0
-  private onStatusChange: (status: GameStatusType) => void
+  public onStatusChange: (status: GameStatusType) => void
 
   /**
    * Initialize the game logic

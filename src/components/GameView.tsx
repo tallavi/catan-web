@@ -9,8 +9,27 @@ import StartView from './StartView'
 
 const USE_MOCK_DATA = true
 
+// This is a development-only feature to force a re-render when the mock data changes.
+// In a production build, import.meta.hot will be undefined.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+if ((import.meta as any).hot) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(import.meta as any).hot.accept('../mocks/mockGameState', () => {
+    // When the mock data changes, we want to force a full page reload to re-initialize the game state.
+    // While we could try to hot-update the component, a full reload is simpler and more reliable for this case.
+    window.location.reload()
+  })
+}
+
 export const GameView: React.FC = () => {
-  const [gameStatus, setGameStatus] = useState<GameStatusType>(GameStatus.Start)
+  const [gameStatus, setGameStatus] = useState<GameStatusType>(() => {
+    const storage = new GameStorage()
+    if (USE_MOCK_DATA) {
+      storage.createNewGame([], [], mockGameSaveData)
+    }
+    const logic = new GameLogic(undefined, null, () => {})
+    return logic.status
+  })
 
   const gameLogic = useMemo(() => {
     const storage = new GameStorage()
@@ -19,10 +38,6 @@ export const GameView: React.FC = () => {
     }
     return new GameLogic(undefined, null, setGameStatus)
   }, [setGameStatus])
-
-  useEffect(() => {
-    setGameStatus(gameLogic.status)
-  }, [gameLogic])
 
   // Toggle between normal and pause when Space is pressed
   useEffect(() => {
