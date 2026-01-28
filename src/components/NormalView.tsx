@@ -4,19 +4,31 @@ import { EventsCubeResult } from '../core'
 import CubeStatistics from './CubeStatistics'
 import EventsStatistics from './EventsStatistics'
 import Timer from './Timer'
+import ActionBar, { type Action } from './ActionBar'
 
 interface NormalViewProps {
   gameLogic: GameLogic
-  onPause: () => void
 }
 
-export const NormalView: React.FC<NormalViewProps> = ({
-  gameLogic,
-  onPause,
-}) => {
+export const NormalView: React.FC<NormalViewProps> = ({ gameLogic }) => {
   const gameState = gameLogic.state
   const currentTurn = gameLogic.state.getCurrentTurn()
   const currentPlayer = gameState.getCurrentPlayerName() || 'Unknown'
+
+  const actions: Action[] = [
+    {
+      label: 'Pause',
+      shortcutDisplay: 'Space',
+      keys: [' '],
+      action: () => gameLogic.pause(),
+    },
+    {
+      label: 'Next Turn',
+      shortcutDisplay: 'Enter',
+      keys: ['Enter'],
+      action: () => gameLogic.nextTurn(),
+    },
+  ]
 
   return (
     <div className="view">
@@ -99,15 +111,7 @@ export const NormalView: React.FC<NormalViewProps> = ({
         </div>
       </div>
 
-      <div className="action-bar">
-        <button className="primary" onClick={onPause}>
-          Pause <span className="kbd">Space</span>
-        </button>
-
-        <button className="secondary" onClick={() => gameLogic.nextTurn()}>
-          Next Turn <span className="kbd">Enter</span>
-        </button>
-      </div>
+      <ActionBar actions={actions} />
     </div>
   )
 }

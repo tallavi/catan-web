@@ -36,53 +36,14 @@ export const GameView: React.FC = () => {
     gameLogic.setOnStatusChange(setGameStatus)
   }, [gameLogic])
 
-  // Toggle between normal and pause when Space is pressed
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.code === 'Space' || e.key === ' ') {
-        if (gameLogic.status === GameStatus.InProgress) {
-          gameLogic.pause()
-          e.preventDefault()
-        } else if (gameLogic.status === GameStatus.Paused) {
-          gameLogic.resume()
-          e.preventDefault()
-        }
-      } else if (e.code === 'Enter' || e.key === 'Enter') {
-        if (gameLogic.status === GameStatus.Start) {
-          gameLogic.nextTurn()
-          e.preventDefault()
-        } else if (gameLogic.status === GameStatus.InProgress) {
-          gameLogic.nextTurn()
-          e.preventDefault()
-        }
-      } else if (e.key === 'n') {
-        if (gameLogic.status === GameStatus.Paused) {
-          gameLogic.newGame()
-          e.preventDefault()
-        }
-      }
-    }
-
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [gameLogic])
-
   const renderView = () => {
     switch (gameStatus) {
       case GameStatus.Start:
         return <StartView gameLogic={gameLogic} />
       case GameStatus.InProgress:
-        return (
-          <NormalView gameLogic={gameLogic} onPause={() => gameLogic.pause()} />
-        )
+        return <NormalView gameLogic={gameLogic} />
       case GameStatus.Paused:
-        return (
-          <PauseView
-            gameLogic={gameLogic}
-            onResume={() => gameLogic.resume()}
-            onNewGame={() => gameLogic.newGame()}
-          />
-        )
+        return <PauseView gameLogic={gameLogic} />
       default:
         return null
     }

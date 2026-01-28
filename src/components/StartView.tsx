@@ -3,6 +3,7 @@ import type { GameLogic } from '../core'
 import { IconButton } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import { EditableRow } from './EditableRow'
+import ActionBar, { type Action } from './ActionBar'
 
 interface StartViewProps {
   gameLogic: GameLogic
@@ -111,6 +112,16 @@ export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
   const removeBlockedNumber = (num: number) => {
     setBlockedNumbers(blockedNumbers.filter(n => n !== num))
   }
+
+  const actions: Action[] = [
+    {
+      label: 'Start',
+      shortcutDisplay: 'Enter',
+      keys: ['Enter'],
+      action: () => gameLogic.nextTurn(),
+      disabled: validationErrors.length > 0,
+    },
+  ]
 
   return (
     <div className="view">
@@ -256,20 +267,7 @@ export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
         )}
       </div>
 
-      <div className="action-bar">
-        <button
-          className="primary"
-          onClick={() => gameLogic.nextTurn()}
-          disabled={validationErrors.length > 0}
-          style={{
-            backgroundColor: validationErrors.length > 0 ? 'lightgray' : '',
-            cursor: validationErrors.length > 0 ? 'not-allowed' : 'pointer',
-            opacity: validationErrors.length > 0 ? 0.5 : 1,
-          }}
-        >
-          Start <span className="kbd">Enter</span>
-        </button>
-      </div>
+      <ActionBar actions={actions} />
     </div>
   )
 }

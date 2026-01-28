@@ -1,19 +1,43 @@
 import React from 'react'
 import { GameLogic, formatTimeDetailed } from '../core'
 import DurationTable from './DurationTable'
+import ActionBar, { type Action } from './ActionBar'
 
 interface PauseViewProps {
   gameLogic: GameLogic
-  onResume: () => void
-  onNewGame: () => void
 }
 
-export const PauseView: React.FC<PauseViewProps> = ({
-  gameLogic,
-  onResume,
-  onNewGame,
-}) => {
+export const PauseView: React.FC<PauseViewProps> = ({ gameLogic }) => {
   const stats = gameLogic.getDurationStats()
+
+  const actions: Action[] = [
+    {
+      label: 'Resume',
+      shortcutDisplay: 'Space',
+      keys: [' '],
+      action: () => gameLogic.resume(),
+    },
+    {
+      label: 'Free Throw',
+      shortcutDisplay: 'f',
+      keys: ['f'],
+      action: () => {},
+      disabled: true,
+    },
+    {
+      label: 'Cube Options',
+      shortcutDisplay: 'c',
+      keys: ['c'],
+      action: () => {},
+      disabled: true,
+    },
+    {
+      label: 'New Game',
+      shortcutDisplay: 'n',
+      keys: ['n'],
+      action: () => gameLogic.newGame(),
+    },
+  ]
 
   if (!stats) {
     throw new Error('PauseView rendered with no stats')
@@ -43,20 +67,7 @@ export const PauseView: React.FC<PauseViewProps> = ({
         </div>
       </div>
 
-      <div className="action-bar">
-        <button className="primary" onClick={onResume}>
-          Resume <span className="kbd">Space</span>
-        </button>
-        <button className="secondary" disabled>
-          Free Throw <span className="kbd">f</span>
-        </button>
-        <button className="secondary" disabled>
-          Cube Options <span className="kbd">c</span>
-        </button>
-        <button className="secondary" onClick={onNewGame}>
-          New Game <span className="kbd">n</span>
-        </button>
-      </div>
+      <ActionBar actions={actions} />
     </div>
   )
 }
