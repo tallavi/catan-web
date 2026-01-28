@@ -21,6 +21,7 @@ export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
   )
   const [newBlockedNumber, setNewBlockedNumber] = useState('')
   const [newPlayerName, setNewPlayerName] = useState('')
+  const [isConfirming, setIsConfirming] = useState(false)
 
   const validationErrors: string[] = []
   if (players.length === 0) {
@@ -118,157 +119,193 @@ export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
       label: 'Start',
       shortcutDisplay: 'Enter',
       keys: ['Enter'],
-      action: () => gameLogic.nextTurn(),
+      action: () => setIsConfirming(true),
       disabled: validationErrors.length > 0,
     },
   ]
 
+  const confirmActions: Action[] = [
+    {
+      label: 'Yes',
+      shortcutDisplay: 'Y',
+      keys: ['y', 'Enter'],
+      action: () => {
+        gameLogic.nextTurn()
+        setIsConfirming(false)
+      },
+      isLongPress: true,
+    },
+    {
+      label: 'No',
+      shortcutDisplay: 'N',
+      keys: ['n'],
+      action: () => setIsConfirming(false),
+    },
+  ]
+
   return (
-    <div className="view">
-      <div className="view-title" style={{ fontSize: '1.2rem' }}>
-        Start Game
-      </div>
-
-      <div className="stats">
-        <div className="duration-tables">
-          <div className="card">
-            <div className="table-title">Players</div>
-            <table style={{ width: '100%', fontSize: '1.5rem' }}>
-              <tbody style={{ borderTop: 'none' }}>
-                {players.map((player, index) => (
-                  <EditableRow
-                    key={index}
-                    firstColumnContent={
-                      <input
-                        type="text"
-                        value={player}
-                        onChange={e => updatePlayerName(index, e.target.value)}
-                        style={{ fontSize: 'inherit', width: '100%' }}
-                      />
-                    }
-                    showMoveUp={true}
-                    onMoveUp={() => movePlayer(index, 'up')}
-                    isMoveUpDisabled={index === 0}
-                    showMoveDown={true}
-                    onMoveDown={() => movePlayer(index, 'down')}
-                    isMoveDownDisabled={index === players.length - 1}
-                    showDelete={true}
-                    onDelete={() => removePlayer(index)}
-                    isDeleteDisabled={false}
-                  />
-                ))}
-                <tr style={{ borderTop: '3px solid #ddd' }}>
-                  <td style={{ paddingTop: '10px', width: '50%' }}>
-                    <input
-                      type="text"
-                      value={newPlayerName}
-                      onChange={e => setNewPlayerName(e.target.value)}
-                      placeholder="Add player"
-                      onKeyDown={e => {
-                        e.stopPropagation()
-                        if (e.key === 'Enter' && isPlayerNameValid) {
-                          addPlayer()
-                        }
-                      }}
-                      style={{ fontSize: 'inherit', width: '100%' }}
-                    />
-                  </td>
-                  <td
-                    style={{
-                      paddingTop: '10px',
-                      textAlign: 'right',
-                      width: '50%',
-                    }}
-                  >
-                    <IconButton
-                      size="small"
-                      onClick={addPlayer}
-                      tabIndex={-1}
-                      disabled={!isPlayerNameValid}
-                      style={{ outline: 'none' }}
-                    >
-                      <AddIcon
-                        style={{
-                          color: isPlayerNameValid ? 'green' : 'lightgray',
-                        }}
-                      />
-                    </IconButton>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div className="card">
-            <div className="table-title">Blocked Results</div>
-            <table style={{ width: '100%', fontSize: '1.5rem' }}>
-              <tbody style={{ borderTop: 'none' }}>
-                {blockedNumbers.map(num => (
-                  <EditableRow
-                    key={num}
-                    firstColumnContent={num}
-                    showDelete={true}
-                    onDelete={() => removeBlockedNumber(num)}
-                  />
-                ))}
-                <tr style={{ borderTop: '3px solid #ddd' }}>
-                  <td style={{ paddingTop: '10px', width: '50%' }}>
-                    <input
-                      type="number"
-                      value={newBlockedNumber}
-                      onChange={e => setNewBlockedNumber(e.target.value)}
-                      placeholder="Add blocked number (2-12)"
-                      min="2"
-                      max="12"
-                      style={{
-                        fontSize: 'inherit',
-                        width: '100%',
-                      }}
-                      onKeyDown={e => {
-                        e.stopPropagation()
-                        if (e.key === 'Enter' && isBlockedNumberValid()) {
-                          addBlockedNumber()
-                        }
-                      }}
-                    />
-                  </td>
-                  <td
-                    style={{
-                      paddingTop: '10px',
-                      textAlign: 'right',
-                      width: '50%',
-                    }}
-                  >
-                    <IconButton
-                      size="small"
-                      onClick={addBlockedNumber}
-                      tabIndex={-1}
-                      disabled={!isBlockedNumberValid()}
-                      style={{ outline: 'none' }}
-                    >
-                      <AddIcon
-                        style={{
-                          color: isBlockedNumberValid() ? 'green' : 'lightgray',
-                        }}
-                      />
-                    </IconButton>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+    <>
+      {isConfirming && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="view-title" style={{ fontSize: '2.5rem' }}>
+              Are you sure?
+            </div>
           </div>
         </div>
-        {validationErrors.length > 0 && (
-          <div style={{ color: 'red', textAlign: 'center', marginTop: '1rem' }}>
-            {validationErrors.map((error, index) => (
-              <div key={index}>{error}</div>
-            ))}
-          </div>
-        )}
-      </div>
+      )}
+      <div className="view">
+        <div className="view-title" style={{ fontSize: '1.2rem' }}>
+          Start Game
+        </div>
 
-      <ActionBar actions={actions} />
-    </div>
+        <div className="stats">
+          <div className="duration-tables">
+            <div className="card">
+              <div className="table-title">Players</div>
+              <table style={{ width: '100%', fontSize: '1.5rem' }}>
+                <tbody style={{ borderTop: 'none' }}>
+                  {players.map((player, index) => (
+                    <EditableRow
+                      key={index}
+                      firstColumnContent={
+                        <input
+                          type="text"
+                          value={player}
+                          onChange={e =>
+                            updatePlayerName(index, e.target.value)
+                          }
+                          style={{ fontSize: 'inherit', width: '100%' }}
+                        />
+                      }
+                      showMoveUp={true}
+                      onMoveUp={() => movePlayer(index, 'up')}
+                      isMoveUpDisabled={index === 0}
+                      showMoveDown={true}
+                      onMoveDown={() => movePlayer(index, 'down')}
+                      isMoveDownDisabled={index === players.length - 1}
+                      showDelete={true}
+                      onDelete={() => removePlayer(index)}
+                      isDeleteDisabled={false}
+                    />
+                  ))}
+                  <tr style={{ borderTop: '3px solid #ddd' }}>
+                    <td style={{ paddingTop: '10px', width: '50%' }}>
+                      <input
+                        type="text"
+                        value={newPlayerName}
+                        onChange={e => setNewPlayerName(e.target.value)}
+                        placeholder="Add player"
+                        onKeyDown={e => {
+                          e.stopPropagation()
+                          if (e.key === 'Enter' && isPlayerNameValid) {
+                            addPlayer()
+                          }
+                        }}
+                        style={{ fontSize: 'inherit', width: '100%' }}
+                      />
+                    </td>
+                    <td
+                      style={{
+                        paddingTop: '10px',
+                        textAlign: 'right',
+                        width: '50%',
+                      }}
+                    >
+                      <IconButton
+                        size="small"
+                        onClick={addPlayer}
+                        tabIndex={-1}
+                        disabled={!isPlayerNameValid}
+                        style={{ outline: 'none' }}
+                      >
+                        <AddIcon
+                          style={{
+                            color: isPlayerNameValid ? 'green' : 'lightgray',
+                          }}
+                        />
+                      </IconButton>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="card">
+              <div className="table-title">Blocked Results</div>
+              <table style={{ width: '100%', fontSize: '1.5rem' }}>
+                <tbody style={{ borderTop: 'none' }}>
+                  {blockedNumbers.map(num => (
+                    <EditableRow
+                      key={num}
+                      firstColumnContent={num}
+                      showDelete={true}
+                      onDelete={() => removeBlockedNumber(num)}
+                    />
+                  ))}
+                  <tr style={{ borderTop: '3px solid #ddd' }}>
+                    <td style={{ paddingTop: '10px', width: '50%' }}>
+                      <input
+                        type="number"
+                        value={newBlockedNumber}
+                        onChange={e => setNewBlockedNumber(e.target.value)}
+                        placeholder="Add blocked number (2-12)"
+                        min="2"
+                        max="12"
+                        style={{
+                          fontSize: 'inherit',
+                          width: '100%',
+                        }}
+                        onKeyDown={e => {
+                          e.stopPropagation()
+                          if (e.key === 'Enter' && isBlockedNumberValid()) {
+                            addBlockedNumber()
+                          }
+                        }}
+                      />
+                    </td>
+                    <td
+                      style={{
+                        paddingTop: '10px',
+                        textAlign: 'right',
+                        width: '50%',
+                      }}
+                    >
+                      <IconButton
+                        size="small"
+                        onClick={addBlockedNumber}
+                        tabIndex={-1}
+                        disabled={!isBlockedNumberValid()}
+                        style={{ outline: 'none' }}
+                      >
+                        <AddIcon
+                          style={{
+                            color: isBlockedNumberValid()
+                              ? 'green'
+                              : 'lightgray',
+                          }}
+                        />
+                      </IconButton>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          {validationErrors.length > 0 && (
+            <div
+              style={{ color: 'red', textAlign: 'center', marginTop: '1rem' }}
+            >
+              {validationErrors.map((error, index) => (
+                <div key={index}>{error}</div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <ActionBar actions={isConfirming ? confirmActions : actions} />
+      </div>
+    </>
   )
 }
 

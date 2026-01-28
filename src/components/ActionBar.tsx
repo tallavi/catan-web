@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
+import { ActionButton, LONG_PRESS_DURATION } from './ActionButton'
 
 export interface Action {
   label: string
@@ -6,6 +7,7 @@ export interface Action {
   keys: string[]
   action: () => void
   disabled?: boolean
+  isLongPress?: boolean
 }
 
 interface ActionBarProps {
@@ -13,35 +15,59 @@ interface ActionBarProps {
 }
 
 export const ActionBar: React.FC<ActionBarProps> = ({ actions }) => {
+  const [longPressKey, setLongPressKey] = useState<string | null>(null)
+
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
+    const longPressTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
+    const onKeyDown = (e: KeyboardEvent) => {
       const targetAction = actions.find(a => a.keys.includes(e.key))
       if (targetAction && !targetAction.disabled) {
         e.preventDefault()
-        targetAction.action()
+        if (targetAction.isLongPress) {
+          if (!longPressTimers.has(targetAction.label)) {
+            setLongPressKey(e.key)
+            const timer = setTimeout(() => {
+              targetAction.action()
+              longPressTimers.delete(targetAction.label)
+              setLongPressKey(null)
+            }, LONG_PRESS_DURATION)
+            longPressTimers.set(targetAction.label, timer)
+          }
+        } else {
+          targetAction.action()
+        }
       }
     }
 
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    const onKeyUp = (e: KeyboardEvent) => {
+      const targetAction = actions.find(a => a.keys.includes(e.key))
+      if (targetAction && targetAction.isLongPress) {
+        if (longPressTimers.has(targetAction.label)) {
+          clearTimeout(longPressTimers.get(targetAction.label)!)
+          longPressTimers.delete(targetAction.label)
+          setLongPressKey(null)
+        }
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    window.addEventListener('keyup', onKeyUp)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('keyup', onKeyUp)
+      longPressTimers.forEach(timer => clearTimeout(timer))
+    }
   }, [actions])
 
   return (
     <div className="action-bar">
-      {actions.map(a => (
-        <button
-          key={a.label}
-          className="primary"
-          onClick={a.action}
-          disabled={a.disabled}
-          style={{
-            backgroundColor: a.disabled ? 'lightgray' : '',
-            cursor: a.disabled ? 'not-allowed' : 'pointer',
-            opacity: a.disabled ? 0.5 : 1,
-          }}
-        >
-          {a.label} <span className="kbd">{a.shortcutDisplay}</span>
-        </button>
+      {actions.map(action => (
+        <ActionButton
+          key={action.label}
+          action={action}
+          isKeyDown={action.keys.includes(longPressKey ?? '')}
+        />
       ))}
     </div>
   )
