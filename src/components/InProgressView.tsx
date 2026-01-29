@@ -14,10 +14,10 @@ interface InProgressViewProps {
 export const InProgressView: React.FC<InProgressViewProps> = ({
   gameLogic,
 }) => {
-  const [, setRenderCounter] = useState(0)
+  const [renderCounter, setRenderCounter] = useState(0)
   const forceRerender = () => setRenderCounter(v => v + 1)
 
-  const { turnDuration, gameDuration } = useGameTimer(gameLogic)
+  const { turnDuration, gameDuration } = useGameTimer(gameLogic, renderCounter)
 
   const gameState = gameLogic.state
   const currentTurn = gameLogic.state.getCurrentTurn()
