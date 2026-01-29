@@ -7,18 +7,17 @@
  * Timer class for tracking elapsed time with pause/resume support
  */
 export class Timer {
-  private startTime: number
-  private pausedAt: number | null = null
-  private totalPausedTime: number = 0
-  private accumulatedDuration: number
+  private _startTime: number
+  private _isRunning: boolean = false
+  private _accumulatedDuration: number
 
   /**
    * Create a new timer
    * @param initialSeconds - Initial duration in seconds (for loading saved games)
    */
   constructor(initialSeconds: number = 0) {
-    this.accumulatedDuration = initialSeconds
-    this.startTime = Date.now()
+    this._accumulatedDuration = initialSeconds
+    this._startTime = Date.now()
   }
 
   /**
@@ -26,15 +25,15 @@ export class Timer {
    * @returns Current elapsed time in seconds
    */
   getCurrentDuration(): number {
-    if (this.pausedAt !== null) {
+    if (!this._isRunning) {
       // Timer is paused - return duration at pause time
-      return this.accumulatedDuration
+      return this._accumulatedDuration
     }
 
     // Timer is running - add elapsed time since start/resume
-    const elapsedMs = Date.now() - this.startTime - this.totalPausedTime
+    const elapsedMs = Date.now() - this._startTime
     const elapsedSeconds = elapsedMs / 1000
-    return this.accumulatedDuration + elapsedSeconds
+    return this._accumulatedDuration + elapsedSeconds
   }
 
   /**
@@ -43,11 +42,9 @@ export class Timer {
    * until resume() is called
    */
   pause(): void {
-    if (this.pausedAt === null) {
-      // Save current duration and record pause time
-      this.accumulatedDuration = this.getCurrentDuration()
-      this.pausedAt = Date.now()
-    }
+    // Timer is running - add elapsed time since start/resume
+    this._accumulatedDuration = this.getCurrentDuration()
+    this._isRunning = false
   }
 
   /**
@@ -55,29 +52,24 @@ export class Timer {
    * Time spent paused will not count towards the duration
    */
   resume(): void {
-    if (this.pausedAt !== null) {
-      // Add pause duration to total paused time
-      this.totalPausedTime += Date.now() - this.pausedAt
-      this.pausedAt = null
-    }
+    this._isRunning = true
+    this._startTime = Date.now()
   }
 
   /**
    * Check if the timer is currently paused
    * @returns true if paused, false if running
    */
-  isPaused(): boolean {
-    return this.pausedAt !== null
+  isRunning(): boolean {
+    return this._isRunning
   }
 
   /**
    * Reset the timer to zero and start from beginning
    */
   reset(): void {
-    this.accumulatedDuration = 0
-    this.startTime = Date.now()
-    this.pausedAt = null
-    this.totalPausedTime = 0
+    this._accumulatedDuration = 0
+    this._isRunning = false
   }
 
   /**
@@ -85,9 +77,8 @@ export class Timer {
    * @param seconds - Duration in seconds to set
    */
   setDuration(seconds: number): void {
-    this.accumulatedDuration = seconds
-    this.startTime = Date.now()
-    this.totalPausedTime = 0
+    this._accumulatedDuration = seconds
+    this._isRunning = false
   }
 }
 
