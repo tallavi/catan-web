@@ -290,7 +290,6 @@ table {
   border-radius: 0;
   justify-content: center;
   background: rgb(102, 126, 234);
-  z-index: 2002; /* Higher than modal overlay */
 }
 
 .action-bar-button {
@@ -444,7 +443,6 @@ tfoot tr {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.7);
-  z-index: 2000;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -457,7 +455,6 @@ tfoot tr {
   border-radius: 10px;
   text-align: center;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  z-index: 2001;
 }
 
 .modal-content .action-bar {

@@ -65,15 +65,6 @@ export const PausedView: React.FC<PausedViewProps> = ({ gameLogic }) => {
 
   return (
     <>
-      {isConfirming && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="view-title" style={{ fontSize: '2.5rem' }}>
-              Are you sure?
-            </div>
-          </div>
-        </div>
-      )}
       <div className="view">
         <div className="view-title">GAME PAUSED</div>
 
@@ -96,9 +87,17 @@ export const PausedView: React.FC<PausedViewProps> = ({ gameLogic }) => {
             Game duration: {formatTimeDetailed(stats.gameDuration)}
           </div>
         </div>
-
-        <ActionBar actions={isConfirming ? confirmActions : actions} />
       </div>
+      {isConfirming && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="view-title" style={{ fontSize: '2.5rem' }}>
+              Are you sure?
+            </div>
+          </div>
+        </div>
+      )}
+      <ActionBar actions={isConfirming ? confirmActions : actions} />
     </>
   )
 }

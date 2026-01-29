@@ -147,15 +147,6 @@ export const SetupView: React.FC<SetupViewProps> = ({ gameLogic }) => {
 
   return (
     <>
-      {isConfirming && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="view-title" style={{ fontSize: '2.5rem' }}>
-              Are you sure?
-            </div>
-          </div>
-        </div>
-      )}
       <div className="view">
         <div className="view-title" style={{ fontSize: '1.2rem' }}>
           Game Setup
@@ -306,9 +297,17 @@ export const SetupView: React.FC<SetupViewProps> = ({ gameLogic }) => {
             </div>
           )}
         </div>
-
-        <ActionBar actions={isConfirming ? confirmActions : actions} />
       </div>
+      {isConfirming && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="view-title" style={{ fontSize: '2.5rem' }}>
+              Are you sure?
+            </div>
+          </div>
+        </div>
+      )}
+      <ActionBar actions={isConfirming ? confirmActions : actions} />
     </>
   )
 }
