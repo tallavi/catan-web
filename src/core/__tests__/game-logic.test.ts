@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { GameLogic } from '../game-logic'
 import { GameStorage } from '../storage'
-import { CubesResult, EventsCubeResult, GameStatus } from '../types'
+import { CubesResult, EventsCubeResult, GameMode as GameStatus } from '../types'
 
 describe('GameLogic', () => {
   let storage: GameStorage
@@ -83,9 +83,9 @@ describe('GameLogic', () => {
     })
   })
 
-  describe('getFreeThrow', () => {
+  describe('getFreeRoll', () => {
     it('should return valid cubes result', () => {
-      const [cubes] = GameLogic.getFreeThrow()
+      const [cubes] = GameLogic.getFreeRoll()
 
       expect(cubes).toBeInstanceOf(CubesResult)
       expect(cubes.yellowCube).toBeGreaterThanOrEqual(1)
@@ -96,7 +96,7 @@ describe('GameLogic', () => {
     })
 
     it('should return valid events cube result', () => {
-      const [, events] = GameLogic.getFreeThrow()
+      const [, events] = GameLogic.getFreeRoll()
 
       expect(Object.values(EventsCubeResult)).toContain(events)
     })

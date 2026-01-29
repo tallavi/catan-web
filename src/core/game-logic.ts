@@ -8,9 +8,13 @@ import type {
   DurationStats,
   GameSaveData,
   GameTurn,
-  GameStatus as GameStatusType,
+  GameMode,
 } from './types/index'
-import { CubesResult, EventsCubeResult, GameStatus } from './types/index'
+import {
+  CubesResult,
+  EventsCubeResult,
+  GameMode as GameStatus,
+} from './types/index'
 import { GameState } from './types/game-state'
 import { GameStorage } from './storage'
 import { Timer } from './timer'
@@ -25,9 +29,9 @@ export class GameLogic {
   private _storage: GameStorage
   private _gameState: GameState
   private _turnTimer: Timer
-  private _status: GameStatusType
+  private _status: GameMode
   private _lastSaveTime: number = 0
-  private _onStatusChange: (status: GameStatusType) => void
+  private _onGameModeChange: (gameMode: GameMode) => void
 
   /**
    * Initialize the game logic
@@ -37,10 +41,10 @@ export class GameLogic {
   constructor(
     storageKey: string = 'catan-game-save',
     initialData: GameSaveData | null = null,
-    onStatusChange: (status: GameStatusType) => void = () => {}
+    onGameModeChange: (gameMode: GameMode) => void = () => {}
   ) {
     this._storage = new GameStorage(storageKey) //TODO: should I use multiple storage keys, one for initial game data and finished turns (changed just when the turn advances) vs current turn data that is saved again and again every 10 seconds? Or it doesn't matter?
-    this._onStatusChange = onStatusChange
+    this._onGameModeChange = onGameModeChange
 
     const saveData = initialData ??
       this._storage.load() ?? {
@@ -62,8 +66,8 @@ export class GameLogic {
     this._turnTimer.resume()
   }
 
-  setOnStatusChange(onStatusChange: (status: GameStatusType) => void): void {
-    this._onStatusChange = onStatusChange
+  setOnGameModeChange(onGameModeChange: (gameMode: GameMode) => void): void {
+    this._onGameModeChange = onGameModeChange
   }
 
   setPlayers(players: string[]): void {
@@ -94,17 +98,17 @@ export class GameLogic {
   /**
    * Get the current game status
    */
-  get status(): GameStatusType {
+  get status(): GameMode {
     return this._status
   }
 
   /**
    * Set the game status and notify listener
    */
-  private _setStatus(newStatus: GameStatusType): void {
+  private _setStatus(newStatus: GameMode): void {
     if (this._status !== newStatus) {
       this._status = newStatus
-      this._onStatusChange(newStatus)
+      this._onGameModeChange(newStatus)
     }
   }
 
@@ -213,7 +217,7 @@ export class GameLogic {
    * Generate a practice throw (free throw) without affecting game state
    * @returns A tuple of [CubesResult, EventsCubeResult]
    */
-  static getFreeThrow(): [CubesResult, EventsCubeResult] {
+  static getFreeRoll(): [CubesResult, EventsCubeResult] {
     const cubes = CubesResult.random()
     const eventsCube = EventsCubeResult.random()
 

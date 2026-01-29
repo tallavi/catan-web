@@ -163,10 +163,10 @@ export interface GameSaveData {
 /**
  * Represents the current status of the game
  */
-export const GameStatus = {
+export const GameMode = {
   Setup: 'Setup',
   InProgress: 'InProgress',
   Paused: 'Paused',
 } as const
 
-export type GameStatus = keyof typeof GameStatus
+export type GameMode = keyof typeof GameMode

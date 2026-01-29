@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import './game.css'
-import { GameLogic, GameStatus } from '../core'
-import type { GameStatus as GameStatusType } from '../core/types'
+import { GameLogic, GameMode } from '../core'
+import type { GameMode as GameModeType } from '../core/types'
 import { mockGameSaveData } from '../mocks/mockGameState'
 import InProgressView from './InProgressView'
 import PausedView from './PausedView'
@@ -30,19 +30,19 @@ export const GameView: React.FC = () => {
     )
   }, [])
 
-  const [gameStatus, setGameStatus] = useState<GameStatusType>(gameLogic.status)
+  const [gameMode, setGameMode] = useState<GameModeType>(gameLogic.status)
 
   useEffect(() => {
-    gameLogic.setOnStatusChange(setGameStatus)
+    gameLogic.setOnGameModeChange(setGameMode)
   }, [gameLogic])
 
   const renderView = () => {
-    switch (gameStatus) {
-      case GameStatus.Setup:
+    switch (gameMode) {
+      case GameMode.Setup:
         return <SetupView gameLogic={gameLogic} />
-      case GameStatus.InProgress:
+      case GameMode.InProgress:
         return <InProgressView gameLogic={gameLogic} />
-      case GameStatus.Paused:
+      case GameMode.Paused:
         return <PausedView gameLogic={gameLogic} />
       default:
         return null
