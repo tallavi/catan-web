@@ -106,7 +106,7 @@ describe('GameLogic', () => {
     it('should pause and resume without errors', () => {
       // can't pause if not in progress
       game.pause()
-      expect(game.status).toBe(GameStatus.Start)
+      expect(game.status).toBe(GameStatus.Setup)
 
       game.nextTurn()
       expect(game.status).toBe(GameStatus.InProgress)

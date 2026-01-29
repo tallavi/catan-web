@@ -3,9 +3,9 @@ import './game.css'
 import { GameLogic, GameStatus } from '../core'
 import type { GameStatus as GameStatusType } from '../core/types'
 import { mockGameSaveData } from '../mocks/mockGameState'
-import NormalView from './NormalView'
-import PauseView from './PauseView'
-import StartView from './StartView'
+import InProgressView from './InProgressView'
+import PausedView from './PausedView'
+import SetupView from './SetupView'
 
 const USE_MOCK_DATA = false
 
@@ -38,12 +38,12 @@ export const GameView: React.FC = () => {
 
   const renderView = () => {
     switch (gameStatus) {
-      case GameStatus.Start:
-        return <StartView gameLogic={gameLogic} />
+      case GameStatus.Setup:
+        return <SetupView gameLogic={gameLogic} />
       case GameStatus.InProgress:
-        return <NormalView gameLogic={gameLogic} />
+        return <InProgressView gameLogic={gameLogic} />
       case GameStatus.Paused:
-        return <PauseView gameLogic={gameLogic} />
+        return <PausedView gameLogic={gameLogic} />
       default:
         return null
     }

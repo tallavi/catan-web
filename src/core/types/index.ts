@@ -163,7 +163,7 @@ export interface GameSaveData {
  * Represents the current status of the game
  */
 export const GameStatus = {
-  Start: 'Start',
+  Setup: 'Setup',
   InProgress: 'InProgress',
   Paused: 'Paused',
 } as const

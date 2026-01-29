@@ -55,7 +55,7 @@ export class GameLogic {
     // Set initial status without calling callback
     this._status =
       this._gameState.gameSaveData.gameTurns.length === 0
-        ? GameStatus.Start
+        ? GameStatus.Setup
         : GameStatus.InProgress
 
     //TODO: not sure why two timers are needed, can't we
@@ -71,7 +71,7 @@ export class GameLogic {
   }
 
   setPlayers(players: string[]): void {
-    if (this.status !== GameStatus.Start) {
+    if (this.status !== GameStatus.Setup) {
       console.warn('Cannot set players when game is in progress')
       return
     }
@@ -80,7 +80,7 @@ export class GameLogic {
   }
 
   setBlockedResults(results: number[]): void {
-    if (this.status !== GameStatus.Start) {
+    if (this.status !== GameStatus.Setup) {
       console.warn('Cannot set blocked results when game is in progress')
       return
     }
@@ -158,7 +158,7 @@ export class GameLogic {
       throw new Error('No game save data')
     }
 
-    if (this.status === GameStatus.Start) {
+    if (this.status === GameStatus.Setup) {
       this._setStatus(GameStatus.InProgress)
     }
 
@@ -269,7 +269,7 @@ export class GameLogic {
     this._gameState = new GameState(newSaveData)
     this._gameTimer.reset()
     this._turnTimer.reset()
-    this._setStatus(GameStatus.Start)
+    this._setStatus(GameStatus.Setup)
   }
 
   /**

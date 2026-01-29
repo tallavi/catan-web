@@ -3,11 +3,11 @@ import { GameLogic, formatTimeDetailed } from '../core'
 import DurationTable from './DurationTable'
 import ActionBar, { type Action } from './ActionBar'
 
-interface PauseViewProps {
+interface PausedViewProps {
   gameLogic: GameLogic
 }
 
-export const PauseView: React.FC<PauseViewProps> = ({ gameLogic }) => {
+export const PausedView: React.FC<PausedViewProps> = ({ gameLogic }) => {
   const stats = gameLogic.getDurationStats()
 
   const actions: Action[] = [
@@ -40,7 +40,7 @@ export const PauseView: React.FC<PauseViewProps> = ({ gameLogic }) => {
   ]
 
   if (!stats) {
-    throw new Error('PauseView rendered with no stats')
+    throw new Error('PausedView rendered with no stats')
   }
 
   return (
@@ -72,4 +72,4 @@ export const PauseView: React.FC<PauseViewProps> = ({ gameLogic }) => {
   )
 }
 
-export default PauseView
+export default PausedView

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import type { Action } from './ActionBar'
 
-const AnimatedBorderProgressBar: React.FC<{
+const ProgressBorder: React.FC<{
   progress: number
   strokeWidth: number
   strokeColor: string
@@ -115,18 +115,26 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   const startTimeRef = useRef<number>(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  useEffect(() => {
+  const updateStyleProperties = () => {
     if (buttonRef.current) {
       const buttonStyle = window.getComputedStyle(buttonRef.current)
-      setStrokeColor(buttonStyle.getPropertyValue('--stroke-color').trim())
+      setStrokeColor(
+        buttonStyle.getPropertyValue('--long-press-border-color').trim()
+      )
       setStrokeWidth(
-        parseInt(buttonStyle.getPropertyValue('--stroke-width').trim(), 10)
+        parseInt(
+          buttonStyle.getPropertyValue('--long-press-border-width').trim(),
+          10
+        )
       )
       setDuration(
-        parseInt(buttonStyle.getPropertyValue('--duration').trim(), 10)
+        parseInt(
+          buttonStyle.getPropertyValue('--long-press-duration').trim(),
+          10
+        )
       )
     }
-  }, [])
+  }
 
   useEffect(() => {
     if (debugProgress !== undefined) {
@@ -168,6 +176,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
 
   const startPress = () => {
     if (action.disabled || (isPressing && !isKeyDown)) return
+    updateStyleProperties()
     setIsPressing(true)
   }
 
@@ -195,7 +204,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   return (
     <button
       ref={buttonRef}
-      className="primary"
+      className="action-bar-button"
       onMouseDown={startPress}
       onMouseUp={resetPress}
       onMouseLeave={resetPress}
@@ -205,7 +214,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
       disabled={action.disabled}
     >
       {action.isLongPress && (isPressing || isKeyDown || debugProgress) && (
-        <AnimatedBorderProgressBar
+        <ProgressBorder
           progress={progress}
           strokeWidth={strokeWidth}
           strokeColor={strokeColor}
@@ -214,7 +223,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
       )}
       <span style={{ position: 'relative', zIndex: 2 }}>
         {action.label}{' '}
-        <span className="kbd">
+        <span className="action-bar-button-keyboard-shortcut">
           {action.shortcutDisplay}
           {action.isLongPress && ' (HOLD)'}
         </span>

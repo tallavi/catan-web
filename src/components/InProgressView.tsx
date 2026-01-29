@@ -6,11 +6,13 @@ import EventsStatistics from './EventsStatistics'
 import Timer from './Timer'
 import ActionBar, { type Action } from './ActionBar'
 
-interface NormalViewProps {
+interface InProgressViewProps {
   gameLogic: GameLogic
 }
 
-export const NormalView: React.FC<NormalViewProps> = ({ gameLogic }) => {
+export const InProgressView: React.FC<InProgressViewProps> = ({
+  gameLogic,
+}) => {
   const gameState = gameLogic.state
   const currentTurn = gameLogic.state.getCurrentTurn()
   const currentPlayer = gameState.getCurrentPlayerName() || 'Unknown'
@@ -116,4 +118,4 @@ export const NormalView: React.FC<NormalViewProps> = ({ gameLogic }) => {
   )
 }
 
-export default NormalView
+export default InProgressView

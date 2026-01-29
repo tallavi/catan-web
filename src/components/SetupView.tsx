@@ -5,11 +5,13 @@ import AddIcon from '@mui/icons-material/Add'
 import { EditableRow } from './EditableRow'
 import ActionBar, { type Action } from './ActionBar'
 
-interface StartViewProps {
+const MAX_NAME_LENGTH = 20
+
+interface SetupViewProps {
   gameLogic: GameLogic
 }
 
-export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
+export const SetupView: React.FC<SetupViewProps> = ({ gameLogic }) => {
   const [players, setPlayers] = useState<string[]>(() => {
     const initialPlayers = gameLogic.state.gameSaveData.players
     return initialPlayers.length > 0
@@ -137,8 +139,8 @@ export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
     },
     {
       label: 'No',
-      shortcutDisplay: 'N',
-      keys: ['n'],
+      shortcutDisplay: 'N or Esc',
+      keys: ['n', 'Escape'],
       action: () => setIsConfirming(false),
     },
   ]
@@ -156,7 +158,7 @@ export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
       )}
       <div className="view">
         <div className="view-title" style={{ fontSize: '1.2rem' }}>
-          Start Game
+          Game Setup
         </div>
 
         <div className="stats">
@@ -171,6 +173,7 @@ export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
                       firstColumnContent={
                         <input
                           type="text"
+                          maxLength={MAX_NAME_LENGTH}
                           value={player}
                           onChange={e =>
                             updatePlayerName(index, e.target.value)
@@ -193,6 +196,7 @@ export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
                     <td style={{ paddingTop: '10px', width: '50%' }}>
                       <input
                         type="text"
+                        maxLength={MAX_NAME_LENGTH}
                         value={newPlayerName}
                         onChange={e => setNewPlayerName(e.target.value)}
                         placeholder="Add player"
@@ -309,4 +313,4 @@ export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
   )
 }
 
-export default StartView
+export default SetupView
