@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { GameLogic, formatTimeDetailed } from '../core'
 import DurationTable from './DurationTable'
 import ActionBar, { type Action } from './ActionBar'
@@ -8,7 +8,27 @@ interface PausedViewProps {
 }
 
 export const PausedView: React.FC<PausedViewProps> = ({ gameLogic }) => {
+  const [isConfirming, setIsConfirming] = useState(false)
   const stats = gameLogic.getDurationStats()
+
+  const confirmActions: Action[] = [
+    {
+      label: 'Yes',
+      shortcutDisplay: 'Y',
+      keys: ['y'],
+      action: () => {
+        gameLogic.newGame()
+        setIsConfirming(false)
+      },
+      isLongPress: true,
+    },
+    {
+      label: 'No',
+      shortcutDisplay: 'N or Esc',
+      keys: ['n', 'Escape'],
+      action: () => setIsConfirming(false),
+    },
+  ]
 
   const actions: Action[] = [
     {
@@ -35,7 +55,7 @@ export const PausedView: React.FC<PausedViewProps> = ({ gameLogic }) => {
       label: 'New Game',
       shortcutDisplay: 'n',
       keys: ['n'],
-      action: () => gameLogic.newGame(),
+      action: () => setIsConfirming(true),
     },
   ]
 
@@ -44,31 +64,42 @@ export const PausedView: React.FC<PausedViewProps> = ({ gameLogic }) => {
   }
 
   return (
-    <div className="view">
-      <div className="view-title">GAME PAUSED</div>
+    <>
+      {isConfirming && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="view-title" style={{ fontSize: '2.5rem' }}>
+              Are you sure?
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="view">
+        <div className="view-title">GAME PAUSED</div>
 
-      <div className="stats">
-        <div className="duration-tables">
-          <div className="card">
-            <DurationTable title="Longest Turns" data={stats.longest} />
+        <div className="stats">
+          <div className="duration-tables">
+            <div className="card">
+              <DurationTable title="Longest Turns" data={stats.longest} />
+            </div>
+            <div className="card">
+              <DurationTable title="Shortest Turns" data={stats.shortest} />
+            </div>
+            <div className="card">
+              <DurationTable
+                title="Average Turn Durations"
+                data={stats.average}
+              />
+            </div>
           </div>
-          <div className="card">
-            <DurationTable title="Shortest Turns" data={stats.shortest} />
-          </div>
-          <div className="card">
-            <DurationTable
-              title="Average Turn Durations"
-              data={stats.average}
-            />
+          <div className="game-duration">
+            Game duration: {formatTimeDetailed(stats.gameDuration)}
           </div>
         </div>
-        <div className="game-duration">
-          Game duration: {formatTimeDetailed(stats.gameDuration)}
-        </div>
+
+        <ActionBar actions={isConfirming ? confirmActions : actions} />
       </div>
-
-      <ActionBar actions={actions} />
-    </div>
+    </>
   )
 }
 
