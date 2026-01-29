@@ -1,6 +1,7 @@
 import React from 'react'
 import { TextRenderer } from '../core'
 
+//TODO: unused?
 interface ColoredTextProps {
   text: string
   className?: string

@@ -2,6 +2,7 @@ import React from 'react'
 import type { DurationStats } from '../core'
 import { formatTimeDetailed } from '../core'
 
+//TODO: unused?
 interface DurationStatsProps {
   stats: DurationStats
   className?: string
