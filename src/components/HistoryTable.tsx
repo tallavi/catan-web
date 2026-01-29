@@ -95,7 +95,9 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ gameSaveData, stats }) => {
           <tfoot>
             <tr>
               <td colSpan={5}></td>
-              <td>{formatTime(gameTotalDuration)}</td>
+              <td>
+                <b>{formatTime(gameTotalDuration)}</b>
+              </td>
             </tr>
           </tfoot>
         </table>
