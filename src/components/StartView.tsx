@@ -23,21 +23,21 @@ export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
   const [newPlayerName, setNewPlayerName] = useState('')
   const [isConfirming, setIsConfirming] = useState(false)
 
-  const validationErrors: string[] = []
+  const validationErrors = new Set<string>()
   if (players.length === 0) {
-    validationErrors.push('• There must be at least one player.')
+    validationErrors.add('• There must be at least one player.')
   }
   const playerNames = new Set()
   for (const player of players) {
     const trimmed = player.trim()
 
     if (!trimmed) {
-      validationErrors.push('• Player names must not be empty.')
-      break
+      validationErrors.add('• Player names must not be empty.')
+      continue
     }
     if (playerNames.has(trimmed)) {
-      validationErrors.push('• Player names must be unique.')
-      break
+      validationErrors.add("• Player names must be unique ('" + trimmed + "').")
+      continue
     }
     playerNames.add(trimmed)
   }
@@ -51,7 +51,7 @@ export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
       }
     }
     if (allPossibleBlocked) {
-      validationErrors.push('• There must be at least one unblocked result.')
+      validationErrors.add('• There must be at least one unblocked result.')
     }
   }
 
@@ -120,7 +120,7 @@ export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
       shortcutDisplay: 'Enter',
       keys: ['Enter'],
       action: () => setIsConfirming(true),
-      disabled: validationErrors.length > 0,
+      disabled: validationErrors.size > 0,
     },
   ]
 
@@ -292,11 +292,11 @@ export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
               </table>
             </div>
           </div>
-          {validationErrors.length > 0 && (
+          {validationErrors.size > 0 && (
             <div
               style={{ color: 'red', textAlign: 'center', marginTop: '1rem' }}
             >
-              {validationErrors.map((error, index) => (
+              {Array.from(validationErrors).map((error, index) => (
                 <div key={index}>{error}</div>
               ))}
             </div>
