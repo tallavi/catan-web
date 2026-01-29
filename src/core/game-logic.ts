@@ -24,8 +24,7 @@ const AUTO_SAVE_INTERVAL_SECONDS = 10
 export class GameLogic {
   private _storage: GameStorage
   private _gameState: GameState
-  private _turnTimer: Timer //TODO: why is the Timer class needed?
-  private _gameTimer: Timer //TODO: why is the Timer class needed?
+  private _turnTimer: Timer
   private _status: GameStatusType
   private _lastSaveTime: number = 0
   private _onStatusChange: (status: GameStatusType) => void
@@ -58,12 +57,9 @@ export class GameLogic {
         ? GameStatus.Setup
         : GameStatus.InProgress
 
-    //TODO: not sure why two timers are needed, can't we
-    // Initialize timers
-    this._gameTimer = new Timer(this._gameState.getGameDuration())
-
     const lastTurnDuration = this._gameState.getCurrentTurn()?.turnDuration ?? 0
     this._turnTimer = new Timer(lastTurnDuration)
+    this._turnTimer.resume()
   }
 
   setOnStatusChange(onStatusChange: (status: GameStatusType) => void): void {
@@ -113,13 +109,6 @@ export class GameLogic {
   }
 
   /**
-   * Get the game timer
-   */
-  get gameTimerInstance(): Timer {
-    return this._gameTimer
-  }
-
-  /**
    * Get the turn timer
    */
   get turnTimerInstance(): Timer {
@@ -136,7 +125,7 @@ export class GameLogic {
 
     if (!currentTurn) return
 
-    currentTurn.turnDuration = Math.floor(this._turnTimer.getCurrentDuration())
+    currentTurn.turnDuration = this._turnTimer.getCurrentDuration()
   }
 
   /**
@@ -145,7 +134,6 @@ export class GameLogic {
   private _save(): void {
     if (!this._gameState.gameSaveData) return
 
-    this._updateTurnDuration()
     this._storage.save(this._gameState.gameSaveData)
     this._lastSaveTime = Date.now() / 1000
   }
@@ -189,6 +177,7 @@ export class GameLogic {
 
     // Reset turn timer for new turn
     this._turnTimer.reset()
+    this._turnTimer.resume()
 
     // Save
     this._save()
@@ -239,7 +228,6 @@ export class GameLogic {
     if (this.status !== GameStatus.InProgress) return
 
     this._updateTurnDuration()
-    this._gameTimer.pause()
     this._turnTimer.pause()
     this._setStatus(GameStatus.Paused)
   }
@@ -251,7 +239,6 @@ export class GameLogic {
     //TODO: this method should only be called when the status is Paused. Should we assert that or ignore invalid calls like today?
     if (this.status !== GameStatus.Paused) return
 
-    this._gameTimer.resume()
     this._turnTimer.resume()
     this._setStatus(GameStatus.InProgress)
   }
@@ -267,7 +254,6 @@ export class GameLogic {
       blockedResults: this._gameState.gameSaveData.blockedResults,
     }
     this._gameState = new GameState(newSaveData)
-    this._gameTimer.reset()
     this._turnTimer.reset()
     this._setStatus(GameStatus.Setup)
   }
@@ -276,8 +262,10 @@ export class GameLogic {
    * Auto-save timer tick - call this periodically to enable auto-save
    */
   timerTick(): void {
+    this._updateTurnDuration()
+
     //TODO: this method should only be called when the status is InProgress. Should we assert that?
-    const currentTime = Date.now() / 1000
+    const currentTime = Date.now() / 1000 // TODO: we don't have to save currentTime and lastSaveTimer in seconds. Remove the / 1000
     if (currentTime - this._lastSaveTime >= AUTO_SAVE_INTERVAL_SECONDS) {
       this._save()
     }

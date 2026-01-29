@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import type { GameLogic } from '../core'
+import { useGameTimer } from '../hooks/useGameTimer'
 import { EventsCubeResult } from '../core'
 import CubeStatistics from './CubeStatistics'
 import EventsStatistics from './EventsStatistics'
@@ -13,6 +14,11 @@ interface InProgressViewProps {
 export const InProgressView: React.FC<InProgressViewProps> = ({
   gameLogic,
 }) => {
+  const [, setRenderCounter] = useState(0)
+  const forceRerender = () => setRenderCounter(v => v + 1)
+
+  const { turnDuration, gameDuration } = useGameTimer(gameLogic)
+
   const gameState = gameLogic.state
   const currentTurn = gameLogic.state.getCurrentTurn()
   const currentPlayer = gameState.getCurrentPlayerName() || 'Unknown'
@@ -28,7 +34,10 @@ export const InProgressView: React.FC<InProgressViewProps> = ({
       label: 'Next Turn',
       shortcutDisplay: 'Enter',
       keys: ['Enter'],
-      action: () => gameLogic.nextTurn(),
+      action: () => {
+        gameLogic.nextTurn()
+        forceRerender()
+      },
     },
   ]
 
@@ -96,7 +105,7 @@ export const InProgressView: React.FC<InProgressViewProps> = ({
               <div className="info-label">Turn time</div>
               <Timer
                 className="small-timer"
-                durationSeconds={currentTurn.turnDuration}
+                durationSeconds={turnDuration}
                 label=""
               />
             </div>
@@ -105,7 +114,7 @@ export const InProgressView: React.FC<InProgressViewProps> = ({
               <div className="info-label">Game time</div>
               <Timer
                 className="small-timer"
-                durationSeconds={gameState.getGameDuration()}
+                durationSeconds={gameDuration}
                 label=""
               />
             </div>
