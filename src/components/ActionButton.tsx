@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react'
 import type { Action } from './ActionBar'
 
+const DELAY_BEFORE_ANIMATION_START_MS = 100
+
 const ProgressBorder: React.FC<{
   progress: number
   strokeWidth: number
@@ -23,7 +25,7 @@ const ProgressBorder: React.FC<{
         10
       )
       setDimensions({
-        width: width,
+        width: width + 1,
         height: height,
         borderRadius: borderRadius,
       })
@@ -57,14 +59,19 @@ const ProgressBorder: React.FC<{
 
   const pathRef = useRef<SVGPathElement>(null)
   const [perimeter, setPerimeter] = useState(0)
+  const [strokeDashoffset, setStrokeDashoffset] = useState(0)
 
   useEffect(() => {
     if (pathRef.current) {
-      setPerimeter(pathRef.current.getTotalLength())
+      const newPerimeter = pathRef.current.getTotalLength()
+      setPerimeter(newPerimeter)
+      setStrokeDashoffset(newPerimeter)
     }
   }, [dimensions.width, dimensions.height])
 
-  const strokeDashoffset = perimeter * (1 - progress)
+  useEffect(() => {
+    setStrokeDashoffset(perimeter * (1 - progress))
+  }, [perimeter, progress])
 
   return (
     <svg
@@ -147,7 +154,13 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
 
       const animate = () => {
         const elapsedTime = Date.now() - startTimeRef.current
-        const currentProgress = Math.min(elapsedTime / duration, 1)
+        const animationDuration = duration - DELAY_BEFORE_ANIMATION_START_MS
+        const animationElapsedTime =
+          elapsedTime - DELAY_BEFORE_ANIMATION_START_MS
+        const currentProgress =
+          animationElapsedTime > 0
+            ? Math.min(animationElapsedTime / animationDuration, 1)
+            : 0
         setProgress(currentProgress)
 
         if (elapsedTime < duration) {

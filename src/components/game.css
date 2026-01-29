@@ -316,6 +316,7 @@ table {
 
 .action-bar-button:not(:disabled):hover {
   background-color: #eeeeee;
+  transform: none;
 }
 
 .action-bar-button-keyboard-shortcut {

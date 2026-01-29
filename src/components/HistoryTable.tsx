@@ -79,7 +79,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ gameSaveData, stats }) => {
                 </td>
                 <td>{players[turn.playerIndex]}</td>
                 <td>{turn.cubes.total}</td>
-                <td>{turn.cubes.redCube}</td>
+                <td className="text-red">{turn.cubes.redCube}</td>
                 <td className={EventsCubeResult.getColorClass(turn.eventsCube)}>
                   {EventsCubeResult.getName(turn.eventsCube)}
                 </td>
