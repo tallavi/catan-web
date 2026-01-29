@@ -25,14 +25,6 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ gameSaveData, stats }) => {
   ): React.ReactNode[] => {
     const chips: React.ReactNode[] = []
 
-    if (isCurrent) {
-      chips.push(
-        <span key="current" className="chip">
-          current turn
-        </span>
-      )
-    }
-
     const longestRank = longestTurnsMap.get(turnNumber)
     if (longestRank) {
       chips.push(
@@ -51,6 +43,14 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ gameSaveData, stats }) => {
       )
     }
 
+    // if (isCurrent) {
+    //   chips.push(
+    //     <span key="current" className="chip">
+    //       current turn
+    //     </span>
+    //   )
+    // }
+
     return chips
   }
 
@@ -61,41 +61,51 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ gameSaveData, stats }) => {
         <table className="table">
           <thead>
             <tr>
-              <th>Turn</th>
-              <th>Player</th>
-              <th>Total</th>
-              <th>Red cube</th>
-              <th>Events cube</th>
-              <th>Duration</th>
+              <th className="text-center">Turn</th>
+              <th className="text-center">Player</th>
+              <th className="text-center">Total</th>
+              <th className="text-center">Red cube</th>
+              <th className="text-left">Events cube</th>
+              <th className="text-right">Duration</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
             {reversedTurns.map((turn, index) => (
               <tr key={turn.turnNumber}>
                 <td>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <span>{turn.turnNumber}</span>
-                  </div>
+                  <div className="text-center">{turn.turnNumber}</div>
                 </td>
-                <td>{players[turn.playerIndex]}</td>
-                <td>{turn.cubes.total}</td>
-                <td className="text-red">{turn.cubes.redCube}</td>
-                <td className={EventsCubeResult.getColorClass(turn.eventsCube)}>
+                <td className="text-center">{players[turn.playerIndex]}</td>
+                <td className="text-center">{turn.cubes.total}</td>
+                <td className="text-center text-red">{turn.cubes.redCube}</td>
+                <td
+                  className={
+                    'text-left ' +
+                    EventsCubeResult.getColorClass(turn.eventsCube)
+                  }
+                >
                   {EventsCubeResult.getName(turn.eventsCube)}
                 </td>
                 <td>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      alignItems: 'center',
+                    }}
+                  >
                     {formatTime(turn.turnDuration)}
-                    {getChip(turn.turnNumber, index === 0)}
                   </div>
                 </td>
+                <td>{getChip(turn.turnNumber, index === 0)}</td>
               </tr>
             ))}
           </tbody>
           <tfoot>
             <tr>
               <td colSpan={5}></td>
-              <td>
+              <td className="text-right">
                 <b>{formatTime(gameTotalDuration)}</b>
               </td>
             </tr>
