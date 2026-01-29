@@ -128,7 +128,7 @@ export const StartView: React.FC<StartViewProps> = ({ gameLogic }) => {
     {
       label: 'Yes',
       shortcutDisplay: 'Y',
-      keys: ['y', 'Enter'],
+      keys: ['y'],
       action: () => {
         gameLogic.nextTurn()
         setIsConfirming(false)

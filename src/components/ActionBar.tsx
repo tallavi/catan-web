@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { ActionButton, LONG_PRESS_DURATION } from './ActionButton'
+import { ActionButton } from './ActionButton'
+
+export interface LongPressOptions {
+  duration?: number
+  strokeWidth?: number
+  strokeColor?: string
+}
 
 export interface Action {
   label: string
@@ -8,13 +14,18 @@ export interface Action {
   action: () => void
   disabled?: boolean
   isLongPress?: boolean
+  longPressOptions?: LongPressOptions
 }
 
 interface ActionBarProps {
   actions: Action[]
+  debugProgress?: { [key: string]: number }
 }
 
-export const ActionBar: React.FC<ActionBarProps> = ({ actions }) => {
+export const ActionBar: React.FC<ActionBarProps> = ({
+  actions,
+  debugProgress,
+}) => {
   const [longPressKey, setLongPressKey] = useState<string | null>(null)
 
   useEffect(() => {
@@ -31,7 +42,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({ actions }) => {
               targetAction.action()
               longPressTimers.delete(targetAction.label)
               setLongPressKey(null)
-            }, LONG_PRESS_DURATION)
+            }, targetAction.longPressOptions?.duration ?? 2000)
             longPressTimers.set(targetAction.label, timer)
           }
         } else {
@@ -67,6 +78,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({ actions }) => {
           key={action.label}
           action={action}
           isKeyDown={action.keys.includes(longPressKey ?? '')}
+          debugProgress={debugProgress?.[action.label]}
         />
       ))}
     </div>

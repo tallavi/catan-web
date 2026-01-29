@@ -1,56 +1,178 @@
 import React, { useState, useRef, useEffect } from 'react'
 import type { Action } from './ActionBar'
 
-export const LONG_PRESS_DURATION = 2000 // 2 seconds
+const AnimatedBorderProgressBar: React.FC<{
+  progress: number
+  strokeWidth: number
+  strokeColor: string
+  buttonRef: React.RefObject<HTMLButtonElement | null>
+}> = ({ progress, strokeWidth, strokeColor, buttonRef }) => {
+  const [dimensions, setDimensions] = useState({
+    width: 0,
+    height: 0,
+    borderRadius: 0,
+  })
+
+  useEffect(() => {
+    if (buttonRef.current) {
+      const parentElement = buttonRef.current
+      const { width, height } = parentElement.getBoundingClientRect()
+      const computedStyle = window.getComputedStyle(parentElement)
+      const borderRadius = parseInt(
+        computedStyle.borderRadius.replace('px', ''),
+        10
+      )
+      setDimensions({
+        width: width,
+        height: height,
+        borderRadius: borderRadius,
+      })
+    }
+  }, [strokeWidth, buttonRef])
+
+  const pathData = `
+    M ${dimensions.width / 2},${strokeWidth / 2}
+    L ${dimensions.width - dimensions.borderRadius},${strokeWidth / 2}
+    A ${dimensions.borderRadius - strokeWidth / 2},${
+      dimensions.borderRadius - strokeWidth / 2
+    } 0 0 1 ${dimensions.width - strokeWidth / 2},${dimensions.borderRadius}
+    L ${dimensions.width - strokeWidth / 2},${
+      dimensions.height - dimensions.borderRadius
+    }
+    A ${dimensions.borderRadius - strokeWidth / 2},${
+      dimensions.borderRadius - strokeWidth / 2
+    } 0 0 1 ${dimensions.width - dimensions.borderRadius},${
+      dimensions.height - strokeWidth / 2
+    }
+    L ${dimensions.borderRadius},${dimensions.height - strokeWidth / 2}
+    A ${dimensions.borderRadius - strokeWidth / 2},${
+      dimensions.borderRadius - strokeWidth / 2
+    } 0 0 1 ${strokeWidth / 2},${dimensions.height - dimensions.borderRadius}
+    L ${strokeWidth / 2},${dimensions.borderRadius}
+    A ${dimensions.borderRadius - strokeWidth / 2},${
+      dimensions.borderRadius - strokeWidth / 2
+    } 0 0 1 ${dimensions.borderRadius},${strokeWidth / 2}
+    Z
+  `
+
+  const pathRef = useRef<SVGPathElement>(null)
+  const [perimeter, setPerimeter] = useState(0)
+
+  useEffect(() => {
+    if (pathRef.current) {
+      setPerimeter(pathRef.current.getTotalLength())
+    }
+  }, [dimensions.width, dimensions.height])
+
+  const strokeDashoffset = perimeter * (1 - progress)
+
+  return (
+    <svg
+      width={dimensions.width}
+      height={dimensions.height}
+      viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        zIndex: 1,
+        pointerEvents: 'none',
+        overflow: 'visible',
+      }}
+    >
+      <path
+        ref={pathRef}
+        d={pathData}
+        stroke={strokeColor}
+        strokeWidth={strokeWidth}
+        fill="transparent"
+        strokeDasharray={perimeter}
+        strokeDashoffset={strokeDashoffset}
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
 
 interface ActionButtonProps {
   action: Action
   isKeyDown: boolean
+  debugProgress?: number
 }
 
 export const ActionButton: React.FC<ActionButtonProps> = ({
   action,
   isKeyDown,
+  debugProgress,
 }) => {
   const [isPressing, setIsPressing] = useState(false)
   const [progress, setProgress] = useState(0)
+  const [strokeColor, setStrokeColor] = useState('black')
+  const [strokeWidth, setStrokeWidth] = useState(4)
+  const [duration, setDuration] = useState(2000)
   const buttonRef = useRef<HTMLButtonElement>(null)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
-    null
-  )
+  const animationFrameRef = useRef<number | null>(null)
   const startTimeRef = useRef<number>(0)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const startPress = () => {
-    if (action.disabled || isPressing) return
-    setIsPressing(true)
+  useEffect(() => {
+    if (buttonRef.current) {
+      const buttonStyle = window.getComputedStyle(buttonRef.current)
+      setStrokeColor(buttonStyle.getPropertyValue('--stroke-color').trim())
+      setStrokeWidth(
+        parseInt(buttonStyle.getPropertyValue('--stroke-width').trim(), 10)
+      )
+      setDuration(
+        parseInt(buttonStyle.getPropertyValue('--duration').trim(), 10)
+      )
+    }
+  }, [])
 
-    if (action.isLongPress) {
+  useEffect(() => {
+    if (debugProgress !== undefined) {
+      setProgress(debugProgress)
+      return
+    }
+
+    if (isPressing) {
       startTimeRef.current = Date.now()
-      setProgress(0) // Reset progress on new press
-      progressIntervalRef.current = setInterval(() => {
-        const elapsedTime = Date.now() - startTimeRef.current
-        const currentProgress = Math.min(elapsedTime / LONG_PRESS_DURATION, 1)
-        setProgress(currentProgress)
-      }, 16)
 
+      const animate = () => {
+        const elapsedTime = Date.now() - startTimeRef.current
+        const currentProgress = Math.min(elapsedTime / duration, 1)
+        setProgress(currentProgress)
+
+        if (elapsedTime < duration) {
+          animationFrameRef.current = requestAnimationFrame(animate)
+        }
+      }
+
+      animationFrameRef.current = requestAnimationFrame(animate)
       timerRef.current = setTimeout(() => {
         action.action()
         resetPress()
-      }, LONG_PRESS_DURATION)
+      }, duration)
+
+      return () => {
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current)
+        }
+        if (timerRef.current) {
+          clearTimeout(timerRef.current)
+        }
+      }
+    } else {
+      setProgress(0)
     }
+  }, [isPressing, duration, debugProgress, action])
+
+  const startPress = () => {
+    if (action.disabled || (isPressing && !isKeyDown)) return
+    setIsPressing(true)
   }
 
   const resetPress = () => {
     setIsPressing(false)
-    if (timerRef.current) {
-      clearTimeout(timerRef.current)
-      timerRef.current = null
-    }
-    if (progressIntervalRef.current) {
-      clearInterval(progressIntervalRef.current)
-      progressIntervalRef.current = null
-    }
   }
 
   const handleClick = (e: React.MouseEvent) => {
@@ -70,22 +192,10 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isKeyDown])
 
-  useEffect(() => {
-    return () => resetPress()
-  }, [])
-
-  const longPressActive = action.isLongPress && (isPressing || isKeyDown)
-
   return (
     <button
       ref={buttonRef}
-      className={`primary ${longPressActive ? 'long-press-active' : ''}`}
-      style={
-        {
-          '--progress': `${progress * 100}%`,
-          position: 'relative', // Needed for child span z-index
-        } as React.CSSProperties
-      }
+      className="primary"
       onMouseDown={startPress}
       onMouseUp={resetPress}
       onMouseLeave={resetPress}
@@ -94,6 +204,14 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
       onClick={handleClick}
       disabled={action.disabled}
     >
+      {action.isLongPress && (isPressing || isKeyDown || debugProgress) && (
+        <AnimatedBorderProgressBar
+          progress={progress}
+          strokeWidth={strokeWidth}
+          strokeColor={strokeColor}
+          buttonRef={buttonRef}
+        />
+      )}
       <span style={{ position: 'relative', zIndex: 2 }}>
         {action.label}{' '}
         <span className="kbd">
