@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import { GameLogic, formatTimeDetailed } from '../core'
+import { GameLogic } from '../core'
 import DurationTable from './DurationTable'
 import ActionBar, { type Action } from './ActionBar'
+import HistoryTable from './HistoryTable'
 
 interface PausedViewProps {
   gameLogic: GameLogic
@@ -69,23 +70,26 @@ export const PausedView: React.FC<PausedViewProps> = ({ gameLogic }) => {
         <div className="view-title">GAME PAUSED</div>
 
         <div className="stats">
-          <div className="duration-tables">
-            <div className="card">
-              <DurationTable title="Longest Turns" data={stats.longest} />
+          {stats.longest && stats.shortest && stats.average && (
+            <div className="duration-tables">
+              <div className="card">
+                <DurationTable title="Longest Turns" data={stats.longest} />
+              </div>
+              <div className="card">
+                <DurationTable title="Shortest Turns" data={stats.shortest} />
+              </div>
+              <div className="card">
+                <DurationTable
+                  title="Average Turn Durations"
+                  data={stats.average}
+                />
+              </div>
             </div>
-            <div className="card">
-              <DurationTable title="Shortest Turns" data={stats.shortest} />
-            </div>
-            <div className="card">
-              <DurationTable
-                title="Average Turn Durations"
-                data={stats.average}
-              />
-            </div>
-          </div>
-          <div className="game-duration">
-            Game duration: {formatTimeDetailed(stats.gameDuration)}
-          </div>
+          )}
+          <HistoryTable
+            gameSaveData={gameLogic.state.gameSaveData}
+            stats={stats}
+          />
         </div>
       </div>
       {isConfirming && (

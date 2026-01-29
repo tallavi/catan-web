@@ -108,10 +108,6 @@ table {
   /* color: var(--muted); */
   font-size: 1.5rem;
 }
-/* .cube-stats tr.depleted td,
-.events-stats tr.depleted td {
-  opacity: 0.45;
-} */
 
 /* color classes from renderer */
 .text-red {
@@ -418,13 +414,27 @@ tbody tr:first-child {
 }
 
 tfoot tr {
-  border-top: 2px solid var(--muted);
+  border-top: 3px solid #ddd;
 }
 
 .game-duration {
   margin-top: 1rem;
   text-align: center;
   font-size: 1.3rem;
+}
+
+.history-table {
+  width: 100%;
+  padding: 1rem;
+}
+
+.chip {
+  background-color: var(--accent);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  margin-left: 8px;
 }
 
 .card-header {

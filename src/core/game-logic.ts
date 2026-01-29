@@ -305,6 +305,12 @@ export class GameLogic {
     const turns = [...this._gameState.gameSaveData.gameTurns]
     const count = this._gameState.gameSaveData.players.length
 
+    if (turns.length <= count) {
+      return {
+        gameDuration: this._gameState.getGameDuration(),
+      }
+    }
+
     // Shortest turns
     const sortedByShortest = [...turns].sort(
       (a, b) => a.turnDuration - b.turnDuration
@@ -312,6 +318,7 @@ export class GameLogic {
     const shortest = sortedByShortest.slice(0, count).map(turn => ({
       playerName: this._gameState.gameSaveData!.players[turn.playerIndex],
       duration: turn.turnDuration,
+      turnNumber: turn.turnNumber,
     }))
 
     // Longest turns
@@ -321,7 +328,19 @@ export class GameLogic {
     const longest = sortedByLongest.slice(0, count).map(turn => ({
       playerName: this._gameState.gameSaveData!.players[turn.playerIndex],
       duration: turn.turnDuration,
+      turnNumber: turn.turnNumber,
     }))
+
+    // Check for overlap
+    const shortestTurnNumbers = new Set(shortest.map(t => t.turnNumber))
+    const longestTurnNumbers = longest.map(t => t.turnNumber)
+    const hasOverlap = longestTurnNumbers.some(t => shortestTurnNumbers.has(t))
+
+    if (hasOverlap) {
+      return {
+        gameDuration: this._gameState.getGameDuration(),
+      }
+    }
 
     // Average turn durations
     const playerDurations: { [playerName: string]: number[] } = {}
@@ -341,7 +360,7 @@ export class GameLogic {
         0
       )
       const avg = totalDuration / durations.length
-      average.push({ playerName, duration: avg })
+      average.push({ playerName, duration: avg, turnNumber: -1 })
     }
 
     return {

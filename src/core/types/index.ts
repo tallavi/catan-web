@@ -9,6 +9,7 @@
 export interface Duration {
   playerName: string
   duration: number
+  turnNumber: number
 }
 
 /**
@@ -16,9 +17,9 @@ export interface Duration {
  */
 export interface DurationStats {
   gameDuration: number
-  shortest: Duration[]
-  longest: Duration[]
-  average: Duration[]
+  shortest?: Duration[]
+  longest?: Duration[]
+  average?: Duration[]
 }
 
 /**
