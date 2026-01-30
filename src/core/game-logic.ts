@@ -201,12 +201,13 @@ export class GameLogic {
    * @param redCube - Red die value (1-6)
    * @param yellowCube - Yellow die value (1-6)
    */
-  nextTurnWithPredeterminedCubes(redCube: number, yellowCube: number): void {
-    if (redCube < 1 || redCube > 6) {
-      throw new Error(`Red cube must be between 1 and 6, got ${redCube}`)
-    }
+  nextTurnWithPredeterminedCubes(yellowCube: number, redCube: number): void {
     if (yellowCube < 1 || yellowCube > 6) {
       throw new Error(`Yellow cube must be between 1 and 6, got ${yellowCube}`)
+    }
+
+    if (redCube < 1 || redCube > 6) {
+      throw new Error(`Red cube must be between 1 and 6, got ${redCube}`)
     }
 
     const cubes = new CubesResult(yellowCube, redCube, true)
