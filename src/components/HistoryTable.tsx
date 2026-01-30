@@ -43,13 +43,13 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ gameSaveData, stats }) => {
       )
     }
 
-    // if (isCurrent) {
-    //   chips.push(
-    //     <span key="current" className="chip">
-    //       current turn
-    //     </span>
-    //   )
-    // }
+    if (isCurrent) {
+      // chips.push(
+      //   <span key="current" className="chip">
+      //     current turn
+      //   </span>
+      // )
+    }
 
     return chips
   }
