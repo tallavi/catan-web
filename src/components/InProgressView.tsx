@@ -63,6 +63,9 @@ export const InProgressView: React.FC<InProgressViewProps> = ({
             <div className="info-cell span-2">
               <div className="info-label text-center">
                 Turn <b>#{gameState.currentTurnNumber}</b>
+                <b className="text-accent">
+                  {currentTurn.cubes.predetermined && ' (Predetermined)'}
+                </b>
               </div>
               <div className="info-value current-player">
                 <b>{currentPlayer}</b> to play

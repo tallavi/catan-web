@@ -125,6 +125,9 @@ table {
 .text-muted {
   color: var(--muted);
 }
+.text-accent {
+  color: var(--accent);
+}
 .text-bold {
   color: var(--bold);
   font-weight: 700;
