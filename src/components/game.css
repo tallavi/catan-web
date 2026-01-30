@@ -438,6 +438,16 @@ tfoot tr {
   margin-left: 8px;
 }
 
+.chip.red {
+  background-color: var(--red);
+  color: white;
+}
+
+.chip.green {
+  background-color: var(--green);
+  color: white;
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;

@@ -1,5 +1,9 @@
 import React from 'react'
-import { EventsCubeResult, type GameSaveData } from '../core/types'
+import {
+  EventsCubeResult,
+  type GameSaveData,
+  type GameTurn,
+} from '../core/types'
 import { formatTime, type DurationStats } from '../core'
 
 interface HistoryTableProps {
@@ -19,36 +23,41 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ gameSaveData, stats }) => {
     stats.shortest?.map((item, index) => [item.turnNumber, index + 1])
   )
 
-  const getChip = (
-    turnNumber: number,
-    isCurrent: boolean
-  ): React.ReactNode[] => {
+  const getChip = (turn: GameTurn, isCurrent: boolean): React.ReactNode[] => {
     const chips: React.ReactNode[] = []
 
-    const longestRank = longestTurnsMap.get(turnNumber)
+    const longestRank = longestTurnsMap.get(turn.turnNumber)
     if (longestRank) {
       chips.push(
-        <span key="longest" className="chip dark">
+        <span key="longest" className="chip red">
           #{longestRank} longest
         </span>
       )
     }
 
-    const shortestRank = shortestTurnsMap.get(turnNumber)
+    const shortestRank = shortestTurnsMap.get(turn.turnNumber)
     if (shortestRank) {
       chips.push(
-        <span key="shortest" className="chip dark">
+        <span key="shortest" className="chip green">
           #{shortestRank} shortest
         </span>
       )
     }
 
     if (isCurrent) {
-      // chips.push(
-      //   <span key="current" className="chip">
-      //     current turn
-      //   </span>
-      // )
+      chips.push(
+        <span key="current" className="chip">
+          current turn
+        </span>
+      )
+    }
+
+    if (turn.cubes.predetermined) {
+      chips.push(
+        <span key="predetermined" className="chip">
+          predetermined
+        </span>
+      )
     }
 
     return chips
@@ -98,7 +107,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ gameSaveData, stats }) => {
                     {formatTime(turn.turnDuration)}
                   </div>
                 </td>
-                <td>{getChip(turn.turnNumber, index === 0)}</td>
+                <td>{getChip(turn, index === 0)}</td>
               </tr>
             ))}
           </tbody>
