@@ -58,23 +58,17 @@ const ProgressBorder: React.FC<{
   `
 
   const pathRef = useRef<SVGPathElement>(null)
-  const [perimeter, setPerimeter] = useState(0)
-  const [strokeDashoffset, setStrokeDashoffset] = useState(0)
+  const [perimeter, setPerimeter] = useState<number | null>(null)
 
   useEffect(() => {
-    if (pathRef.current) {
+    // When the dimensions of the button change, we need to recalculate the perimeter of the SVG path.
+    if (pathRef.current && dimensions.width > 0) {
       const newPerimeter = pathRef.current.getTotalLength()
       setPerimeter(newPerimeter)
-      setStrokeDashoffset(newPerimeter)
     } else {
-      setPerimeter(0)
-      setStrokeDashoffset(0)
+      setPerimeter(null)
     }
   }, [dimensions.width, dimensions.height])
-
-  useEffect(() => {
-    setStrokeDashoffset(perimeter * (1 - progress))
-  }, [perimeter, progress])
 
   return (
     <svg
@@ -93,11 +87,15 @@ const ProgressBorder: React.FC<{
       <path
         ref={pathRef}
         d={pathData}
-        stroke={strokeColor}
+        stroke={
+          perimeter === null || dimensions.width === 0
+            ? 'transparent'
+            : strokeColor
+        }
         strokeWidth={strokeWidth}
         fill="transparent"
-        strokeDasharray={perimeter}
-        strokeDashoffset={strokeDashoffset}
+        strokeDasharray={perimeter ?? 0}
+        strokeDashoffset={perimeter ? perimeter * (1 - progress) : 0}
         strokeLinecap="round"
       />
     </svg>
