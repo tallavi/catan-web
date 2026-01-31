@@ -26,39 +26,42 @@ export const ActionBar: React.FC<ActionBarProps> = ({
   actions,
   debugProgress,
 }) => {
-  const [longPressKey, setLongPressKey] = useState<string | null>(null)
+  const [pressedKeys, setPressedKeys] = useState<string[]>([])
 
   useEffect(() => {
     const longPressTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
     const onKeyDown = (e: KeyboardEvent) => {
+      setPressedKeys(prev => (prev.includes(e.key) ? prev : [...prev, e.key]))
       const targetAction = actions.find(a => a.keys.includes(e.key))
-      if (targetAction && !targetAction.disabled) {
-        e.preventDefault()
-        if (targetAction.isLongPress) {
-          if (!longPressTimers.has(targetAction.label)) {
-            setLongPressKey(e.key)
-            const timer = setTimeout(() => {
-              targetAction.action()
-              longPressTimers.delete(targetAction.label)
-              setLongPressKey(null)
-            }, targetAction.longPressOptions?.duration ?? 2000)
-            longPressTimers.set(targetAction.label, timer)
-          }
-        } else {
-          targetAction.action()
+      if (!targetAction) return
+      if (targetAction.disabled) return
+
+      e.preventDefault()
+      if (targetAction.isLongPress) {
+        if (!longPressTimers.has(targetAction.label)) {
+          const timer = setTimeout(() => {
+            targetAction.action()
+            longPressTimers.delete(targetAction.label)
+          }, targetAction.longPressOptions?.duration ?? 2000)
+          longPressTimers.set(targetAction.label, timer)
         }
       }
     }
 
     const onKeyUp = (e: KeyboardEvent) => {
+      setPressedKeys(prev => prev.filter(k => k !== e.key))
       const targetAction = actions.find(a => a.keys.includes(e.key))
-      if (targetAction && targetAction.isLongPress) {
+      if (!targetAction) return
+      if (targetAction.disabled) return
+
+      if (targetAction.isLongPress) {
         if (longPressTimers.has(targetAction.label)) {
           clearTimeout(longPressTimers.get(targetAction.label)!)
           longPressTimers.delete(targetAction.label)
-          setLongPressKey(null)
         }
+      } else {
+        targetAction.action()
       }
     }
 
@@ -77,7 +80,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
         <ActionButton
           key={action.label}
           action={action}
-          isKeyDown={action.keys.includes(longPressKey ?? '')}
+          isKeyDown={action.keys.some(k => pressedKeys.includes(k))}
           debugProgress={debugProgress?.[action.label]}
         />
       ))}

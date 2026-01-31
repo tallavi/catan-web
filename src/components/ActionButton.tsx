@@ -66,6 +66,9 @@ const ProgressBorder: React.FC<{
       const newPerimeter = pathRef.current.getTotalLength()
       setPerimeter(newPerimeter)
       setStrokeDashoffset(newPerimeter)
+    } else {
+      setPerimeter(0)
+      setStrokeDashoffset(0)
     }
   }, [dimensions.width, dimensions.height])
 
@@ -217,7 +220,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   return (
     <button
       ref={buttonRef}
-      className="action-bar-button"
+      className={`action-bar-button ${isKeyDown ? 'key-pressed' : ''}`}
       onMouseDown={startPress}
       onMouseUp={resetPress}
       onMouseLeave={resetPress}

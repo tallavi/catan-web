@@ -318,8 +318,13 @@ table {
 }
 
 .action-bar-button:not(:disabled):hover {
-  background-color: #eeeeee;
-  transform: none;
+  background-color: #dddddd;
+}
+
+.action-bar-button:not(:disabled):hover.key-pressed,
+.action-bar-button:not(:disabled):active,
+.action-bar-button.key-pressed {
+  background-color: #bbbbbb;
 }
 
 .action-bar-button-keyboard-shortcut {
