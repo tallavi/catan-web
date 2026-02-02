@@ -67,59 +67,61 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ gameSaveData, stats }) => {
     <div className="history-table">
       <div className="card">
         <div className="table-title">Turn History</div>
-        <table className="table">
-          <thead>
-            <tr>
-              <th className="text-center">Turn</th>
-              <th className="text-center">Player</th>
-              <th className="text-center">Total</th>
-              <th className="text-center">Red cube</th>
-              <th className="text-left">Events cube</th>
-              <th className="text-right">Duration</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {reversedTurns.map((turn, index) => (
-              <tr key={turn.turnNumber}>
-                <td>
-                  <div className="text-center">{turn.turnNumber}</div>
-                </td>
-                <td className="text-center">{players[turn.playerIndex]}</td>
-                <td className="text-center">{turn.cubes.total}</td>
-                <td className="text-center text-red">{turn.cubes.redCube}</td>
-                <td
-                  className={
-                    'text-left ' +
-                    EventsCubeResult.getColorClass(turn.eventsCube)
-                  }
-                >
-                  {EventsCubeResult.getName(turn.eventsCube)}
-                </td>
-                <td>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'flex-end',
-                      alignItems: 'center',
-                    }}
-                  >
-                    {formatTime(turn.turnDuration)}
-                  </div>
-                </td>
-                <td>{getChip(turn, index === 0)}</td>
+        <div className="table-container">
+          <table className="table">
+            <thead>
+              <tr>
+                <th className="text-center">Turn</th>
+                <th className="text-center">Player</th>
+                <th className="text-center">Total</th>
+                <th className="text-center">Red cube</th>
+                <th className="text-left">Events cube</th>
+                <th className="text-right">Duration</th>
+                <th></th>
               </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colSpan={5}></td>
-              <td className="text-right">
-                <b>{formatTime(gameTotalDuration)}</b>
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+            </thead>
+            <tbody>
+              {reversedTurns.map((turn, index) => (
+                <tr key={turn.turnNumber}>
+                  <td>
+                    <div className="text-center">{turn.turnNumber}</div>
+                  </td>
+                  <td className="text-center">{players[turn.playerIndex]}</td>
+                  <td className="text-center">{turn.cubes.total}</td>
+                  <td className="text-center text-red">{turn.cubes.redCube}</td>
+                  <td
+                    className={
+                      'text-left ' +
+                      EventsCubeResult.getColorClass(turn.eventsCube)
+                    }
+                  >
+                    {EventsCubeResult.getName(turn.eventsCube)}
+                  </td>
+                  <td>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        alignItems: 'center',
+                      }}
+                    >
+                      {formatTime(turn.turnDuration)}
+                    </div>
+                  </td>
+                  <td>{getChip(turn, index === 0)}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan={5}></td>
+                <td className="text-right">
+                  <b>{formatTime(gameTotalDuration)}</b>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
       </div>
     </div>
   )

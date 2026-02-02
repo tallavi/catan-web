@@ -369,6 +369,10 @@ table {
   .normal-view .columns {
     grid-template-columns: 1fr;
   }
+
+  .table-container {
+    overflow-x: auto;
+  }
 }
 
 .text-left {
@@ -456,6 +460,7 @@ tfoot tr {
   border-radius: 12px;
   font-size: 0.8rem;
   margin-left: 8px;
+  white-space: nowrap;
 }
 
 .chip.red {
