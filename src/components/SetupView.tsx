@@ -193,7 +193,6 @@ export const SetupView: React.FC<SetupViewProps> = ({ gameLogic }) => {
                         onChange={e => setNewPlayerName(e.target.value)}
                         placeholder="Add player"
                         onKeyDown={e => {
-                          e.stopPropagation()
                           if (e.key === 'Enter' && isPlayerNameValid) {
                             addPlayer()
                           }
@@ -253,7 +252,6 @@ export const SetupView: React.FC<SetupViewProps> = ({ gameLogic }) => {
                           width: '100%',
                         }}
                         onKeyDown={e => {
-                          e.stopPropagation()
                           if (e.key === 'Enter' && isBlockedNumberValid()) {
                             addBlockedNumber()
                           }

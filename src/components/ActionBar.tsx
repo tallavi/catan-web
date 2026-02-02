@@ -32,6 +32,14 @@ export const ActionBar: React.FC<ActionBarProps> = ({
     const longPressTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
     const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT'
+      ) {
+        return
+      }
       setPressedKeys(prev => (prev.includes(e.key) ? prev : [...prev, e.key]))
       const targetAction = actions.find(a => a.keys.includes(e.key))
       if (!targetAction) return
@@ -50,6 +58,14 @@ export const ActionBar: React.FC<ActionBarProps> = ({
     }
 
     const onKeyUp = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT'
+      ) {
+        return
+      }
       setPressedKeys(prev => prev.filter(k => k !== e.key))
       const targetAction = actions.find(a => a.keys.includes(e.key))
       if (!targetAction) return
