@@ -5,6 +5,7 @@ import {
   type GameTurn,
 } from '../core/types'
 import { formatTime, type DurationStats } from '../core'
+import HorizontalScrollContainer from './HorizontalScrollContainer'
 
 interface HistoryTableProps {
   stats: DurationStats
@@ -67,7 +68,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ gameSaveData, stats }) => {
     <div className="history-table">
       <div className="card">
         <div className="table-title">Turn History</div>
-        <div className="table-container">
+        <HorizontalScrollContainer>
           <table className="table">
             <thead>
               <tr>
@@ -121,7 +122,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ gameSaveData, stats }) => {
               </tr>
             </tfoot>
           </table>
-        </div>
+        </HorizontalScrollContainer>
       </div>
     </div>
   )

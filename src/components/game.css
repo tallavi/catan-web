@@ -369,10 +369,11 @@ table {
   .normal-view .columns {
     grid-template-columns: 1fr;
   }
+}
 
-  .table-container {
-    overflow-x: auto;
-  }
+.horizontal-scroll-container__content {
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 .text-left {
@@ -510,4 +511,35 @@ tfoot tr {
   box-shadow: none;
   background: transparent;
   padding-top: 1rem;
+}
+
+.scroll-shadow-container {
+  position: relative;
+}
+
+.scroll-shadow-container::before,
+.scroll-shadow-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 60px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.scroll-shadow-container::before {
+  left: 0;
+  background: linear-gradient(to right, var(--panel), transparent);
+}
+
+.scroll-shadow-container::after {
+  right: 0;
+  background: linear-gradient(to left, var(--panel), transparent);
+}
+
+.scroll-shadow-container.scroll-shadow-left::before,
+.scroll-shadow-container.scroll-shadow-right::after {
+  opacity: 1;
 }
