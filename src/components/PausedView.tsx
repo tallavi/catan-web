@@ -4,6 +4,7 @@ import { type CubesResult, EventsCubeResult } from '../core/types'
 import DurationTable from './DurationTable'
 import ActionBar, { type Action } from './ActionBar'
 import HistoryTable from './HistoryTable'
+import Modal from './Modal'
 
 interface PausedViewProps {
   gameLogic: GameLogic
@@ -152,63 +153,55 @@ export const PausedView: React.FC<PausedViewProps> = ({ gameLogic }) => {
         </div>
       </div>
       {viewMode === 'NewGame' && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="view-title" style={{ fontSize: '2.5rem' }}>
-              Are you sure?
+        <Modal>
+          <div className="view-title" style={{ fontSize: '2.5rem' }}>
+            Are you sure?
+          </div>
+        </Modal>
+      )}
+      {viewMode === 'FreeRoll' && freeRollResult && (
+        <Modal width="400px">
+          <div className="view-title" style={{ fontSize: '2.5rem' }}>
+            Free Roll
+          </div>
+          <div style={{ fontSize: '1.5rem' }}>
+            <div>
+              Total: <b>{freeRollResult[0].total}</b>
+            </div>
+            <div>
+              Red cube:{' '}
+              <span className="text-red">
+                <b>{freeRollResult[0].redCube}</b>
+              </span>
+            </div>
+            <div>
+              Events cube:{' '}
+              <span
+                className={EventsCubeResult.getColorClass(freeRollResult[1])}
+              >
+                <b>{EventsCubeResult.getName(freeRollResult[1])}</b>
+              </span>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
-      {(viewMode === 'FreeRoll' || viewMode === 'Predetermined') && (
-        <div className="modal-overlay">
-          {viewMode === 'FreeRoll' && freeRollResult && (
-            <div className="modal-content" style={{ width: '400px' }}>
-              <div className="view-title" style={{ fontSize: '2.5rem' }}>
-                Free Roll
-              </div>
-              <div style={{ fontSize: '1.5rem' }}>
-                <div>
-                  Total: <b>{freeRollResult[0].total}</b>
-                </div>
-                <div>
-                  Red cube:{' '}
-                  <span className="text-red">
-                    <b>{freeRollResult[0].redCube}</b>
-                  </span>
-                </div>
-                <div>
-                  Events cube:{' '}
-                  <span
-                    className={EventsCubeResult.getColorClass(
-                      freeRollResult[1]
-                    )}
-                  >
-                    <b>{EventsCubeResult.getName(freeRollResult[1])}</b>
-                  </span>
-                </div>
-              </div>
+      {viewMode === 'Predetermined' && (
+        <Modal>
+          <div className="view-title" style={{ fontSize: '2.5rem' }}>
+            Next Turn with Predetermined Cubes
+          </div>
+          <div style={{ fontSize: '1.5rem', textAlign: 'center' }}>
+            <div>
+              <span className="text-yellow">Yellow</span> cube:{' '}
+              {predeterminedStage === 'red' && yellowCube}
             </div>
-          )}
-          {viewMode === 'Predetermined' && (
-            <div className="modal-content">
-              <div className="view-title" style={{ fontSize: '2.5rem' }}>
-                Next Turn with Predetermined Cubes
+            {predeterminedStage === 'red' && (
+              <div>
+                <span className="text-red">Red</span> cube:
               </div>
-              <div style={{ fontSize: '1.5rem', textAlign: 'center' }}>
-                <div>
-                  <span className="text-yellow">Yellow</span> cube:{' '}
-                  {predeterminedStage === 'red' && yellowCube}
-                </div>
-                {predeterminedStage === 'red' && (
-                  <div>
-                    <span className="text-red">Red</span> cube:
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        </Modal>
       )}
       <ActionBar actions={actionMap[viewMode]} />
     </>

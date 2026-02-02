@@ -4,6 +4,7 @@ import { IconButton } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import { EditableRow } from './EditableRow'
 import ActionBar, { type Action } from './ActionBar'
+import Modal from './Modal'
 
 const MAX_NAME_LENGTH = 20
 
@@ -299,13 +300,11 @@ export const SetupView: React.FC<SetupViewProps> = ({ gameLogic }) => {
         </div>
       </div>
       {isConfirming && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="view-title" style={{ fontSize: '2.5rem' }}>
-              Are you sure?
-            </div>
+        <Modal>
+          <div className="view-title" style={{ fontSize: '2.5rem' }}>
+            Are you sure?
           </div>
-        </div>
+        </Modal>
       )}
       <ActionBar actions={isConfirming ? confirmActions : actions} />
     </>
