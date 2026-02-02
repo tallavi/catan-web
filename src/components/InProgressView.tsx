@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
-import type { GameLogic } from '../core'
+import { formatTime, type GameLogic } from '../core'
 import { useGameTimer } from '../hooks/useGameTimer'
 import { EventsCubeResult } from '../core'
 import CubeStatistics from './CubeStatistics'
 import EventsStatistics from './EventsStatistics'
-import Timer from './Timer'
 import ActionBar, { type Action } from './ActionBar'
 
 interface InProgressViewProps {
@@ -106,20 +105,12 @@ export const InProgressView: React.FC<InProgressViewProps> = ({
 
             <div className="info-cell">
               <div className="info-label">Turn time</div>
-              <Timer
-                className="small-timer"
-                durationSeconds={turnDuration}
-                label=""
-              />
+              <div className="info-value">{formatTime(turnDuration)}</div>
             </div>
 
             <div className="info-cell">
               <div className="info-label">Game time</div>
-              <Timer
-                className="small-timer"
-                durationSeconds={gameDuration}
-                label=""
-              />
+              <div className="info-value">{formatTime(gameDuration)}</div>
             </div>
           </div>
         </div>

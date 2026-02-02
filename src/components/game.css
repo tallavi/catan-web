@@ -74,20 +74,6 @@
   padding: 0.6rem;
 }
 
-.timers {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-}
-.timer-label {
-  color: var(--muted);
-  font-size: 0.8rem;
-}
-.timer-value {
-  color: var(--bold);
-  font-weight: 700;
-}
-
 table {
   width: 100%;
   border-collapse: collapse;
@@ -266,16 +252,6 @@ table {
 
 .current-player {
   font-weight: 400;
-}
-
-.timer-item .timer-label {
-  text-align: center;
-  font-size: 1.8rem;
-}
-
-.small-timer .timer-value {
-  text-align: center;
-  font-size: 1.8rem;
 }
 
 .action-bar {
