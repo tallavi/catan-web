@@ -73,10 +73,15 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ gameSaveData, stats }) => {
             <thead>
               <tr>
                 <th className="text-center">Turn</th>
+                <th style={{ width: '10%' }}></th>
                 <th className="text-center">Player</th>
+                <th style={{ width: '15%' }}></th>
                 <th className="text-center">Total</th>
+                <th style={{ width: '5%' }}></th>
                 <th className="text-center">Red cube</th>
+                <th style={{ width: '5%' }}></th>
                 <th className="text-left">Events cube</th>
+                <th style={{ width: '15%' }}></th>
                 <th className="text-right">Duration</th>
                 <th></th>
               </tr>
@@ -87,9 +92,13 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ gameSaveData, stats }) => {
                   <td>
                     <div className="text-center">{turn.turnNumber}</div>
                   </td>
+                  <td></td>
                   <td className="text-center">{players[turn.playerIndex]}</td>
+                  <td></td>
                   <td className="text-center">{turn.cubes.total}</td>
+                  <td></td>
                   <td className="text-center text-red">{turn.cubes.redCube}</td>
+                  <td></td>
                   <td
                     className={
                       'text-left ' +
@@ -98,6 +107,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ gameSaveData, stats }) => {
                   >
                     {EventsCubeResult.getName(turn.eventsCube)}
                   </td>
+                  <td></td>
                   <td>
                     <div
                       style={{
@@ -115,10 +125,12 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ gameSaveData, stats }) => {
             </tbody>
             <tfoot>
               <tr>
-                <td colSpan={5}></td>
+                <td colSpan={9}></td>
+                <td></td>
                 <td className="text-right">
                   <b>{formatTime(gameTotalDuration)}</b>
                 </td>
+                <td></td>
               </tr>
             </tfoot>
           </table>
