@@ -346,6 +346,18 @@ table {
     height: auto;
   }
 
+  .normal-top .info-card {
+    order: 1;
+  }
+
+  .normal-top .cube-card {
+    order: 2;
+  }
+
+  .normal-top .events-card {
+    order: 3;
+  }
+
   .duration-tables {
     flex-direction: column;
   }
