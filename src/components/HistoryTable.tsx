@@ -73,15 +73,15 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ gameSaveData, stats }) => {
             <thead>
               <tr>
                 <th className="text-center">Turn</th>
-                <th style={{ width: '10%' }}></th>
+                <th style={{ width: '20%' }}></th>
                 <th className="text-center">Player</th>
-                <th style={{ width: '15%' }}></th>
+                <th style={{ width: '35%' }}></th>
                 <th className="text-center">Total</th>
                 <th style={{ width: '5%' }}></th>
                 <th className="text-center">Red cube</th>
                 <th style={{ width: '5%' }}></th>
                 <th className="text-left">Events cube</th>
-                <th style={{ width: '15%' }}></th>
+                <th style={{ width: '35%' }}></th>
                 <th className="text-right">Duration</th>
                 <th></th>
               </tr>
