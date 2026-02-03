@@ -4,7 +4,8 @@ import { useGameTimer } from '../../hooks/useGameTimer'
 import { EventsCubeResult } from '../../core'
 import CubeStatistics from './CubeStatistics'
 import EventsStatistics from './EventsStatistics'
-import ActionBar, { type Action } from '../Common/ActionBar/ActionBar'
+import ActionBar from '../Common/ActionBar/ActionBar'
+import type { Action } from '../Common/ActionBar/ActionBar.types'
 
 interface InProgressViewProps {
   gameLogic: GameLogic

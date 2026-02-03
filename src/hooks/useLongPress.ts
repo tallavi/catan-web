@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import type { Action } from '../components/ActionBar'
+import type { Action } from '../components/Common/ActionBar/ActionBar.types'
 
 const DELAY_BEFORE_ANIMATION_START_MS = 100
 

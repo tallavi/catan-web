@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, fireEvent, act } from '@testing-library/react'
 import { ActionButton } from '../ActionButton'
 
-import type { Action } from '../ActionBar'
+import type { Action } from '../ActionBar.types'
 
 describe('ActionButton', () => {
   let mockAction: Action

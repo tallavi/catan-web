@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { ActionButton } from './ActionButton'
-
-export interface Action {
-  label: string
-  shortcutDisplay: string
-  keys: string[]
-  action: () => void
-  disabled?: boolean
-  isLongPress?: boolean
-}
+import type { Action } from './ActionBar.types'
 
 interface ActionBarProps {
   actions: Action[]

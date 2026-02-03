@@ -3,7 +3,8 @@ import type { GameLogic } from '../../core'
 import { IconButton } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import { EditableRow } from './EditableRow'
-import ActionBar, { type Action } from '../Common/ActionBar/ActionBar'
+import ActionBar from '../Common/ActionBar/ActionBar'
+import type { Action } from '../Common/ActionBar/ActionBar.types'
 import Modal from '../Common/Modal/Modal'
 
 const MAX_NAME_LENGTH = 20

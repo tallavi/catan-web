@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import type { Action } from './ActionBar'
+import type { Action } from './ActionBar.types'
 import { useLongPress } from '../../../hooks/useLongPress'
 import { ProgressBorder } from './ProgressBorder'
 
