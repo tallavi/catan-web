@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, fireEvent, act } from '@testing-library/react'
 import { ActionButton } from '../ActionButton'
-import React from 'react'
 
 import type { Action } from '../ActionBar'
 

@@ -279,7 +279,7 @@ table {
   position: relative; /* Needed for pseudo-elements */
   --long-press-border-color: black;
   --long-press-border-width: 4px;
-  --long-press-duration: 1500ms;
+  --long-press-duration: 2000;
   user-select: none;
 }
 

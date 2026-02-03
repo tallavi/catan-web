@@ -28,6 +28,10 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   const updateStyleProperties = () => {
     if (buttonRef.current) {
       const buttonStyle = window.getComputedStyle(buttonRef.current)
+      const duration = parseInt(
+        buttonStyle.getPropertyValue('--long-press-duration').trim(),
+        10
+      )
       setStyleProps({
         strokeColor: buttonStyle
           .getPropertyValue('--long-press-border-color')
@@ -36,10 +40,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
           buttonStyle.getPropertyValue('--long-press-border-width').trim(),
           10
         ),
-        duration: parseInt(
-          buttonStyle.getPropertyValue('--long-press-duration').trim(),
-          10
-        ),
+        duration: !isNaN(duration) ? duration : 2000,
       })
     }
   }

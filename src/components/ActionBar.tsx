@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { ActionButton } from './ActionButton'
 
-export interface LongPressOptions {
-  duration?: number
-  strokeWidth?: number
-  strokeColor?: string
-}
-
 export interface Action {
   label: string
   shortcutDisplay: string
@@ -14,7 +8,6 @@ export interface Action {
   action: () => void
   disabled?: boolean
   isLongPress?: boolean
-  longPressOptions?: LongPressOptions
 }
 
 interface ActionBarProps {
@@ -29,8 +22,6 @@ export const ActionBar: React.FC<ActionBarProps> = ({
   const [pressedKeys, setPressedKeys] = useState<string[]>([])
 
   useEffect(() => {
-    const longPressTimers = new Map<string, ReturnType<typeof setTimeout>>()
-
     const onKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement
       if (
@@ -40,21 +31,14 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       ) {
         return
       }
-      setPressedKeys(prev => (prev.includes(e.key) ? prev : [...prev, e.key]))
+      const keyIsPressed = pressedKeys.includes(e.key)
+      if (keyIsPressed) return
+
       const targetAction = actions.find(a => a.keys.includes(e.key))
       if (!targetAction) return
-      if (targetAction.disabled) return
 
       e.preventDefault()
-      if (targetAction.isLongPress) {
-        if (!longPressTimers.has(targetAction.label)) {
-          const timer = setTimeout(() => {
-            targetAction.action()
-            longPressTimers.delete(targetAction.label)
-          }, targetAction.longPressOptions?.duration ?? 2000)
-          longPressTimers.set(targetAction.label, timer)
-        }
-      }
+      setPressedKeys(prev => [...prev, e.key])
     }
 
     const onKeyUp = (e: KeyboardEvent) => {
@@ -66,19 +50,16 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       ) {
         return
       }
-      setPressedKeys(prev => prev.filter(k => k !== e.key))
       const targetAction = actions.find(a => a.keys.includes(e.key))
-      if (!targetAction) return
-      if (targetAction.disabled) return
+      if (!targetAction) {
+        setPressedKeys(prev => prev.filter(k => k !== e.key))
+        return
+      }
 
-      if (targetAction.isLongPress) {
-        if (longPressTimers.has(targetAction.label)) {
-          clearTimeout(longPressTimers.get(targetAction.label)!)
-          longPressTimers.delete(targetAction.label)
-        }
-      } else {
+      if (!targetAction.isLongPress && !targetAction.disabled) {
         targetAction.action()
       }
+      setPressedKeys(prev => prev.filter(k => k !== e.key))
     }
 
     window.addEventListener('keydown', onKeyDown)
@@ -86,9 +67,8 @@ export const ActionBar: React.FC<ActionBarProps> = ({
     return () => {
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('keyup', onKeyUp)
-      longPressTimers.forEach(timer => clearTimeout(timer))
     }
-  }, [actions])
+  }, [actions, pressedKeys])
 
   return (
     <div className="action-bar">
