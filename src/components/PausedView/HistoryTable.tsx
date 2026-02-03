@@ -3,9 +3,9 @@ import {
   EventsCubeResult,
   type GameSaveData,
   type GameTurn,
-} from '../core/types'
-import { formatTime, type DurationStats } from '../core'
-import HorizontalScrollContainer from './HorizontalScrollContainer'
+} from '../../core/types'
+import { formatTime, type DurationStats } from '../../core'
+import HorizontalScrollContainer from '../Common/HorizontalScrollContainer'
 
 interface HistoryTableProps {
   stats: DurationStats

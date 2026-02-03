@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react'
-import './game.css'
-import { GameLogic, GameMode } from '../core'
-import type { GameMode as GameModeType } from '../core/types'
-import { mockGameSaveData } from '../mocks/mockGameState'
-import InProgressView from './InProgressView'
-import PausedView from './PausedView'
-import SetupView from './SetupView'
+import '../game.css'
+import { GameLogic, GameMode } from '../../core'
+import type { GameMode as GameModeType } from '../../core/types'
+import { mockGameSaveData } from '../../mocks/mockGameState'
+import InProgressView from '../InProgressView/InProgressView'
+import PausedView from '../PausedView/PausedView'
+import SetupView from '../SetupView/SetupView'
 
 const USE_MOCK_DATA = false
 
@@ -14,7 +14,7 @@ const USE_MOCK_DATA = false
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 if ((import.meta as any).hot) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ;(import.meta as any).hot.accept('../mocks/mockGameState', () => {
+  ;(import.meta as any).hot.accept('../../mocks/mockGameState', () => {
     // When the mock data changes, we want to force a full page reload to re-initialize the game state.
     // While we could try to hot-update the component, a full reload is simpler and more reliable for this case.
     window.location.reload()

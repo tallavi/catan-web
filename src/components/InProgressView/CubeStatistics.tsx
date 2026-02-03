@@ -1,5 +1,5 @@
 import React from 'react'
-import { CubesResult } from '../core'
+import { CubesResult } from '../../core'
 
 interface CubeStatisticsProps {
   possibleResults: CubesResult[]

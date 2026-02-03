@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import { formatTime, type GameLogic } from '../core'
-import { useGameTimer } from '../hooks/useGameTimer'
-import { EventsCubeResult } from '../core'
+import { formatTime, type GameLogic } from '../../core'
+import { useGameTimer } from '../../hooks/useGameTimer'
+import { EventsCubeResult } from '../../core'
 import CubeStatistics from './CubeStatistics'
 import EventsStatistics from './EventsStatistics'
-import ActionBar, { type Action } from './ActionBar'
+import ActionBar, { type Action } from '../Common/ActionBar/ActionBar'
 
 interface InProgressViewProps {
   gameLogic: GameLogic

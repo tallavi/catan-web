@@ -1,5 +1,5 @@
 import React from 'react'
-import { EventsCubeResult } from '../core'
+import { EventsCubeResult } from '../../core'
 
 interface EventsStatisticsProps {
   possibleEvents: EventsCubeResult[]

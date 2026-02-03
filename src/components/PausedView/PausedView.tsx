@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import { GameLogic } from '../core'
-import { type CubesResult, EventsCubeResult } from '../core/types'
+import { GameLogic } from '../../core'
+import { type CubesResult, EventsCubeResult } from '../../core/types'
 import DurationTable from './DurationTable'
-import ActionBar, { type Action } from './ActionBar'
+import ActionBar, { type Action } from '../Common/ActionBar/ActionBar'
 import HistoryTable from './HistoryTable'
-import Modal from './Modal'
+import Modal from '../Common/Modal/Modal'
 
 interface PausedViewProps {
   gameLogic: GameLogic

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import type { GameLogic } from '../core'
+import type { GameLogic } from '../../core'
 import { IconButton } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import { EditableRow } from './EditableRow'
-import ActionBar, { type Action } from './ActionBar'
-import Modal from './Modal'
+import ActionBar, { type Action } from '../Common/ActionBar/ActionBar'
+import Modal from '../Common/Modal/Modal'
 
 const MAX_NAME_LENGTH = 20
 

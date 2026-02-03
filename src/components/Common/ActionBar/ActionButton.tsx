@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import type { Action } from './ActionBar'
-import { useLongPress } from '../hooks/useLongPress'
+import { useLongPress } from '../../../hooks/useLongPress'
 import { ProgressBorder } from './ProgressBorder'
 
 interface ActionButtonProps {
