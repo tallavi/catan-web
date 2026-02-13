@@ -4,6 +4,7 @@ import {
   type GameSaveData,
   type GameTurn,
 } from '../../core/types'
+import './HistoryTable.css'
 import { formatTime, type DurationStats } from '../../core'
 import HorizontalScrollContainer from '../Common/HorizontalScrollContainer'
 

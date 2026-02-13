@@ -5,6 +5,8 @@ import React, {
   useEffect,
 } from 'react'
 
+import './HorizontalScrollContainer.css'
+
 interface HorizontalScrollContainerProps {
   className?: string
 }

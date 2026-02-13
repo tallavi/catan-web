@@ -1,27 +1,3 @@
-/* Game component styles - terminal-like theme */
-:root {
-  --bg: #f7fafc;
-  --panel: #ffffff;
-  --muted: #4a5568;
-  --accent: #667eea; /* blue */
-  --red: #e53e3e;
-  --yellow: #d69e2e;
-  --green: #38a169;
-  --blue: #3182ce;
-  --bold: #2d3748;
-  --action-bar-height: 72px; /* space reserved for fixed action bar */
-}
-
-.game-view {
-  background: transparent;
-  color: var(--bold);
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
-    Arial, sans-serif;
-  min-height: 100vh;
-  padding: 1rem;
-}
-
 /* TODO: unused. Delete? */
 /*
 .view-controls {
@@ -37,14 +13,6 @@
   border-radius: 6px;
 }
 */
-
-.view-content {
-  background: transparent;
-  padding: 1rem;
-  border-radius: 0;
-  box-shadow: none;
-  border: none;
-}
 
 /* Layout for views to keep info/action bars visible at bottom */
 .view {
@@ -104,25 +72,6 @@ table {
   font-size: 1.5rem;
 }
 
-/* color classes from renderer */
-.text-red {
-  color: var(--red);
-}
-.text-yellow {
-  color: var(--yellow);
-}
-.text-green {
-  color: var(--green);
-}
-.text-blue {
-  color: var(--blue);
-}
-.text-muted {
-  color: var(--muted);
-}
-.text-accent {
-  color: var(--accent);
-}
 /* TODO: unused. Delete? */
 /*
 .text-bold {
@@ -451,26 +400,6 @@ tfoot tr {
   padding: 1rem;
 }
 
-.chip {
-  background-color: var(--accent);
-  color: white;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  margin-left: 8px;
-  white-space: nowrap;
-}
-
-.chip.red {
-  background-color: var(--red);
-  color: white;
-}
-
-.chip.green {
-  background-color: var(--green);
-  color: white;
-}
-
 /* TODO: unused. Delete? */
 /*
 .card-header {
@@ -483,63 +412,4 @@ tfoot tr {
 
 .card table {
   font-size: 1.1em;
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  pointer-events: all;
-}
-
-.modal-content {
-  background: var(--panel);
-  padding: 2rem;
-  border-radius: 10px;
-  text-align: center;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.modal-content .action-bar {
-  position: static;
-  box-shadow: none;
-  background: transparent;
-  padding-top: 1rem;
-}
-
-.scroll-shadow-container {
-  position: relative;
-}
-
-.scroll-shadow-container::before,
-.scroll-shadow-container::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 60px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s ease-in-out;
-}
-
-.scroll-shadow-container::before {
-  left: 0;
-  background: linear-gradient(to right, var(--panel), transparent);
-}
-
-.scroll-shadow-container::after {
-  right: 0;
-  background: linear-gradient(to left, var(--panel), transparent);
-}
-
-.scroll-shadow-container.scroll-shadow-left::before,
-.scroll-shadow-container.scroll-shadow-right::after {
-  opacity: 1;
 }

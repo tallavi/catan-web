@@ -1,0 +1,19 @@
+.chip {
+  background-color: var(--accent);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+.chip.red {
+  background-color: var(--red);
+  color: white;
+}
+
+.chip.green {
+  background-color: var(--green);
+  color: white;
+}

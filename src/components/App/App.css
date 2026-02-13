@@ -1,0 +1,50 @@
+:root {
+  --bg: #f7fafc;
+  --panel: #ffffff;
+  --muted: #4a5568;
+  --accent: #667eea; /* blue */
+  --red: #e53e3e;
+  --yellow: #d69e2e;
+  --green: #38a169;
+  --blue: #3182ce;
+  --bold: #2d3748;
+  --action-bar-height: 72px; /* space reserved for fixed action bar */
+}
+
+.game-view {
+  background: transparent;
+  color: var(--bold);
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+.view-content {
+  background: transparent;
+  padding: 1rem;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+}
+
+/* color classes from renderer */
+.text-red {
+  color: var(--red);
+}
+.text-yellow {
+  color: var(--yellow);
+}
+.text-green {
+  color: var(--green);
+}
+.text-blue {
+  color: var(--blue);
+}
+.text-muted {
+  color: var(--muted);
+}
+.text-accent {
+  color: var(--accent);
+}
