@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import '../game.css'
+import './App.css'
 import { GameLogic, GameMode } from '../../core'
 import type { GameMode as GameModeType } from '../../core/types'
 import { mockGameSaveData } from '../../mocks/mockGameState'
@@ -21,7 +22,7 @@ if ((import.meta as any).hot) {
   })
 }
 
-export const GameView: React.FC = () => {
+export const App: React.FC = () => {
   const gameLogic = useMemo(() => {
     return new GameLogic(
       undefined,
@@ -56,4 +57,4 @@ export const GameView: React.FC = () => {
   )
 }
 
-export default GameView
+export default App

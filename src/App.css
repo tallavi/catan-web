@@ -1,4 +1,6 @@
 /* Modern, clean CSS for the hello world app */
+/* TODO: unused. Delete? */
+/*
 .app {
   max-width: none;
   margin: 0;
@@ -8,6 +10,7 @@
   line-height: 1.6;
   color: #333;
 }
+*/
 
 header {
   text-align: center;
@@ -36,6 +39,8 @@ main {
   gap: 2rem;
 }
 
+/* TODO: unused. Delete? */
+/*
 .experiment-section,
 .info-section {
   background: white;
@@ -52,7 +57,10 @@ main {
   font-size: 1.5rem;
   font-weight: 600;
 }
+*/
 
+/* TODO: unused. Delete? */
+/*
 .input-group {
   margin-bottom: 1.5rem;
 }
@@ -78,13 +86,17 @@ main {
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
+*/
 
+/* TODO: unused. Delete? */
+/*
 .button-group {
   display: flex;
   gap: 1rem;
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
 }
+*/
 
 button {
   padding: 0.75rem 1.5rem;
@@ -104,6 +116,8 @@ button:hover {
   box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
 }
 
+/* TODO: unused. Delete? */
+/*
 .reset-btn {
   background: #e53e3e;
 }
@@ -112,7 +126,10 @@ button:hover {
   background: #c53030;
   box-shadow: 0 4px 8px rgba(229, 62, 62, 0.3);
 }
+*/
 
+/* TODO: unused. Delete? */
+/*
 .time-display {
   background: #f7fafc;
   padding: 1rem;
@@ -126,7 +143,10 @@ button:hover {
   font-size: 1.1rem;
   color: #2d3748;
 }
+*/
 
+/* TODO: unused. Delete? */
+/*
 .info-section ul {
   list-style: none;
   padding: 0;
@@ -142,7 +162,10 @@ button:hover {
 .info-section li:last-child {
   border-bottom: none;
 }
+*/
 
+/* TODO: unused. Delete? */
+/*
 .code-hint {
   margin-top: 1.5rem;
   padding: 1rem;
@@ -155,6 +178,7 @@ button:hover {
   margin: 0 0 0.5rem 0;
   font-weight: 500;
 }
+*/
 
 code {
   background: #e2e8f0;
@@ -166,9 +190,12 @@ code {
 
 /* Responsive design */
 @media (max-width: 600px) {
+  /* TODO: unused. Delete? */
+  /*
   .app {
     padding: 1rem;
   }
+  */
 
   header {
     padding: 1.5rem;
@@ -178,6 +205,8 @@ code {
     font-size: 2rem;
   }
 
+  /* TODO: unused. Delete? */
+  /*
   .button-group {
     flex-direction: column;
   }
@@ -186,10 +215,13 @@ code {
   .info-section {
     padding: 1.5rem;
   }
+  */
 }
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
+  /* TODO: unused. Delete? */
+  /*
   .app {
     color: #e2e8f0;
   }
@@ -215,6 +247,7 @@ code {
   .code-hint {
     background: #1a202c;
   }
+  */
 
   code {
     background: #4a5568;

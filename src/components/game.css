@@ -22,6 +22,8 @@
   padding: 1rem;
 }
 
+/* TODO: unused. Delete? */
+/*
 .view-controls {
   margin-bottom: 0.75rem;
 }
@@ -34,6 +36,7 @@
   margin-right: 0.5rem;
   border-radius: 6px;
 }
+*/
 
 .view-content {
   background: transparent;
@@ -62,17 +65,23 @@
   gap: 1rem;
 }
 
+/* TODO: unused. Delete? */
+/*
 .left-column,
 .right-column {
   background: rgba(255, 255, 255, 0.02);
   padding: 0.6rem;
   border-radius: 6px;
 }
+*/
 
+/* TODO: unused. Delete? */
+/*
 .turn-info {
   margin-top: 1rem;
   padding: 0.6rem;
 }
+*/
 
 table {
   width: 100%;
@@ -114,10 +123,13 @@ table {
 .text-accent {
   color: var(--accent);
 }
+/* TODO: unused. Delete? */
+/*
 .text-bold {
   color: var(--bold);
   font-weight: 700;
 }
+*/
 
 .view-title {
   color: var(--accent);
@@ -213,17 +225,20 @@ table {
   border: none;
 }
 
+/* TODO: unused. Delete? */
+/*
 .info-bar {
   display: flex;
   gap: 0.75rem;
   margin-top: 1rem;
   align-items: flex-end;
-  flex-wrap: nowrap; /* always single line */
-  overflow-x: visible; /* do not show scrollbar for the fields */
+  flex-wrap: nowrap;
+  overflow-x: visible;
   padding-bottom: 6px;
-  white-space: nowrap; /* keep items on single line */
-  flex-shrink: 0; /* always visible */
+  white-space: nowrap;
+  flex-shrink: 0;
 }
+*/
 
 .info-item {
   background: #f8fafc;
@@ -386,6 +401,8 @@ table {
   flex: 1;
 }
 
+/* TODO: unused. Delete? */
+/*
 .pool-stats {
   display: flex;
   width: 100%;
@@ -395,6 +412,7 @@ table {
 .pool-stats .card {
   flex: 1;
 }
+*/
 
 table {
   width: 100%;
@@ -419,11 +437,14 @@ tfoot tr {
   border-top: 3px solid #ddd;
 }
 
+/* TODO: unused. Delete? */
+/*
 .game-duration {
   margin-top: 1rem;
   text-align: center;
   font-size: 1.3rem;
 }
+*/
 
 .history-table {
   width: 100%;
@@ -450,12 +471,15 @@ tfoot tr {
   color: white;
 }
 
+/* TODO: unused. Delete? */
+/*
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
 }
+*/
 
 .card table {
   font-size: 1.1em;
