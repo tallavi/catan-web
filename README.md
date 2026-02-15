@@ -4,6 +4,8 @@ A single-page application built with React that acts as a **fair dice** for the 
 
 My family and I play Catan constantly, but we hate unfair dice. I built this to make the game less luck-based and more strategic: results are drawn from a predetermined, balanced set instead of random rolls. The game is still partly luck-based, since the _order_ in which those results appear remains random.
 
+The project started as a Python CLI tool. I later decided to port it to a web app to improve my hands-on experience with this stack and to level up my AI-assisted development workflow.
+
 **Use it now:** [catan.tallavi.dev](https://catan.tallavi.dev)
 
 ## Technologies
