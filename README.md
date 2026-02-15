@@ -1,94 +1,58 @@
-# Catan Web App
+# catan-web
 
-A web-based implementation of the Catan board game, built with React, TypeScript, and Vite.
+A single-page application built with React that acts as a **fair dice** for the board game _Settlers of Catan_.
 
-## 🚀 Quick Start
+My family and I play Catan constantly, but we hate unfair dice. I built this to make the game less luck-based and more strategic: results are drawn from a predetermined, balanced set instead of random rolls. The game is still partly luck-based, since the _order_ in which those results appear remains random.
 
-### Prerequisites
-- Node.js 24 LTS (installed via nvm)
-- VS Code with React Development profile
+**Use it now:** [catan.tallavi.dev](https://catan.tallavi.dev)
 
-### Installation & Development
+## Technologies
 
-1. **Clone and setup:**
-   ```bash
-   git clone <repository-url>
-   cd catan-web
-   npm install
-   ```
+- **React** 19 + **TypeScript**
+- **Vite** (build tool)
+- **Material UI (MUI)** + **Emotion** (UI and styling)
+- **Vitest** (testing)
+- **ESLint** (linting)
 
-2. **Start development server:**
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:5173](http://localhost:5173) in your browser
+## Roadmap
 
-3. **Build for production:**
-   ```bash
-   npm run build
-   ```
+☑ **Player setup** — Set player names and playing order.  
+☑ **Blocked results** — Exclude specific dice outcomes (e.g. 2 and/or 12) when they’re invalid for your game.  
+☑ **Pause / resume** — Pause and resume the game without losing state.  
+☑ **Free throws** — Roll the dice outside of normal turns (e.g. for testing or casual rolls).  
+☑ **Timing & stats** — Track turn times, total game time, and statistics (longest/shortest/average turn duration).  
+☑ **Predetermined results** — Set specific dice results in advance (e.g. for the Alchemist card in _Cities and Knights_).  
+☑ **Cities and Knights** — Events cube randomization and pirate track status.  
+☑ **Turn history** — View the history of previous turns.
 
-## 🎯 Current Status
+☐ **Import/export game** — Save and load game state to a file.  
+☐ **Settings**  
+&nbsp;&nbsp;&nbsp;&nbsp;☐ Light/dark mode  
+&nbsp;&nbsp;&nbsp;&nbsp;☐ Show/hide Cities and Knights–related elements  
+☐ **Server-side with authentication**  
+&nbsp;&nbsp;&nbsp;&nbsp;☐ Continue the same game from another device  
+&nbsp;&nbsp;&nbsp;&nbsp;☐ History of your games  
+☐ **More ideas?** — [Open an issue](https://github.com/tallavi/catan-web/issues) to suggest features.
 
-Currently contains a **hello world React app** for experimentation and testing the development setup. This allows you to:
+## Development
 
-- ✅ Test React + TypeScript development
-- ✅ Experiment with components and state
-- ✅ Verify ESLint and Prettier setup
-- ✅ Test Hot Module Replacement (HMR)
-- ✅ Practice with modern React hooks
-
-## 🛠️ Tech Stack
-
-- **Frontend:** React 19 + TypeScript
-- **Build Tool:** Vite
-- **Linting:** ESLint
-- **Formatting:** Prettier
-- **Development:** Hot Module Replacement
-
-## 📁 Project Structure
-
-```
-catan-web/
-├── src/
-│   ├── core/          # Game logic (future)
-│   ├── components/    # React components (future)
-│   ├── hooks/         # Custom React hooks (future)
-│   ├── states/        # Game state management (future)
-│   ├── App.tsx        # Main app component
-│   ├── App.css        # App styles
-│   └── main.tsx       # React entry point
-├── public/            # Static assets
-├── .vscode/           # VS Code configuration
-├── package.json       # Dependencies and scripts
-├── tsconfig.json      # TypeScript configuration
-├── vite.config.ts     # Vite configuration
-└── eslint.config.js   # ESLint configuration
+```bash
+npm install
+npm run dev
 ```
 
-## 🎮 Next Steps
+Open [http://localhost:5173](http://localhost:5173).
 
-When ready to implement the Catan game:
+```bash
+npm run build   # production build
+npm run test    # run tests
+```
 
-1. Review the implementation plan in `TODO.md`
-2. Port Python game logic to TypeScript
-3. Build React components for the game UI
-4. Implement state management and game flow
+## Frequently asked questions
 
-## 📝 Development Notes
+**What if I want to undo a turn?**  
+I deliberately avoided making undo easy. If you need to remove a turn, pause the game, then use your browser’s developer tools to edit the relevant data in local storage. After editing, refresh the page and the updated storage will be loaded. Do not unpause before refreshing, or the game will overwrite your manual changes.
 
-- Uses VS Code "React Development" profile for optimal experience
-- Auto-formatting on save with Prettier
-- ESLint for code quality
-- Hot reload for instant feedback
+## License
 
-## 🤝 Contributing
-
-1. Use the "React Development" VS Code profile
-2. Follow the existing code style (Prettier handles formatting)
-3. Run `npm run dev` for development
-4. Test in multiple browsers
-
-## 📄 License
-
-MIT License - see LICENSE file for details
+MIT — see [LICENSE](LICENSE) for details.
