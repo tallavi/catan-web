@@ -40,6 +40,6 @@
   "terminal.integrated.defaultProfile.osx": "zsh",
   "terminal.integrated.shellArgs.osx": ["-l"],
   "terminal.integrated.env.osx": {
-    "PATH": "${env:PATH}:/Users/tal/.nvm/versions/node/v24.13.0/bin"
+    "PATH": "${env:PATH}:${env:HOME}/.nvm/versions/node/v24.13.0/bin"
   }
 }
