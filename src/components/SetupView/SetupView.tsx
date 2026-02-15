@@ -153,8 +153,9 @@ export const SetupView: React.FC<SetupViewProps> = ({ gameLogic }) => {
         <div className="view-title" style={{ fontSize: '1.2rem' }}>
           Game Setup
         </div>
-
+        {/*TODO: that's not the right class, but it is needed, make it a common?*/}
         <div className="stats">
+          {/*TODO: that's not the right class, but it is needed, make it a common?*/}
           <div className="duration-tables">
             <div className="card">
               <div className="table-title">Players</div>
@@ -226,7 +227,6 @@ export const SetupView: React.FC<SetupViewProps> = ({ gameLogic }) => {
                 </tbody>
               </table>
             </div>
-
             <div className="card">
               <div className="table-title">Blocked Results</div>
               <table style={{ width: '100%', fontSize: '1.5rem' }}>

@@ -1,0 +1,51 @@
+.current-player {
+  font-weight: 400;
+}
+
+/* Info grid inside the right-most card */
+.info-card {
+  justify-content: top;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  /* grid-template-rows: repeat(4, 1fr); */
+  column-gap: 2rem;
+  row-gap: 1rem;
+  width: calc(
+    100% - 1rem
+  ); /* take full width of the right card minus right margin */
+  margin-top: 0.5rem;
+  margin-right: 1rem;
+}
+
+.info-grid > .info-cell:first-child {
+  margin-bottom: 0.75rem;
+}
+
+.info-cell {
+  background: #f8fafc;
+  border: 1px solid #eef2f7;
+  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch; /* stretch to full cell width */
+  color: var(--bold);
+  width: calc(100% - 0rem);
+}
+
+.info-label {
+  text-align: center;
+  color: var(--muted);
+  font-size: 1.3rem;
+}
+
+.info-value {
+  text-align: center;
+  /* color: var(--bold); */
+  font-size: 1.8rem;
+  font-weight: 700;
+}

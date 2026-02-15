@@ -1,19 +1,3 @@
-/* TODO: unused. Delete? */
-/*
-.view-controls {
-  margin-bottom: 0.75rem;
-}
-
-.view-controls button {
-  background: transparent;
-  border: 1px solid #1f2937;
-  color: var(--muted);
-  padding: 0.35rem 0.6rem;
-  margin-right: 0.5rem;
-  border-radius: 6px;
-}
-*/
-
 /* Layout for views to keep info/action bars visible at bottom */
 .view {
   display: flex;
@@ -32,24 +16,6 @@
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
-
-/* TODO: unused. Delete? */
-/*
-.left-column,
-.right-column {
-  background: rgba(255, 255, 255, 0.02);
-  padding: 0.6rem;
-  border-radius: 6px;
-}
-*/
-
-/* TODO: unused. Delete? */
-/*
-.turn-info {
-  margin-top: 1rem;
-  padding: 0.6rem;
-}
-*/
 
 table {
   width: 100%;
@@ -71,14 +37,6 @@ table {
   /* color: var(--muted); */
   font-size: 1.5rem;
 }
-
-/* TODO: unused. Delete? */
-/*
-.text-bold {
-  color: var(--bold);
-  font-weight: 700;
-}
-*/
 
 .view-title {
   color: var(--accent);
@@ -125,158 +83,8 @@ table {
   flex-direction: column;
 }
 
-/* .events-card,
-.cubes-card {
-  padding-right: 5rem;
-} */
-
 .card .card-content {
   padding-right: 1.5rem;
-}
-
-/* Info grid inside the right-most card */
-.info-card {
-  justify-content: top;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  /* grid-template-rows: repeat(4, 1fr); */
-  column-gap: 2rem;
-  row-gap: 1rem;
-  width: calc(
-    100% - 1rem
-  ); /* take full width of the right card minus right margin */
-  margin-top: 0.5rem;
-  margin-right: 1rem;
-}
-
-.info-grid > .info-cell:first-child {
-  margin-bottom: 0.75rem;
-}
-
-.info-cell {
-  background: #f8fafc;
-  border: 1px solid #eef2f7;
-  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: stretch; /* stretch to full cell width */
-  color: var(--bold);
-  width: calc(100% - 0rem);
-}
-
-.info-cell.empty {
-  background: transparent;
-  border: none;
-}
-
-/* TODO: unused. Delete? */
-/*
-.info-bar {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1rem;
-  align-items: flex-end;
-  flex-wrap: nowrap;
-  overflow-x: visible;
-  padding-bottom: 6px;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-*/
-
-.info-item {
-  background: #f8fafc;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  min-width: 56px; /* allow items to shrink to fit on one line */
-  display: flex;
-  flex-direction: column;
-  border: 1px solid #eef2f7;
-  color: var(--bold);
-  flex: 0 1 auto;
-}
-
-.info-label {
-  text-align: center;
-  color: var(--muted);
-  font-size: 1.3rem;
-}
-
-.info-value {
-  text-align: center;
-  /* color: var(--bold); */
-  font-size: 1.8rem;
-  font-weight: 700;
-}
-
-.current-player {
-  font-weight: 400;
-}
-
-.action-bar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 0.6rem;
-  border-radius: 0;
-  justify-content: center;
-  background: rgb(102, 126, 234);
-}
-
-.action-bar-button {
-  padding: 0.6rem 0.9rem;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  background: #ffffff;
-  color: var(--muted);
-  position: relative; /* Needed for pseudo-elements */
-  --long-press-border-color: black;
-  --long-press-border-width: 4px;
-  --long-press-duration: 2000;
-  user-select: none;
-}
-
-.action-bar-button:disabled {
-  background-color: lightgray;
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.action-bar-button:focus {
-  outline: none;
-}
-
-.action-bar-button:not(:disabled):hover {
-  background-color: #dddddd;
-}
-
-.action-bar-button:not(:disabled):hover.key-pressed,
-.action-bar-button:not(:disabled):active,
-.action-bar-button.key-pressed {
-  background-color: #bbbbbb;
-}
-
-.action-bar-button-keyboard-shortcut {
-  display: inline-block;
-  margin-left: 0.5rem;
-  background: #f1f5f9;
-  padding: 0.08rem 0.4rem;
-  border-radius: 4px;
-  font-family: Monaco, Menlo, monospace;
-  font-size: 0.85rem;
-  color: var(--muted);
-  border: 1px solid #e2e8f0;
 }
 
 /* responsive adjustments */
@@ -309,11 +117,6 @@ table {
   .normal-view .columns {
     grid-template-columns: 1fr;
   }
-}
-
-.horizontal-scroll-container__content {
-  overflow-x: auto;
-  white-space: nowrap;
 }
 
 .text-left {
@@ -350,19 +153,6 @@ table {
   flex: 1;
 }
 
-/* TODO: unused. Delete? */
-/*
-.pool-stats {
-  display: flex;
-  width: 100%;
-  gap: 1rem;
-}
-
-.pool-stats .card {
-  flex: 1;
-}
-*/
-
 table {
   width: 100%;
   border-collapse: collapse;
@@ -386,29 +176,10 @@ tfoot tr {
   border-top: 3px solid #ddd;
 }
 
-/* TODO: unused. Delete? */
-/*
-.game-duration {
-  margin-top: 1rem;
-  text-align: center;
-  font-size: 1.3rem;
-}
-*/
-
 .history-table {
   width: 100%;
   padding: 1rem;
 }
-
-/* TODO: unused. Delete? */
-/*
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-*/
 
 .card table {
   font-size: 1.1em;

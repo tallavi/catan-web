@@ -28,3 +28,8 @@
 .scroll-shadow-container.scroll-shadow-right::after {
   opacity: 1;
 }
+
+.horizontal-scroll-container__content {
+  overflow-x: auto;
+  white-space: nowrap;
+}

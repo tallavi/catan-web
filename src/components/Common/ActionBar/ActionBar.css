@@ -1,0 +1,13 @@
+.action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.6rem;
+  border-radius: 0;
+  justify-content: center;
+  background: rgb(102, 126, 234);
+}

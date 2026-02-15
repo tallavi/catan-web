@@ -6,6 +6,7 @@ import CubeStatistics from './CubeStatistics'
 import EventsStatistics from './EventsStatistics'
 import ActionBar from '../Common/ActionBar/ActionBar'
 import type { Action } from '../Common/ActionBar/ActionBar.types'
+import './InProgressView.css'
 
 interface InProgressViewProps {
   gameLogic: GameLogic

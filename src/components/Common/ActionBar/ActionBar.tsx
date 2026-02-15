@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { ActionButton } from './ActionButton'
 import type { Action } from './ActionBar.types'
+import './ActionBar.css'
 
 interface ActionBarProps {
   actions: Action[]

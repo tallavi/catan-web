@@ -1,0 +1,46 @@
+.action-bar-button {
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  background: #ffffff;
+  color: var(--muted);
+  position: relative; /* Needed for pseudo-elements */
+  --long-press-border-color: black;
+  --long-press-border-width: 4px;
+  --long-press-duration: 2000;
+  user-select: none;
+}
+
+.action-bar-button:disabled {
+  background-color: lightgray;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.action-bar-button:focus {
+  outline: none;
+}
+
+.action-bar-button:not(:disabled):hover {
+  background-color: #dddddd;
+}
+
+.action-bar-button:not(:disabled):hover.key-pressed,
+.action-bar-button:not(:disabled):active,
+.action-bar-button.key-pressed {
+  background-color: #bbbbbb;
+}
+
+.action-bar-button-keyboard-shortcut {
+  display: inline-block;
+  margin-left: 0.5rem;
+  background: #f1f5f9;
+  padding: 0.08rem 0.4rem;
+  border-radius: 4px;
+  font-family: Monaco, Menlo, monospace;
+  font-size: 0.85rem;
+  color: var(--muted);
+  border: 1px solid #e2e8f0;
+}
