@@ -355,6 +355,7 @@ export class GameLogic {
       const avg = totalDuration / durations.length
       average.push({ playerName, duration: avg, turnNumber: -1 })
     }
+    average.sort((a, b) => b.duration - a.duration)
 
     return {
       shortest,
