@@ -134,6 +134,7 @@ export const SetupView: React.FC<SetupViewProps> = ({ gameLogic }) => {
       shortcutDisplay: 'Y',
       keys: ['y'],
       action: () => {
+        gameLogic.newGame()
         gameLogic.nextTurn()
         setIsConfirming(false)
       },
