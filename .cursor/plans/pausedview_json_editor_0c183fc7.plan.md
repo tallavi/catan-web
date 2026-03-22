@@ -7,7 +7,7 @@ todos:
     status: pending
   - id: gamesavedata-class
     content: 'Introduce GameSaveData class: tryFromJsonString + toJsonString; delegate GameStorage save/load'
-    status: pending
+    status: completed
   - id: gamelogic-apply
     content: Add GameLogic.applyGameSaveData (tryFrom fresh data, swap _gameState, save, timer + Paused); App re-render tick
     status: pending

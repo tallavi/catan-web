@@ -3,8 +3,7 @@
  * Replaces file I/O from Python version with browser LocalStorage.
  */
 
-import type { GameSaveData, GameTurn } from './types'
-import { CubesResult, EventsCubeResult } from './types'
+import { GameSaveData } from './types'
 
 /**
  * Error thrown when storage operations fail
@@ -40,7 +39,7 @@ export class GameStorage {
    */
   save(data: GameSaveData): void {
     try {
-      const serialized = this.serialize(data)
+      const serialized = data.toJsonString(true)
       localStorage.setItem(this.storageKey, serialized)
     } catch (error) {
       throw new StorageError('Failed to save game data', error)
@@ -58,8 +57,15 @@ export class GameStorage {
       if (serialized === null) {
         return null
       }
-      return this.deserialize(serialized)
+      const parsed = GameSaveData.tryFromJsonString(serialized)
+      if (!parsed.ok) {
+        throw new StorageError(parsed.errors.join('; '))
+      }
+      return parsed.data
     } catch (error) {
+      if (error instanceof StorageError) {
+        throw error
+      }
       throw new StorageError('Failed to load game data', error)
     }
   }
@@ -110,105 +116,8 @@ export class GameStorage {
       }
     }
 
-    const newGame: GameSaveData = {
-      players,
-      blockedResults,
-      gameTurns: [],
-    }
+    const newGame = new GameSaveData(players, blockedResults, [])
     this.save(newGame)
     return newGame
-  }
-
-  /**
-   * Serialize GameSaveData to JSON string
-   * Handles custom types like CubesResult and EventsCubeResult
-   */
-  private serialize(data: GameSaveData): string {
-    // Convert to plain object for serialization
-    const plain = {
-      players: data.players,
-      blockedResults: data.blockedResults,
-      gameTurns: data.gameTurns.map(turn => ({
-        turnNumber: turn.turnNumber,
-        playerIndex: turn.playerIndex,
-        cubes: {
-          yellowCube: turn.cubes.yellowCube,
-          redCube: turn.cubes.redCube,
-          predetermined: turn.cubes.predetermined,
-        },
-        eventsCube: turn.eventsCube,
-        turnDuration: turn.turnDuration,
-      })),
-    }
-
-    return JSON.stringify(plain, null, 2)
-  }
-
-  /**
-   * Deserialize JSON string to GameSaveData
-   * Reconstructs custom types like CubesResult
-   */
-  private deserialize(json: string): GameSaveData {
-    const plain = JSON.parse(json)
-
-    // Validate structure
-    if (!plain.players || !Array.isArray(plain.players)) {
-      throw new Error('Invalid save data: missing or invalid players array')
-    }
-
-    if (!plain.blockedResults || !Array.isArray(plain.blockedResults)) {
-      throw new Error(
-        'Invalid save data: missing or invalid blockedResults array'
-      )
-    }
-
-    if (!plain.gameTurns || !Array.isArray(plain.gameTurns)) {
-      throw new Error('Invalid save data: missing or invalid gameTurns array')
-    }
-
-    // Reconstruct GameTurns with proper types
-    const gameTurns: GameTurn[] = plain.gameTurns.map((turn: unknown) => {
-      if (typeof turn !== 'object' || turn === null) {
-        throw new Error('Invalid turn: not an object')
-      }
-
-      const t = turn as Record<string, unknown>
-
-      if (
-        !t.cubes ||
-        typeof t.turnNumber !== 'number' ||
-        typeof t.playerIndex !== 'number' ||
-        typeof t.turnDuration !== 'number'
-      ) {
-        throw new Error('Invalid turn: missing or invalid fields')
-      }
-
-      const cubesObj = t.cubes as Record<string, unknown>
-
-      const yellow = Number(cubesObj.yellowCube)
-      const red = Number(cubesObj.redCube)
-      const predetermined =
-        cubesObj.predetermined === undefined
-          ? undefined
-          : Boolean(cubesObj.predetermined)
-
-      return {
-        turnNumber: Number(t.turnNumber),
-        playerIndex: Number(t.playerIndex),
-        cubes: new CubesResult(
-          yellow,
-          red,
-          predetermined as boolean | undefined
-        ),
-        eventsCube: t.eventsCube as EventsCubeResult,
-        turnDuration: Number(t.turnDuration),
-      }
-    })
-
-    return {
-      players: plain.players,
-      blockedResults: plain.blockedResults,
-      gameTurns,
-    }
   }
 }

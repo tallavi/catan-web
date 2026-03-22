@@ -8,10 +8,15 @@ export type {
   Duration,
   DurationStats,
   GameTurn,
-  GameSaveData,
+  GameSaveDataTryFromJsonResult,
 } from './types/index'
 
-export { EventsCubeResult, CubesResult, GameMode } from './types/index'
+export {
+  EventsCubeResult,
+  CubesResult,
+  GameMode,
+  GameSaveData,
+} from './types/index'
 export type { GameStateTryFromResult } from './types/game-state'
 export { GameState } from './types/game-state'
 

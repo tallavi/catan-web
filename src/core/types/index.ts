@@ -151,14 +151,158 @@ export interface GameTurn {
   turnDuration: number
 }
 
+type GameSaveDataJsonParseResult =
+  | { ok: true; data: GameSaveData }
+  | { ok: false; errors: string[] }
+
 /**
- * Data structure for saving/loading game state
+ * Data structure for saving/loading game state (serializable game snapshot).
  */
-export interface GameSaveData {
+export class GameSaveData {
   players: string[]
   blockedResults: number[]
   gameTurns: GameTurn[]
+
+  constructor(
+    players: string[],
+    blockedResults: number[],
+    gameTurns: GameTurn[] = []
+  ) {
+    this.players = players
+    this.blockedResults = blockedResults
+    this.gameTurns = gameTurns
+  }
+
+  /**
+   * Parse JSON text into structural {@link GameSaveData} (non-throwing).
+   * Suitable for live editor validation; does not run {@link GameState.tryFromGameSaveData}.
+   */
+  static tryFromJsonString(text: string): GameSaveDataJsonParseResult {
+    let plain: unknown
+    try {
+      plain = JSON.parse(text)
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      return { ok: false, errors: [`Invalid JSON: ${msg}`] }
+    }
+    return GameSaveData.parsePlainObject(plain)
+  }
+
+  /**
+   * Serialize this snapshot to JSON. When `pretty` is true, uses 2-space indentation (default).
+   */
+  toJsonString(pretty: boolean = true): string {
+    const plain = {
+      players: this.players,
+      blockedResults: this.blockedResults,
+      gameTurns: this.gameTurns.map(turn => ({
+        turnNumber: turn.turnNumber,
+        playerIndex: turn.playerIndex,
+        cubes: {
+          yellowCube: turn.cubes.yellowCube,
+          redCube: turn.cubes.redCube,
+          predetermined: turn.cubes.predetermined,
+        },
+        eventsCube: turn.eventsCube,
+        turnDuration: turn.turnDuration,
+      })),
+    }
+    return pretty ? JSON.stringify(plain, null, 2) : JSON.stringify(plain)
+  }
+
+  private static parsePlainObject(plain: unknown): GameSaveDataJsonParseResult {
+    if (typeof plain !== 'object' || plain === null) {
+      return { ok: false, errors: ['Invalid save data: root must be an object'] }
+    }
+
+    const p = plain as Record<string, unknown>
+
+    if (!p.players || !Array.isArray(p.players)) {
+      return {
+        ok: false,
+        errors: ['Invalid save data: missing or invalid players array'],
+      }
+    }
+    if (!p.blockedResults || !Array.isArray(p.blockedResults)) {
+      return {
+        ok: false,
+        errors: ['Invalid save data: missing or invalid blockedResults array'],
+      }
+    }
+    if (!p.gameTurns || !Array.isArray(p.gameTurns)) {
+      return {
+        ok: false,
+        errors: ['Invalid save data: missing or invalid gameTurns array'],
+      }
+    }
+
+    const players = p.players as unknown[]
+    if (!players.every((x): x is string => typeof x === 'string')) {
+      return { ok: false, errors: ['Invalid save data: players must be strings'] }
+    }
+
+    const blockedResults = p.blockedResults as unknown[]
+    if (!blockedResults.every((x): x is number => typeof x === 'number')) {
+      return {
+        ok: false,
+        errors: ['Invalid save data: blockedResults must be numbers'],
+      }
+    }
+
+    const gameTurns: GameTurn[] = []
+    for (let i = 0; i < p.gameTurns.length; i++) {
+      const turn = p.gameTurns[i]
+      if (typeof turn !== 'object' || turn === null) {
+        return {
+          ok: false,
+          errors: [`Invalid turn at index ${i}: not an object`],
+        }
+      }
+
+      const t = turn as Record<string, unknown>
+
+      if (
+        !t.cubes ||
+        typeof t.turnNumber !== 'number' ||
+        typeof t.playerIndex !== 'number' ||
+        typeof t.turnDuration !== 'number'
+      ) {
+        return {
+          ok: false,
+          errors: [`Invalid turn at index ${i}: missing or invalid fields`],
+        }
+      }
+
+      const cubesObj = t.cubes as Record<string, unknown>
+
+      const yellow = Number(cubesObj.yellowCube)
+      const red = Number(cubesObj.redCube)
+      const predetermined =
+        cubesObj.predetermined === undefined
+          ? undefined
+          : Boolean(cubesObj.predetermined)
+
+      gameTurns.push({
+        turnNumber: Number(t.turnNumber),
+        playerIndex: Number(t.playerIndex),
+        cubes: new CubesResult(yellow, red, predetermined),
+        eventsCube: t.eventsCube as EventsCubeResult,
+        turnDuration: Number(t.turnDuration),
+      })
+    }
+
+    return {
+      ok: true,
+      data: new GameSaveData(
+        players as string[],
+        blockedResults as number[],
+        gameTurns
+      ),
+    }
+  }
 }
+
+export type GameSaveDataTryFromJsonResult = GameSaveDataJsonParseResult
 
 /**
  * Represents the current status of the game

@@ -1,22 +1,22 @@
 import { describe, it, expect } from 'vitest'
 import { GameState } from '../types/game-state'
-import type { GameSaveData } from '../types'
-import { CubesResult, EventsCubeResult } from '../types'
+import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
 
 describe('GameState.tryFromGameSaveData', () => {
-  const minimalValidSave = (): GameSaveData => ({
-    players: ['Alice'],
-    blockedResults: [],
-    gameTurns: [
-      {
-        turnNumber: 1,
-        playerIndex: 0,
-        cubes: new CubesResult(2, 3),
-        eventsCube: EventsCubeResult.GREEN,
-        turnDuration: 5,
-      },
-    ],
-  })
+  const minimalValidSave = (): GameSaveData =>
+    new GameSaveData(
+      ['Alice'],
+      [],
+      [
+        {
+          turnNumber: 1,
+          playerIndex: 0,
+          cubes: new CubesResult(2, 3),
+          eventsCube: EventsCubeResult.GREEN,
+          turnDuration: 5,
+        },
+      ]
+    )
 
   it('returns ok with a GameState for valid save data', () => {
     const data = minimalValidSave()
@@ -42,10 +42,10 @@ describe('GameState.tryFromGameSaveData', () => {
   })
 
   it('returns a single error when player index is wrong', () => {
-    const data: GameSaveData = {
-      players: ['A', 'B'],
-      blockedResults: [],
-      gameTurns: [
+    const data = new GameSaveData(
+      ['A', 'B'],
+      [],
+      [
         {
           turnNumber: 1,
           playerIndex: 0,
@@ -60,8 +60,8 @@ describe('GameState.tryFromGameSaveData', () => {
           eventsCube: EventsCubeResult.BLUE,
           turnDuration: 0,
         },
-      ],
-    }
+      ]
+    )
 
     const result = GameState.tryFromGameSaveData(data)
     expect(result.ok).toBe(false)
@@ -71,10 +71,10 @@ describe('GameState.tryFromGameSaveData', () => {
   })
 
   it('returns a single error when cubes are not in the possible pool', () => {
-    const data: GameSaveData = {
-      players: ['A'],
-      blockedResults: [],
-      gameTurns: [
+    const data = new GameSaveData(
+      ['A'],
+      [],
+      [
         {
           turnNumber: 1,
           playerIndex: 0,
@@ -89,8 +89,8 @@ describe('GameState.tryFromGameSaveData', () => {
           eventsCube: EventsCubeResult.BLUE,
           turnDuration: 0,
         },
-      ],
-    }
+      ]
+    )
 
     const result = GameState.tryFromGameSaveData(data)
     expect(result.ok).toBe(false)

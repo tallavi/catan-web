@@ -1,12 +1,16 @@
-import { GameState, CubesResult, EventsCubeResult } from '../core'
-import type { GameSaveData } from '../core'
+import {
+  GameState,
+  CubesResult,
+  EventsCubeResult,
+  GameSaveData,
+} from '../core'
 
 // Static mock game save data for development and static UI views
-export const mockGameSaveData: GameSaveData = {
-  players: ['Babushka & Pimpa', 'Bob', 'Carol'],
+export const mockGameSaveData = new GameSaveData(
+  ['Babushka & Pimpa', 'Bob', 'Carol'],
   // Example of blocked totals (these totals will be removed from initial cube pool)
-  blockedResults: [7],
-  gameTurns: [
+  [7],
+  [
     {
       turnNumber: 1,
       playerIndex: 0,
@@ -57,10 +61,27 @@ export const mockGameSaveData: GameSaveData = {
     //   eventsCube: EventsCubeResult.GREEN,
     //   turnDuration: 10,
     // },
-  ],
-}
+  ]
+)
 
-// Create and initialize a GameState instance seeded with the mock data
-export const mockGameState = new GameState(mockGameSaveData)
+// Create and initialize a GameState instance seeded with the mock data (clone: tryFrom mutates save)
+const mockTryFrom = GameState.tryFromGameSaveData(
+  new GameSaveData(
+    [...mockGameSaveData.players],
+    [...mockGameSaveData.blockedResults],
+    mockGameSaveData.gameTurns.map(t => ({
+      ...t,
+      cubes: new CubesResult(
+        t.cubes.yellowCube,
+        t.cubes.redCube,
+        t.cubes.predetermined
+      ),
+    }))
+  )
+)
+if (!mockTryFrom.ok) {
+  throw new Error(mockTryFrom.errors.join(', '))
+}
+export const mockGameState = mockTryFrom.state
 
 export default mockGameState

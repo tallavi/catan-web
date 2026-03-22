@@ -6,7 +6,6 @@
 import type {
   Duration,
   DurationStats,
-  GameSaveData,
   GameTurn,
   GameMode,
 } from './types/index'
@@ -14,6 +13,7 @@ import {
   CubesResult,
   EventsCubeResult,
   GameMode as GameStatus,
+  GameSaveData,
 } from './types/index'
 import { GameState } from './types/game-state'
 import { GameStorage } from './storage'
@@ -46,12 +46,10 @@ export class GameLogic {
     this._storage = new GameStorage(storageKey) //TODO: should I use multiple storage keys, one for initial game data and finished turns (changed just when the turn advances) vs current turn data that is saved again and again every 10 seconds? Or it doesn't matter?
     this._onGameModeChange = onGameModeChange
 
-    const saveData = initialData ??
-      this._storage.load() ?? {
-        players: [],
-        blockedResults: [],
-        gameTurns: [],
-      }
+    const saveData =
+      initialData ??
+      this._storage.load() ??
+      new GameSaveData([], [], [])
 
     const result = GameState.tryFromGameSaveData(saveData)
 
@@ -259,11 +257,11 @@ export class GameLogic {
    */
   newGame(): void {
     this._storage.clear()
-    const newSaveData: GameSaveData = {
-      gameTurns: [],
-      players: this._gameState.gameSaveData.players,
-      blockedResults: this._gameState.gameSaveData.blockedResults,
-    }
+    const newSaveData = new GameSaveData(
+      this._gameState.gameSaveData.players,
+      this._gameState.gameSaveData.blockedResults,
+      []
+    )
 
     const result = GameState.tryFromGameSaveData(newSaveData)
 
