@@ -20,30 +20,33 @@ export class GameState {
 
   //TODO: this should be private, as the construction should happen only through tryFromGameSaveData. Think about how to move the validation logic here so that it will be able to return a list of errors instead of just failing.
 
-  constructor(saveData: GameSaveData) {
-    // Create a new GameSaveData object, copying players and blockedResults,
-    // but initializing gameTurns as an empty array.
-
-    const gameTurns = saveData.gameTurns //TODO: this is a bit icky. We get the basic data on the game plus the turns in a single object and we separate it. The basic data is saved in a member without the turns, and the turns are passed into replayTurns so that they will be added back one by one into the same member. Change it so that the input is not being destroyed. Copy out what you need.
-    saveData.gameTurns = []
+  private constructor(saveData: GameSaveData) {
     this.gameSaveData = saveData
-
-    // Initialize with default values
-    this.initPossibleCubesResults()
-    this.initPossibleEventsCubeResults()
-
-    // Replay turns from the original saveData to populate the new gameTurns array
-    this.replayTurns(gameTurns)
   }
 
   /**
    * Attempt to build game state from save data. On failure returns a single error message (fail-fast).
    * Mutates {@link data} the same way as the constructor (e.g. clears and repopulates `gameTurns`); on error, `data` may be left inconsistent.
    */
-  static tryFromGameSaveData(data: GameSaveData): GameStateTryFromResult {
+  static tryFromGameSaveData(saveData: GameSaveData): GameStateTryFromResult {
     try {
-      const state = new GameState(data)
-      return { ok: true, state }
+      // Create a new GameSaveData object, copying players and blockedResults,
+      // but initializing gameTurns as an empty array.
+
+      const gameState = new GameState(saveData)
+
+      const gameTurns = saveData.gameTurns //TODO: this is a bit icky. We get the basic data on the game plus the turns in a single object and we separate it. The basic data is saved in a member without the turns, and the turns are passed into replayTurns so that they will be added back one by one into the same member. Change it so that the input is not being destroyed. Copy out what you need.
+      saveData.gameTurns = []
+      gameState.gameSaveData = saveData
+
+      // Initialize with default values
+      gameState.initPossibleCubesResults()
+      gameState.initPossibleEventsCubeResults()
+
+      // Replay turns from the original saveData to populate the new gameTurns array
+      gameState.replayTurns(gameTurns)
+
+      return { ok: true, state: gameState }
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e)
       return { ok: false, errors: [message] }

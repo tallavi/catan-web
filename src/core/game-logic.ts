@@ -53,7 +53,13 @@ export class GameLogic {
         gameTurns: [],
       }
 
-    this._gameState = new GameState(saveData)
+    const result = GameState.tryFromGameSaveData(saveData)
+
+    if (!result.ok) {
+      throw new Error(result.errors[0])
+    }
+
+    this._gameState = result.state
 
     // Set initial status without calling callback
     this._status =
@@ -258,7 +264,15 @@ export class GameLogic {
       players: this._gameState.gameSaveData.players,
       blockedResults: this._gameState.gameSaveData.blockedResults,
     }
-    this._gameState = new GameState(newSaveData)
+
+    const result = GameState.tryFromGameSaveData(newSaveData)
+
+    if (!result.ok) {
+      throw new Error(result.errors[0])
+    }
+
+    this._gameState = result.state
+
     this._turnTimer.reset()
     this._setStatus(GameStatus.Setup)
   }
