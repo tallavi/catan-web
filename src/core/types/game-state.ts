@@ -4,6 +4,10 @@
 import type { GameSaveData, GameTurn } from './index'
 import { CubesResult, EventsCubeResult } from './index'
 
+export type GameStateTryFromResult =
+  | { ok: true; state: GameState }
+  | { ok: false; errors: string[] }
+
 export class GameState {
   //TODO: consider having the memebers be private, but then we'll need more getters. Perhaps a getter for "normal view data" and "pause view data"
   gameSaveData: GameSaveData
@@ -14,11 +18,13 @@ export class GameState {
   piratesTrack: number = 1
   totalTimeOfFinishedTurns: number = 0
 
+  //TODO: this should be private, as the construction should happen only through tryFromGameSaveData. Think about how to move the validation logic here so that it will be able to return a list of errors instead of just failing.
+
   constructor(saveData: GameSaveData) {
     // Create a new GameSaveData object, copying players and blockedResults,
     // but initializing gameTurns as an empty array.
 
-    const gameTurns = saveData.gameTurns //TODO: this is a bit icky. We get the basic data on the game plus the turns in a single object and we separate it. The basic data is saved in a member without the turns, and the turns are passed into replayTurns so that they will be added back one by one into the same member.
+    const gameTurns = saveData.gameTurns //TODO: this is a bit icky. We get the basic data on the game plus the turns in a single object and we separate it. The basic data is saved in a member without the turns, and the turns are passed into replayTurns so that they will be added back one by one into the same member. Change it so that the input is not being destroyed. Copy out what you need.
     saveData.gameTurns = []
     this.gameSaveData = saveData
 
@@ -28,6 +34,20 @@ export class GameState {
 
     // Replay turns from the original saveData to populate the new gameTurns array
     this.replayTurns(gameTurns)
+  }
+
+  /**
+   * Attempt to build game state from save data. On failure returns a single error message (fail-fast).
+   * Mutates {@link data} the same way as the constructor (e.g. clears and repopulates `gameTurns`); on error, `data` may be left inconsistent.
+   */
+  static tryFromGameSaveData(data: GameSaveData): GameStateTryFromResult {
+    try {
+      const state = new GameState(data)
+      return { ok: true, state }
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e)
+      return { ok: false, errors: [message] }
+    }
   }
 
   /**
