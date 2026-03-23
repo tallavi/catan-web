@@ -3,13 +3,13 @@ name: Mode Controllers Refactor
 overview: Replace the current GameLogic-centric app flow with mode-specific controllers and add full invalid-save repair mode, with App as the orchestrator that loads persistence and swaps controllers on transitions.
 todos:
   - id: define-controller-interface
-    content: Add shared app-mode controller interface and transition payload types
+    content: Add shared app-mode controller interface and transition payload types in src/core/controllers/ModeController.ts
     status: pending
   - id: implement-repair-controller
-    content: Implement RepairSaveController with startup/manual flags and apply/cancel logic
+    content: Implement RepairSaveController in src/core/controllers/RepairSaveController.ts with startup/manual flags and apply/cancel logic
     status: pending
   - id: implement-mode-controllers
-    content: Implement SetupController, InProgressController (with timers), and PausedController
+    content: Implement SetupController, InProgressController (with timers), and PausedController under src/core/controllers
     status: pending
   - id: refactor-app-orchestrator
     content: Refactor App.tsx to own currentController bootstrap and transition-based replacement
@@ -43,14 +43,14 @@ Refactor app flow so each mode has a dedicated controller (`RepairSave`, `Setup`
 
 ## Target controller contract
 
-- Define a shared interface in core app-flow layer, e.g. `ModeController`:
+- Define a shared interface in `src/core/controllers/ModeController.ts`:
   - `getMode(): AppMode` where `AppMode = 'RepairSave' | 'Setup' | 'InProgress' | 'Paused'`.
   - `toTransitionState()` (or equivalent) to expose serializable/minimal state needed to create next controller.
 - Controllers:
-  - `RepairSaveController`: stores raw persisted JSON, parse/validation/apply state, and `isStartupRecovery`.
-  - `SetupController`: owns setup-only non-UI actions and current `GameSaveData`.
-  - `InProgressController`: owns in-progress actions, `GameState`, and timer fields.
-  - `PausedController`: owns paused actions and `GameState` (no timer fields).
+  - `src/core/controllers/RepairSaveController.ts`: stores raw persisted JSON, parse/validation/apply state, and `isStartupRecovery`.
+  - `src/core/controllers/SetupController.ts`: owns setup-only non-UI actions and current `GameSaveData`.
+  - `src/core/controllers/InProgressController.ts`: owns in-progress actions, `GameState`, and timer fields.
+  - `src/core/controllers/PausedController.ts`: owns paused actions and `GameState` (no timer fields).
 
 ## App bootstrap and transition rules
 
@@ -95,7 +95,7 @@ Refactor app flow so each mode has a dedicated controller (`RepairSave`, `Setup`
 
 ## Suggested implementation sequence
 
-1. Add app-flow types and shared controller interface.
+1. Add app-flow types and shared controller interface in `src/core/controllers/ModeController.ts`.
 2. Implement `RepairSaveController` first (startup + manual variants).
 3. Implement `SetupController` (`GameSaveData`-based), `InProgressController` (`GameState` + timers), and `PausedController` (`GameState`).
 4. Refactor `App.tsx` to own `currentController` and bootstrap selection.
