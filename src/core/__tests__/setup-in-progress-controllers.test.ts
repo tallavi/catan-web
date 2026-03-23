@@ -1,0 +1,95 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { SetupController } from '../controllers/SetupController'
+import { InProgressController } from '../controllers/InProgressController'
+import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
+import { GameState } from '../types/game-state'
+
+describe('SetupController', () => {
+  let testKey: string
+
+  beforeEach(() => {
+    testKey = `test-setup-ctrl-${Date.now()}-${Math.random()}`
+  })
+
+  afterEach(() => {
+    localStorage.removeItem(testKey)
+  })
+
+  it('setPlayers and setBlockedResults persist via GameStorage', () => {
+    const data = new GameSaveData([], [], [])
+    const c = new SetupController(data, testKey)
+
+    c.setPlayers(['A', 'B'])
+    c.setBlockedResults([7])
+
+    const raw = localStorage.getItem(testKey)
+    expect(raw).not.toBeNull()
+    const parsed = GameSaveData.tryFromJsonString(raw!)
+    expect(parsed.ok).toBe(true)
+    if (!parsed.ok) return
+    expect(parsed.data.players).toEqual(['A', 'B'])
+    expect(parsed.data.blockedResults).toEqual([7])
+  })
+})
+
+describe('InProgressController', () => {
+  let testKey: string
+
+  beforeEach(() => {
+    testKey = `test-ip-ctrl-${Date.now()}-${Math.random()}`
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+    localStorage.removeItem(testKey)
+  })
+
+  function stateWithOneTurn(): GameState {
+    const save = new GameSaveData(
+      ['Alice'],
+      [],
+      [
+        {
+          turnNumber: 1,
+          playerIndex: 0,
+          cubes: new CubesResult(2, 3),
+          eventsCube: EventsCubeResult.GREEN,
+          turnDuration: 5,
+        },
+      ]
+    )
+    const result = GameState.tryFromGameSaveData(save)
+    if (!result.ok) throw new Error(result.errors.join(', '))
+    return result.state
+  }
+
+  it('nextTurn appends a turn and saves', () => {
+    const state = stateWithOneTurn()
+    const c = new InProgressController(state, 0, testKey)
+
+    c.nextTurn()
+
+    expect(state.gameSaveData.gameTurns).toHaveLength(2)
+    expect(state.gameSaveData.gameTurns[1].turnNumber).toBe(2)
+
+    const raw = localStorage.getItem(testKey)
+    expect(raw).not.toBeNull()
+  })
+
+  it('nextTurnWithPredeterminedCubes uses predetermined flag', () => {
+    const state = stateWithOneTurn()
+    const c = new InProgressController(state, 0, testKey)
+
+    c.nextTurnWithPredeterminedCubes(4, 5)
+
+    const last = state.gameSaveData.gameTurns.at(-1)
+    expect(last?.cubes).toEqual(new CubesResult(4, 5, true))
+  })
+
+  it('getFreeRoll returns dice like GameLogic.getFreeRoll shape', () => {
+    const [cubes, ev] = InProgressController.getFreeRoll()
+    expect(cubes).toBeInstanceOf(CubesResult)
+    expect(typeof ev).toBe('number')
+  })
+})
