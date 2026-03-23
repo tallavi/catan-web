@@ -4,36 +4,15 @@
  * {@link RepairSaveController} instead of throwing.
  */
 
-import { GameSaveData } from '../types'
 import { GameState } from '../types/game-state'
+import { GameStorage } from '../storage'
 import type { IController } from './IController'
 import { InProgressController } from './InProgressController'
 import { RepairSaveController } from './RepairSaveController'
 import { SetupController } from './SetupController'
 
-function controllerFromParsedSave(
-  saveData: GameSaveData,
-  rawForRepair: string,
-  storageKey: string
-): IController {
-  if (saveData.gameTurns.length === 0) {
-    return new SetupController(saveData, storageKey)
-  }
-
-  const result = GameState.tryFromGameSaveData(saveData)
-  if (!result.ok) {
-    return new RepairSaveController(rawForRepair, true)
-  }
-
-  const state = result.state
-  const currentTurn = state.getCurrentTurn()
-  const turnTimerInitialSeconds = currentTurn?.turnDuration ?? 0
-
-  return new InProgressController(state, turnTimerInitialSeconds, storageKey)
-}
-
 /**
- * Load persisted JSON from `localStorage` (or use `initialData` like {@link GameLogic}),
+ * Load persisted JSON from `localStorage` (or use `initialData` for tests),
  * then return the appropriate controller.
  *
  * - Missing key: same as `GameLogic` — empty {@link GameSaveData} → {@link SetupController}.
@@ -44,28 +23,25 @@ function controllerFromParsedSave(
  *   (initial seconds = current turn's saved `turnDuration`, same storage key).
  */
 export function bootstrapAppController(
-  storageKey: string = 'catan-game-save',
-  initialData: GameSaveData | null = null
+  storageKey: string = 'catan-game-save'
 ): IController {
-  if (initialData !== null) {
-    const rawForRepair = initialData.toJsonString(true)
-    const parsed = GameSaveData.tryFromJsonString(rawForRepair)
-    if (!parsed.ok) {
-      return new RepairSaveController(rawForRepair, true)
-    }
-    return controllerFromParsedSave(parsed.data, rawForRepair, storageKey)
+  const loaded = new GameStorage(storageKey).load()
+  if (!loaded.ok) {
+    return new RepairSaveController(loaded.rawString, true)
   }
 
-  const raw = localStorage.getItem(storageKey)
-  if (raw === null) {
-    const empty = new GameSaveData([], [], [])
-    return controllerFromParsedSave(empty, empty.toJsonString(true), storageKey)
+  if (loaded.data.gameTurns.length === 0) {
+    return new SetupController(loaded.data, storageKey)
   }
 
-  const parsed = GameSaveData.tryFromJsonString(raw)
-  if (!parsed.ok) {
-    return new RepairSaveController(raw, true)
+  const result = GameState.tryFromGameSaveData(loaded.data)
+  if (!result.ok) {
+    return new RepairSaveController(loaded.rawString, true)
   }
 
-  return controllerFromParsedSave(parsed.data, raw, storageKey)
+  const state = result.state
+  const currentTurn = state.getCurrentTurn()
+  const turnTimerInitialSeconds = currentTurn?.turnDuration ?? 0
+
+  return new InProgressController(state, turnTimerInitialSeconds, storageKey)
 }
