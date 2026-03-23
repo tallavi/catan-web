@@ -22,16 +22,14 @@ import { SetupController } from './SetupController'
  * - Valid, has turns, state ok: {@link InProgressController} with turn {@link Timer} seeded like {@link GameLogic}
  *   (initial seconds = current turn's saved `turnDuration`, same storage key).
  */
-export function bootstrapAppController(
-  storageKey: string = 'catan-game-save'
-): IController {
-  const loaded = new GameStorage(storageKey).load()
+export function bootstrapAppController(storage: GameStorage): IController {
+  const loaded = storage.load()
   if (!loaded.ok) {
     return new RepairSaveController(loaded.rawString, true)
   }
 
   if (loaded.data.gameTurns.length === 0) {
-    return new SetupController(loaded.data, storageKey)
+    return new SetupController(loaded.data, storage)
   }
 
   const result = GameState.tryFromGameSaveData(loaded.data)
@@ -43,5 +41,5 @@ export function bootstrapAppController(
   const currentTurn = state.getCurrentTurn()
   const turnTimerInitialSeconds = currentTurn?.turnDuration ?? 0
 
-  return new InProgressController(state, turnTimerInitialSeconds, storageKey)
+  return new InProgressController(state, turnTimerInitialSeconds, storage)
 }

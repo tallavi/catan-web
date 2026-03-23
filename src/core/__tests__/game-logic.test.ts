@@ -16,7 +16,7 @@ describe('GameLogic', () => {
     // Create a fresh game for each test
     const saveData = storage.createNewGame(['Alice', 'Bob', 'Charlie'])
     storage.save(saveData)
-    game = new GameLogic(testKey)
+    game = new GameLogic(storage)
   })
 
   afterEach(() => {

@@ -7,12 +7,9 @@ export class SetupController implements IController {
   private readonly _gameSaveData: GameSaveData
   private readonly _storage: GameStorage
 
-  constructor(
-    gameSaveData: GameSaveData,
-    storageKey: string = 'catan-game-save'
-  ) {
+  constructor(gameSaveData: GameSaveData, storage: GameStorage) {
     this._gameSaveData = gameSaveData
-    this._storage = new GameStorage(storageKey)
+    this._storage = storage
   }
 
   appMode(): AppMode {

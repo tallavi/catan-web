@@ -21,10 +21,10 @@ export class InProgressController implements IController {
   constructor(
     gameState: GameState,
     turnTimerInitialSeconds: number = 0,
-    storageKey: string = 'catan-game-save'
+    storage: GameStorage
   ) {
     this._gameState = gameState
-    this._storage = new GameStorage(storageKey)
+    this._storage = storage
     this._turnTimer = new Timer(turnTimerInitialSeconds)
     this._turnTimer.resume()
   }
@@ -130,6 +130,16 @@ export class InProgressController implements IController {
 
     const cubes = new CubesResult(yellowCube, redCube, true)
     this._innerNextTurn(cubes)
+  }
+
+  /**
+   * Same as the first part of {@link GameLogic.pause}: writes the live turn length from the {@link Timer}
+   * into the current turn on {@link GameState}, then pauses the timer. Call before switching to
+   * {@link PausedController} (paused mode has no timer; state holds the frozen duration).
+   */
+  pauseTimers(): void {
+    this._updateTurnDuration()
+    this._turnTimer.pause()
   }
 
   /** Same as {@link GameLogic.timerTick}. */

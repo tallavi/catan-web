@@ -24,6 +24,7 @@ export { GameState } from './types/game-state'
 export { GameLogic } from './game-logic'
 
 // Storage
+export type { GameStorageLoadResult } from './storage'
 export { GameStorage, StorageError } from './storage'
 
 // Timer

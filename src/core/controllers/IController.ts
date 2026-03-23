@@ -31,6 +31,8 @@ export interface InProgressTransitionState {
 export interface PausedTransitionState {
   mode: typeof AppMode.Paused
   gameState: GameState
+  /** Turn timer seconds when paused (timer is paused; value matches last sync). */
+  turnTimerSeconds: number
 }
 
 export type ControllerTransitionState =

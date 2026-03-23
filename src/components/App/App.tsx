@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import '../game.css'
 import './App.css'
-import { GameLogic, GameMode } from '../../core'
+import { GameLogic, GameMode, GameStorage } from '../../core'
 import type { GameMode as GameModeType } from '../../core/types'
 import InProgressView from '../InProgressView/InProgressView'
 import PausedView from '../PausedView/PausedView'
@@ -9,7 +9,8 @@ import SetupView from '../SetupView/SetupView'
 
 export const App: React.FC = () => {
   const gameLogic = useMemo(() => {
-    return new GameLogic()
+    const storage = new GameStorage()
+    return new GameLogic(storage)
   }, [])
 
   const [gameMode, setGameMode] = useState<GameModeType>(gameLogic.status)

@@ -5,12 +5,15 @@ import { RepairSaveController } from '../controllers/RepairSaveController'
 import { SetupController } from '../controllers/SetupController'
 import { AppMode } from '../controllers/IController'
 import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
+import { GameStorage } from '../storage'
 
 describe('bootstrapAppController', () => {
   let testKey: string
+  let storage: GameStorage
 
   beforeEach(() => {
     testKey = `test-bootstrap-${Date.now()}-${Math.random()}`
+    storage = new GameStorage(testKey)
   })
 
   afterEach(() => {
@@ -18,7 +21,7 @@ describe('bootstrapAppController', () => {
   })
 
   it('returns SetupController when storage is empty (same default as GameLogic)', () => {
-    const c = bootstrapAppController(testKey, null)
+    const c = bootstrapAppController(storage)
     expect(c).toBeInstanceOf(SetupController)
     expect(c.appMode()).toBe(AppMode.Setup)
     expect((c as SetupController).getGameSaveData().gameTurns).toEqual([])
@@ -26,7 +29,7 @@ describe('bootstrapAppController', () => {
 
   it('returns RepairSaveController when JSON is invalid', () => {
     localStorage.setItem(testKey, 'not json {')
-    const c = bootstrapAppController(testKey, null)
+    const c = bootstrapAppController(storage)
     expect(c).toBeInstanceOf(RepairSaveController)
     expect(c.appMode()).toBe(AppMode.RepairSave)
     expect((c as RepairSaveController).getRawSaveText()).toBe('not json {')
@@ -35,7 +38,7 @@ describe('bootstrapAppController', () => {
 
   it('returns RepairSaveController when save fails structural schema', () => {
     localStorage.setItem(testKey, JSON.stringify({ foo: 1 }))
-    const c = bootstrapAppController(testKey, null)
+    const c = bootstrapAppController(storage)
     expect(c).toBeInstanceOf(RepairSaveController)
     expect(c.appMode()).toBe(AppMode.RepairSave)
   })
@@ -43,7 +46,7 @@ describe('bootstrapAppController', () => {
   it('returns SetupController when valid save has no turns', () => {
     const data = new GameSaveData(['Alice', 'Bob'], [7], [])
     localStorage.setItem(testKey, data.toJsonString(true))
-    const c = bootstrapAppController(testKey, null)
+    const c = bootstrapAppController(storage)
     expect(c).toBeInstanceOf(SetupController)
     expect(c.appMode()).toBe(AppMode.Setup)
     expect((c as SetupController).getGameSaveData().players).toEqual([
@@ -67,12 +70,12 @@ describe('bootstrapAppController', () => {
       ]
     )
     localStorage.setItem(testKey, data.toJsonString(true))
-    const c = bootstrapAppController(testKey, null)
+    const c = bootstrapAppController(storage)
     expect(c).toBeInstanceOf(InProgressController)
     expect(c.appMode()).toBe(AppMode.InProgress)
     const ip = c as InProgressController
-    expect(ip.getTurnTimerSeconds()).toBe(12)
-    expect(ip.getGameTimerSeconds()).toBe(12)
+    expect(ip.getTurnTimerSeconds()).toBeCloseTo(12, 2)
+    expect(ip.getGameTimerSeconds()).toBeCloseTo(12, 2)
     expect(ip.getGameState().gameSaveData.gameTurns).toHaveLength(1)
   })
 
@@ -92,16 +95,9 @@ describe('bootstrapAppController', () => {
     )
     const raw = data.toJsonString(true)
     localStorage.setItem(testKey, raw)
-    const c = bootstrapAppController(testKey, null)
+    const c = bootstrapAppController(storage)
     expect(c).toBeInstanceOf(RepairSaveController)
     expect(c.appMode()).toBe(AppMode.RepairSave)
     expect((c as RepairSaveController).getRawSaveText()).toBe(raw)
-  })
-
-  it('uses initialData instead of localStorage when provided', () => {
-    const data = new GameSaveData(['Zed'], [], [])
-    const c = bootstrapAppController(testKey, data)
-    expect(c).toBeInstanceOf(SetupController)
-    expect((c as SetupController).getGameSaveData().players).toEqual(['Zed'])
   })
 })

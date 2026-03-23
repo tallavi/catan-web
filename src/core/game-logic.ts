@@ -30,19 +30,21 @@ export class GameLogic {
 
   /**
    * Initialize the game logic
-   * @param storageKey - LocalStorage key for saving/loading (defaults to 'catan-game-save')
-   * @param initialData - Optional initial game data to use instead of loading from storage
+   * @param storage - GameStorage instance for saving/loading
+   * @param onGameModeChange - Called when setup / in-progress / paused mode changes
    */
   constructor(
-    storageKey: string = 'catan-game-save',
-    initialData: GameSaveData | null = null,
+    storage: GameStorage,
     onGameModeChange: (gameMode: GameMode) => void = () => {}
   ) {
-    this._storage = new GameStorage(storageKey) //TODO: should I use multiple storage keys, one for initial game data and finished turns (changed just when the turn advances) vs current turn data that is saved again and again every 10 seconds? Or it doesn't matter?
+    this._storage = storage //TODO: should I use multiple storage keys, one for initial game data and finished turns (changed just when the turn advances) vs current turn data that is saved again and again every 10 seconds? Or it doesn't matter?
     this._onGameModeChange = onGameModeChange
 
-    const saveData =
-      initialData ?? this._storage.load() ?? new GameSaveData([], [], [])
+    const loaded = this._storage.load()
+    if (!loaded.ok) {
+      throw new Error(loaded.errors.join('; '))
+    }
+    const saveData = loaded.data
 
     const result = GameState.tryFromGameSaveData(saveData)
 
