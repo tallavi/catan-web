@@ -28,7 +28,3 @@ export { GameStorage, StorageError } from './storage'
 
 // Timer
 export { Timer, formatTime, formatTimeDetailed } from './timer'
-
-// Renderer
-export type { ColorType, TextPart } from './renderer'
-export { TextRenderer, ColorTags, formatEventsCube } from './renderer'
