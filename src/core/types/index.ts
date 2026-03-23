@@ -2,6 +2,11 @@
  * Core type definitions for the Catan game logic.
  * Ported from Python dataclasses in catan-cli/logic/game_logic.py
  */
+import { safeParse } from 'valibot'
+import {
+  type EventsCubeLabel,
+  gameSaveJsonSchema,
+} from './game-save-json-schema'
 
 /**
  * Represents a duration record for a player's turn
@@ -70,6 +75,26 @@ export class EventsCubeResult {
     const entries = Object.entries(this) as [string, number][]
     const entry = entries.find(([, value]) => value === result)
     return entry ? entry[0] : 'UNKNOWN'
+  }
+
+  //TODO: is there nothing automatic to serialize enums?
+
+  /**
+   * Parse events cube label from serialized JSON.
+   */
+  static fromLabel(label: EventsCubeLabel): EventsCubeResult {
+    switch (label) {
+      case 'GREEN':
+        return EventsCubeResult.GREEN
+      case 'BLUE':
+        return EventsCubeResult.BLUE
+      case 'YELLOW':
+        return EventsCubeResult.YELLOW
+      case 'PIRATES':
+        return EventsCubeResult.PIRATES
+      default:
+        throw new Error(`Invalid events cube label: ${label}`)
+    }
   }
 
   /**
@@ -198,12 +223,10 @@ export class GameSaveData {
       gameTurns: this.gameTurns.map(turn => ({
         turnNumber: turn.turnNumber,
         playerIndex: turn.playerIndex,
-        cubes: {
-          yellowCube: turn.cubes.yellowCube,
-          redCube: turn.cubes.redCube,
-          predetermined: turn.cubes.predetermined,
-        },
-        eventsCube: turn.eventsCube,
+        yellowCube: turn.cubes.yellowCube,
+        redCube: turn.cubes.redCube,
+        predetermined: turn.cubes.predetermined,
+        eventsCube: EventsCubeResult.getName(turn.eventsCube),
         turnDuration: turn.turnDuration,
       })),
     }
@@ -211,94 +234,45 @@ export class GameSaveData {
   }
 
   private static parsePlainObject(plain: unknown): GameSaveDataJsonParseResult {
-    if (typeof plain !== 'object' || plain === null) {
-      return { ok: false, errors: ['Invalid save data: root must be an object'] }
-    }
-
-    const p = plain as Record<string, unknown>
-
-    if (!p.players || !Array.isArray(p.players)) {
+    const result = safeParse(gameSaveJsonSchema, plain)
+    if (!result.success) {
       return {
         ok: false,
-        errors: ['Invalid save data: missing or invalid players array'],
-      }
-    }
-    if (!p.blockedResults || !Array.isArray(p.blockedResults)) {
-      return {
-        ok: false,
-        errors: ['Invalid save data: missing or invalid blockedResults array'],
-      }
-    }
-    if (!p.gameTurns || !Array.isArray(p.gameTurns)) {
-      return {
-        ok: false,
-        errors: ['Invalid save data: missing or invalid gameTurns array'],
+        errors: result.issues.map(GameSaveData.formatValidationIssue),
       }
     }
 
-    const players = p.players as unknown[]
-    if (!players.every((x): x is string => typeof x === 'string')) {
-      return { ok: false, errors: ['Invalid save data: players must be strings'] }
-    }
-
-    const blockedResults = p.blockedResults as unknown[]
-    if (!blockedResults.every((x): x is number => typeof x === 'number')) {
-      return {
-        ok: false,
-        errors: ['Invalid save data: blockedResults must be numbers'],
-      }
-    }
-
-    const gameTurns: GameTurn[] = []
-    for (let i = 0; i < p.gameTurns.length; i++) {
-      const turn = p.gameTurns[i]
-      if (typeof turn !== 'object' || turn === null) {
-        return {
-          ok: false,
-          errors: [`Invalid turn at index ${i}: not an object`],
-        }
-      }
-
-      const t = turn as Record<string, unknown>
-
-      if (
-        !t.cubes ||
-        typeof t.turnNumber !== 'number' ||
-        typeof t.playerIndex !== 'number' ||
-        typeof t.turnDuration !== 'number'
-      ) {
-        return {
-          ok: false,
-          errors: [`Invalid turn at index ${i}: missing or invalid fields`],
-        }
-      }
-
-      const cubesObj = t.cubes as Record<string, unknown>
-
-      const yellow = Number(cubesObj.yellowCube)
-      const red = Number(cubesObj.redCube)
-      const predetermined =
-        cubesObj.predetermined === undefined
-          ? undefined
-          : Boolean(cubesObj.predetermined)
-
-      gameTurns.push({
-        turnNumber: Number(t.turnNumber),
-        playerIndex: Number(t.playerIndex),
-        cubes: new CubesResult(yellow, red, predetermined),
-        eventsCube: t.eventsCube as EventsCubeResult,
-        turnDuration: Number(t.turnDuration),
-      })
-    }
+    const gameTurns: GameTurn[] = result.output.gameTurns.map(turn => ({
+      turnNumber: turn.turnNumber,
+      playerIndex: turn.playerIndex,
+      cubes: new CubesResult(turn.yellowCube, turn.redCube, turn.predetermined),
+      eventsCube: EventsCubeResult.fromLabel(turn.eventsCube),
+      turnDuration: turn.turnDuration,
+    }))
 
     return {
       ok: true,
       data: new GameSaveData(
-        players as string[],
-        blockedResults as number[],
+        result.output.players,
+        result.output.blockedResults,
         gameTurns
       ),
     }
+  }
+
+  private static formatValidationIssue(issue: {
+    path?: Array<{ key: unknown }>
+    message: string
+  }): string {
+    const path = issue.path
+      ?.map(entry => entry.key)
+      .filter(key => key !== undefined)
+      .map(String)
+      .join('.')
+    if (!path) {
+      return `Invalid save data: ${issue.message}`
+    }
+    return `Invalid save data at ${path}: ${issue.message}`
   }
 }
 
