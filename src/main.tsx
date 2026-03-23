@@ -1,3 +1,4 @@
+import './dev/seedInitialStorage' //TODO: see how this behavior can be limited to dev builds only.
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'

@@ -1,0 +1,15 @@
+{
+  "players": ["Babushka & Pimpa", "Bob", "Carol"],
+  "blockedResults": [7],
+  "gameTurns": [
+    {
+      "turnNumber": 1,
+      "playerIndex": 0,
+      "yellowCube": 2,
+      "redCube": 3,
+      "predetermined": false,
+      "eventsCube": "GREEN",
+      "turnDuration": 12
+    }
+  ]
+}

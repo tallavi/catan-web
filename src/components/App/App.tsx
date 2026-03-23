@@ -3,32 +3,13 @@ import '../game.css'
 import './App.css'
 import { GameLogic, GameMode } from '../../core'
 import type { GameMode as GameModeType } from '../../core/types'
-import { mockGameSaveData } from '../../mocks/mockGameState'
 import InProgressView from '../InProgressView/InProgressView'
 import PausedView from '../PausedView/PausedView'
 import SetupView from '../SetupView/SetupView'
 
-const USE_MOCK_DATA = false
-
-// This is a development-only feature to force a re-render when the mock data changes.
-// In a production build, import.meta.hot will be undefined.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-if ((import.meta as any).hot) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ;(import.meta as any).hot.accept('../../mocks/mockGameState', () => {
-    // When the mock data changes, we want to force a full page reload to re-initialize the game state.
-    // While we could try to hot-update the component, a full reload is simpler and more reliable for this case.
-    window.location.reload()
-  })
-}
-
 export const App: React.FC = () => {
   const gameLogic = useMemo(() => {
-    return new GameLogic(
-      undefined,
-      USE_MOCK_DATA ? mockGameSaveData : null,
-      () => {}
-    )
+    return new GameLogic()
   }, [])
 
   const [gameMode, setGameMode] = useState<GameModeType>(gameLogic.status)
