@@ -1,6 +1,28 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { GameStorage } from '../storage'
-import { CubesResult, EventsCubeResult } from '../types'
+import {
+  type GameStorageLoadResult,
+  GameStorage,
+} from '../storage'
+import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
+
+type GameStorageLoadOk = Extract<GameStorageLoadResult, { ok: true }>
+type GameStorageLoadFailed = Extract<GameStorageLoadResult, { ok: false }>
+
+function assertGameStorageLoadOk(
+  result: GameStorageLoadResult
+): asserts result is GameStorageLoadOk {
+  if (result.ok !== true) {
+    throw new Error('expected successful GameStorage.load() result')
+  }
+}
+
+function assertGameStorageLoadFailed(
+  result: GameStorageLoadResult
+): asserts result is GameStorageLoadFailed {
+  if (result.ok !== false) {
+    throw new Error('expected failed GameStorage.load() result')
+  }
+}
 
 describe('GameStorage', () => {
   let storage: GameStorage
@@ -68,13 +90,27 @@ describe('GameStorage', () => {
       storage.save(saveData)
 
       const loaded = storage.load()
-      expect(loaded).not.toBeNull()
-      expect(loaded?.players).toEqual(['Alice', 'Bob'])
+      assertGameStorageLoadOk(loaded)
+      expect(loaded.data.players).toEqual(['Alice', 'Bob'])
     })
 
-    it('should return null when loading non-existent data', () => {
+    it('should return empty save when loading non-existent data', () => {
       const loaded = storage.load()
-      expect(loaded).toBeNull()
+      assertGameStorageLoadOk(loaded)
+      expect(loaded.data.players).toEqual([])
+      expect(loaded.data.blockedResults).toEqual([])
+      expect(loaded.data.gameTurns).toEqual([])
+      expect(loaded.rawString).toBe(
+        new GameSaveData([], [], []).toJsonString(true)
+      )
+    })
+
+    it('should return ok false with errors when stored JSON is not a valid save', () => {
+      localStorage.setItem(testKey, 'not valid json {{{')
+      const loaded = storage.load()
+      assertGameStorageLoadFailed(loaded)
+      expect(loaded.rawString).toBe('not valid json {{{')
+      expect(loaded.errors.length).toBeGreaterThan(0)
     })
 
     it('should preserve blocked results in save/load cycle', () => {
@@ -82,7 +118,8 @@ describe('GameStorage', () => {
       storage.save(saveData)
 
       const loaded = storage.load()
-      expect(loaded?.blockedResults).toEqual([2, 7, 12])
+      assertGameStorageLoadOk(loaded)
+      expect(loaded.data.blockedResults).toEqual([2, 7, 12])
     })
 
     it('should preserve game turns in save/load cycle', () => {
@@ -100,11 +137,12 @@ describe('GameStorage', () => {
       storage.save(saveData)
       const loaded = storage.load()
 
-      expect(loaded?.gameTurns.length).toBe(1)
-      expect(loaded?.gameTurns[0].turnNumber).toBe(1)
-      expect(loaded?.gameTurns[0].cubes.yellowCube).toBe(3)
-      expect(loaded?.gameTurns[0].cubes.redCube).toBe(4)
-      expect(loaded?.gameTurns[0].eventsCube).toBe(EventsCubeResult.GREEN)
+      assertGameStorageLoadOk(loaded)
+      expect(loaded.data.gameTurns.length).toBe(1)
+      expect(loaded.data.gameTurns[0].turnNumber).toBe(1)
+      expect(loaded.data.gameTurns[0].cubes.yellowCube).toBe(3)
+      expect(loaded.data.gameTurns[0].cubes.redCube).toBe(4)
+      expect(loaded.data.gameTurns[0].eventsCube).toBe(EventsCubeResult.GREEN)
     })
 
     it('should preserve predetermined flag in CubesResult', () => {
@@ -121,7 +159,8 @@ describe('GameStorage', () => {
       storage.save(saveData)
       const loaded = storage.load()
 
-      expect(loaded?.gameTurns[0].cubes.predetermined).toBe(true)
+      assertGameStorageLoadOk(loaded)
+      expect(loaded.data.gameTurns[0].cubes.predetermined).toBe(true)
     })
   })
 
@@ -135,7 +174,9 @@ describe('GameStorage', () => {
       storage.clear()
 
       expect(storage.exists()).toBe(false)
-      expect(storage.load()).toBeNull()
+      const after = storage.load()
+      assertGameStorageLoadOk(after)
+      expect(after.data.players).toEqual([])
     })
   })
 })

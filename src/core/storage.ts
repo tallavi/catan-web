@@ -5,6 +5,9 @@
 
 import { GameSaveData } from './types'
 
+/** Default `localStorage` key for game saves (keep in sync with dev seeding). */
+export const DEFAULT_GAME_STORAGE_KEY = 'catan-game-save'
+
 /**
  * Error thrown when storage operations fail
  */
@@ -19,6 +22,15 @@ export class StorageError extends Error {
 }
 
 /**
+ * Result of reading and parsing persisted game data from `localStorage`.
+ * `ok` mirrors {@link GameSaveData.tryFromJsonString}: when true, `data` is valid (including the default empty save when nothing is stored).
+ * `rawString` is the persisted text when present, or the canonical JSON for the default empty save when the key is missing.
+ */
+export type GameStorageLoadResult =
+  | { ok: true; data: GameSaveData; rawString: string }
+  | { ok: false; errors: string[]; rawString: string }
+
+/**
  * Manages game state persistence using browser LocalStorage
  */
 export class GameStorage {
@@ -28,7 +40,7 @@ export class GameStorage {
    * Create a new GameStorage instance
    * @param storageKey - The key to use for localStorage
    */
-  constructor(storageKey: string = 'catan-game-save') {
+  constructor(storageKey: string = DEFAULT_GAME_STORAGE_KEY) {
     this.storageKey = storageKey
   }
 
@@ -47,27 +59,28 @@ export class GameStorage {
   }
 
   /**
-   * Load game data from localStorage
-   * @returns The loaded game save data, or null if not found
-   * @throws {StorageError} If deserialization fails
+   * Load game data from localStorage.
+   * @returns Empty default save if the key is missing, loaded data if valid, or parse errors with the raw blob.
+   * @throws {StorageError} If `localStorage` access fails
    */
-  load(): GameSaveData | null {
+  load(): GameStorageLoadResult {
+    let serialized: string | null
     try {
-      const serialized = localStorage.getItem(this.storageKey)
-      if (serialized === null) {
-        return null
-      }
-      const parsed = GameSaveData.tryFromJsonString(serialized)
-      if (!parsed.ok) {
-        throw new StorageError(parsed.errors.join('; '))
-      }
-      return parsed.data
+      serialized = localStorage.getItem(this.storageKey)
     } catch (error) {
-      if (error instanceof StorageError) {
-        throw error
-      }
       throw new StorageError('Failed to load game data', error)
     }
+
+    if (serialized === null) {
+      const data = new GameSaveData([], [], [])
+      return { ok: true, data, rawString: data.toJsonString(true) }
+    }
+
+    const parsed = GameSaveData.tryFromJsonString(serialized)
+    if (!parsed.ok) {
+      return { ok: false, errors: parsed.errors, rawString: serialized }
+    }
+    return { ok: true, data: parsed.data, rawString: serialized }
   }
 
   /**
@@ -94,6 +107,7 @@ export class GameStorage {
    */
   createNewGame(
     //TODO: this method does double duty, either creating a new game according to params, or directly saves a precreated game (for mocking). We probably want to separate to two methods for clarity.
+    //TODO: I believe this method is no longer used and can be removed.
     players: string[],
     blockedResults: number[] = [],
     initialData: GameSaveData | null = null
