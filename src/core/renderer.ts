@@ -2,7 +2,7 @@
  * Text renderer for parsing color tags and converting to HTML.
  * Mirrors curses color formatting from Python version.
  */
-
+//TODO: unused? delete?
 /**
  * Supported color types
  */
@@ -85,7 +85,7 @@ export class TextRenderer {
     const parts = this.parse(text)
 
     return parts
-      .map((part) => {
+      .map(part => {
         if (part.color === 'default') {
           return this.escapeHtml(part.content)
         }
@@ -107,7 +107,7 @@ export class TextRenderer {
   }> {
     const parts = this.parse(text)
 
-    return parts.map((part) => {
+    return parts.map(part => {
       if (part.color === 'default') {
         return {
           type: 'text' as const,

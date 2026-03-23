@@ -3,12 +3,7 @@
  * Ported from Python version in catan-cli/logic/game_logic.py
  */
 
-import type {
-  Duration,
-  DurationStats,
-  GameTurn,
-  GameMode,
-} from './types/index'
+import type { Duration, DurationStats, GameTurn, GameMode } from './types/index'
 import {
   CubesResult,
   EventsCubeResult,
@@ -47,9 +42,7 @@ export class GameLogic {
     this._onGameModeChange = onGameModeChange
 
     const saveData =
-      initialData ??
-      this._storage.load() ??
-      new GameSaveData([], [], [])
+      initialData ?? this._storage.load() ?? new GameSaveData([], [], [])
 
     const result = GameState.tryFromGameSaveData(saveData)
 
@@ -103,6 +96,7 @@ export class GameLogic {
    * Get the current game status
    */
   get status(): GameMode {
+    //TODO: this should be called gameMode instead of status
     return this._status
   }
 
@@ -238,6 +232,7 @@ export class GameLogic {
 
     this._updateTurnDuration()
     this._turnTimer.pause()
+    //TODO: after pausing the timer, we should save the game state to storage, so that the latest time will be reflected.
     this._setStatus(GameStatus.Paused)
   }
 
