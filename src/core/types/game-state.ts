@@ -1,7 +1,7 @@
 /**
  * Game state management for the Catan game
  */
-import type { GameSaveData, GameTurn } from './index'
+import { GameSaveData, type GameTurn } from './index'
 import { CubesResult, EventsCubeResult } from './index'
 
 export type GameStateTryFromResult =
@@ -25,26 +25,29 @@ export class GameState {
   }
 
   /**
-   * Attempt to build game state from save data. On failure returns a single error message (fail-fast).
-   * Mutates {@link data} the same way as the constructor (e.g. clears and repopulates `gameTurns`); on error, `data` may be left inconsistent.
+   * Builds game state from {@link saveData}: copies players and blocked results into a new {@link GameSaveData}
+   * with an empty turn list, initializes cube and events pools, then replays {@link GameSaveData.gameTurns} to
+   * restore history and derived state. On failure returns a single error message (fail-fast).
    */
   static tryFromGameSaveData(saveData: GameSaveData): GameStateTryFromResult {
     try {
       // Create a new GameSaveData object, copying players and blockedResults,
       // but initializing gameTurns as an empty array.
 
-      const gameState = new GameState(saveData)
+      const newGameSaveData = new GameSaveData(
+        [...saveData.players],
+        [...saveData.blockedResults],
+        []
+      )
 
-      const gameTurns = saveData.gameTurns //TODO: this is a bit icky. We get the basic data on the game plus the turns in a single object and we separate it. The basic data is saved in a member without the turns, and the turns are passed into replayTurns so that they will be added back one by one into the same member. Change it so that the input is not being destroyed. Copy out what you need.
-      saveData.gameTurns = []
-      gameState.gameSaveData = saveData
+      const gameState = new GameState(newGameSaveData)
 
       // Initialize with default values
       gameState.initPossibleCubesResults()
       gameState.initPossibleEventsCubeResults()
 
       // Replay turns from the original saveData to populate the new gameTurns array
-      gameState.replayTurns(gameTurns)
+      gameState.replayTurns(saveData.gameTurns)
 
       return { ok: true, state: gameState }
     } catch (e) {
