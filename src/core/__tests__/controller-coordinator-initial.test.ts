@@ -1,37 +1,15 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { bootstrapAppController } from '../controllers/bootstrapAppController'
+import { ControllerCoordinator } from '../controllers/controllerCoordinator'
 import { InProgressController } from '../controllers/InProgressController'
-import {
-  RepairSaveController,
-  type RepairSaveControllerCallbacks,
-} from '../controllers/RepairSaveController'
-import {
-  SetupController,
-  type SetupControllerCallbacks,
-} from '../controllers/SetupController'
+import { RepairSaveController } from '../controllers/RepairSaveController'
+import { SetupController } from '../controllers/SetupController'
 import { AppMode } from '../controllers/IController'
 import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
 import { GameStorage } from '../storage'
 
-describe('bootstrapAppController', () => {
+describe('ControllerCoordinator#createInitialController', () => {
   let testKey: string
   let storage: GameStorage
-
-  function setupCallbacks(
-    storageInstance: GameStorage
-  ): SetupControllerCallbacks {
-    return {
-      save: d => storageInstance.save(d),
-      startGame: vi.fn(),
-    }
-  }
-
-  function repairSaveCallbacks(): RepairSaveControllerCallbacks {
-    return {
-      continueStartup: vi.fn(),
-      applyManualEdit: vi.fn(),
-    }
-  }
 
   beforeEach(() => {
     testKey = `test-bootstrap-${Date.now()}-${Math.random()}`
@@ -42,13 +20,15 @@ describe('bootstrapAppController', () => {
     localStorage.removeItem(testKey)
   })
 
+  function createInitial(storageInstance: GameStorage) {
+    return new ControllerCoordinator(
+      vi.fn(),
+      storageInstance
+    ).createInitialController()
+  }
+
   it('returns SetupController when storage is empty (same default as GameLogic)', () => {
-    const c = bootstrapAppController(
-      storage,
-      setupCallbacks(storage),
-      undefined,
-      repairSaveCallbacks()
-    )
+    const c = createInitial(storage)
     expect(c).toBeInstanceOf(SetupController)
     expect(c.appMode()).toBe(AppMode.Setup)
     expect((c as SetupController).getGameSaveData().gameTurns).toEqual([])
@@ -56,12 +36,7 @@ describe('bootstrapAppController', () => {
 
   it('returns RepairSaveController when JSON is invalid', () => {
     localStorage.setItem(testKey, 'not json {')
-    const c = bootstrapAppController(
-      storage,
-      setupCallbacks(storage),
-      undefined,
-      repairSaveCallbacks()
-    )
+    const c = createInitial(storage)
     expect(c).toBeInstanceOf(RepairSaveController)
     expect(c.appMode()).toBe(AppMode.RepairSave)
     expect((c as RepairSaveController).getRawSaveText()).toBe('not json {')
@@ -70,12 +45,7 @@ describe('bootstrapAppController', () => {
 
   it('returns RepairSaveController when save fails structural schema', () => {
     localStorage.setItem(testKey, JSON.stringify({ foo: 1 }))
-    const c = bootstrapAppController(
-      storage,
-      setupCallbacks(storage),
-      undefined,
-      repairSaveCallbacks()
-    )
+    const c = createInitial(storage)
     expect(c).toBeInstanceOf(RepairSaveController)
     expect(c.appMode()).toBe(AppMode.RepairSave)
   })
@@ -83,12 +53,7 @@ describe('bootstrapAppController', () => {
   it('returns SetupController when valid save has no turns', () => {
     const data = new GameSaveData(['Alice', 'Bob'], [7], [])
     localStorage.setItem(testKey, data.toJsonString(true))
-    const c = bootstrapAppController(
-      storage,
-      setupCallbacks(storage),
-      undefined,
-      repairSaveCallbacks()
-    )
+    const c = createInitial(storage)
     expect(c).toBeInstanceOf(SetupController)
     expect(c.appMode()).toBe(AppMode.Setup)
     expect((c as SetupController).getGameSaveData().players).toEqual([
@@ -112,12 +77,7 @@ describe('bootstrapAppController', () => {
       ]
     )
     localStorage.setItem(testKey, data.toJsonString(true))
-    const c = bootstrapAppController(
-      storage,
-      setupCallbacks(storage),
-      undefined,
-      repairSaveCallbacks()
-    )
+    const c = createInitial(storage)
     expect(c).toBeInstanceOf(InProgressController)
     expect(c.appMode()).toBe(AppMode.InProgress)
     const ip = c as InProgressController
@@ -142,12 +102,7 @@ describe('bootstrapAppController', () => {
     )
     const raw = data.toJsonString(true)
     localStorage.setItem(testKey, raw)
-    const c = bootstrapAppController(
-      storage,
-      setupCallbacks(storage),
-      undefined,
-      repairSaveCallbacks()
-    )
+    const c = createInitial(storage)
     expect(c).toBeInstanceOf(RepairSaveController)
     expect(c.appMode()).toBe(AppMode.RepairSave)
     expect((c as RepairSaveController).getRawSaveText()).toBe(raw)

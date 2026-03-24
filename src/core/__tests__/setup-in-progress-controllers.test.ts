@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { SetupController } from '../controllers/SetupController'
 import { InProgressController } from '../controllers/InProgressController'
+import { PausedController } from '../controllers/PausedController'
 import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
 import { GameState } from '../types/game-state'
 import { GameStorage } from '../storage'
@@ -109,14 +110,14 @@ describe('InProgressController', () => {
       pause: vi.fn(),
     })
 
-    c.nextTurnWithPredeterminedCubes(4, 5)
+    c.nextTurnWithPredeterminedCubes(new CubesResult(4, 5, true))
 
     const last = state.gameSaveData.gameTurns.at(-1)
     expect(last?.cubes).toEqual(new CubesResult(4, 5, true))
   })
 
-  it('getFreeRoll returns dice like GameLogic.getFreeRoll shape', () => {
-    const [cubes, ev] = InProgressController.getFreeRoll()
+  it('PausedController.getFreeRoll matches GameLogic.getFreeRoll shape', () => {
+    const [cubes, ev] = PausedController.getFreeRoll()
     expect(cubes).toBeInstanceOf(CubesResult)
     expect(typeof ev).toBe('number')
   })

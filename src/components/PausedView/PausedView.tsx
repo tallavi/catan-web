@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { GameLogic } from '../../core'
 import { type CubesResult, EventsCubeResult } from '../../core/types'
+import { PausedController } from '../../core/controllers/PausedController'
 import DurationTable from './DurationTable'
 import ActionBar from '../Common/ActionBar/ActionBar'
 import type { Action } from '../Common/ActionBar/ActionBar.types'
@@ -8,14 +8,14 @@ import HistoryTable from './HistoryTable'
 import Modal from '../Common/Modal/Modal'
 
 interface PausedViewProps {
-  gameLogic: GameLogic
+  controller: PausedController
 }
 
 type ViewMode = 'Normal' | 'NewGame' | 'FreeRoll' | 'Predetermined'
 type PredeterminedStage = 'yellow' | 'red'
 type FreeRollResult = [CubesResult, EventsCubeResult]
 
-export const PausedView: React.FC<PausedViewProps> = ({ gameLogic }) => {
+export const PausedView: React.FC<PausedViewProps> = ({ controller }) => {
   const [viewMode, setViewMode] = useState<ViewMode>('Normal')
   const [predeterminedStage, setPredeterminedStage] =
     useState<PredeterminedStage>('yellow')
@@ -23,10 +23,10 @@ export const PausedView: React.FC<PausedViewProps> = ({ gameLogic }) => {
   const [freeRollResult, setFreeRollResult] = useState<FreeRollResult | null>(
     null
   )
-  const stats = gameLogic.getDurationStats()
+  const stats = controller.getDurationStats()
 
   const roll = () => {
-    setFreeRollResult(GameLogic.getFreeRoll())
+    setFreeRollResult(PausedController.getFreeRoll())
   }
 
   const actionMap: Record<ViewMode, Action[]> = {
@@ -36,7 +36,7 @@ export const PausedView: React.FC<PausedViewProps> = ({ gameLogic }) => {
         shortcutDisplay: 'Y',
         keys: ['y'],
         action: () => {
-          gameLogic.newGame()
+          controller.newGame()
           setViewMode('Normal')
         },
         isLongPress: true,
@@ -67,7 +67,7 @@ export const PausedView: React.FC<PausedViewProps> = ({ gameLogic }) => {
         label: 'Resume',
         shortcutDisplay: 'Space',
         keys: [' '],
-        action: () => gameLogic.resume(),
+        action: () => controller.resume(),
       },
       {
         label: 'Free Roll',
@@ -104,8 +104,8 @@ export const PausedView: React.FC<PausedViewProps> = ({ gameLogic }) => {
             setYellowCube(n)
             setPredeterminedStage('red')
           } else {
-            gameLogic.nextTurnWithPredeterminedCubes(yellowCube, n)
-            gameLogic.resume()
+            controller.nextTurnWithPredeterminedCubes(yellowCube, n)
+            controller.resume()
           }
         },
       })),
@@ -148,7 +148,7 @@ export const PausedView: React.FC<PausedViewProps> = ({ gameLogic }) => {
             </div>
           )}
           <HistoryTable
-            gameSaveData={gameLogic.state.gameSaveData}
+            gameSaveData={controller.getGameState().gameSaveData}
             stats={stats}
           />
         </div>

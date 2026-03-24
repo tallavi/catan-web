@@ -14,7 +14,7 @@ export interface InProgressControllerCallbacks {
    * Called from {@link InProgressController.pause} after timers are synced and stopped.
    * App should switch to {@link PausedController} (or equivalent).
    */
-  pause: () => void
+  pause: (gameState: GameState) => void
 }
 
 /**
@@ -126,7 +126,7 @@ export class InProgressController implements IController {
   pause(): void {
     this._updateTurnDuration()
     this._turnTimer.pause()
-    this._callbacks.pause()
+    this._callbacks.pause(this._gameState)
   }
 
   /** Same as {@link GameLogic.timerTick}. */

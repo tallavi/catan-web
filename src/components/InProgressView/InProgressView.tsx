@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import { formatTime, type GameLogic } from '../../core'
+import { formatTime } from '../../core'
 import { useGameTimer } from '../../hooks/useGameTimer'
 import { EventsCubeResult } from '../../core'
+import type { InProgressController } from '../../core/controllers/InProgressController'
 import CubeStatistics from './CubeStatistics'
 import EventsStatistics from './EventsStatistics'
 import ActionBar from '../Common/ActionBar/ActionBar'
@@ -9,19 +10,19 @@ import type { Action } from '../Common/ActionBar/ActionBar.types'
 import './InProgressView.css'
 
 interface InProgressViewProps {
-  gameLogic: GameLogic
+  controller: InProgressController
 }
 
 export const InProgressView: React.FC<InProgressViewProps> = ({
-  gameLogic,
+  controller,
 }) => {
   const [renderCounter, setRenderCounter] = useState(0)
   const forceRerender = () => setRenderCounter(v => v + 1)
 
-  const { turnDuration, gameDuration } = useGameTimer(gameLogic, renderCounter)
+  const { turnDuration, gameDuration } = useGameTimer(controller, renderCounter)
 
-  const gameState = gameLogic.state
-  const currentTurn = gameLogic.state.getCurrentTurn()
+  const gameState = controller.getGameState()
+  const currentTurn = gameState.getCurrentTurn()
   const currentPlayer = gameState.getCurrentPlayerName() || 'Unknown'
 
   const actions: Action[] = [
@@ -29,14 +30,14 @@ export const InProgressView: React.FC<InProgressViewProps> = ({
       label: 'Pause',
       shortcutDisplay: 'Space',
       keys: [' '],
-      action: () => gameLogic.pause(),
+      action: () => controller.pause(),
     },
     {
       label: 'Next Turn',
       shortcutDisplay: 'Enter',
       keys: ['Enter'],
       action: () => {
-        gameLogic.nextTurn()
+        controller.nextTurn()
         forceRerender()
       },
     },

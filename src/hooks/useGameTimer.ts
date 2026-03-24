@@ -1,29 +1,32 @@
 import { useState, useEffect } from 'react'
-import type { GameLogic } from '../core'
+import type { InProgressController } from '../core/controllers/InProgressController'
 
-export const useGameTimer = (gameLogic: GameLogic, dependency: unknown) => {
-  const [turnDuration, setTurnDuration] = useState(
-    gameLogic.state.getCurrentTurn().turnDuration
+export const useGameTimer = (
+  controller: InProgressController,
+  dependency: unknown
+) => {
+  const [turnDuration, setTurnDuration] = useState(() =>
+    controller.getTurnTimerSeconds()
   )
-  const [gameDuration, setGameDuration] = useState(
-    gameLogic.state.getGameDuration()
+  const [gameDuration, setGameDuration] = useState(() =>
+    controller.getGameTimerSeconds()
   )
 
   useEffect(() => {
     const updateDurations = () => {
-      setTurnDuration(gameLogic.state.getCurrentTurn().turnDuration)
-      setGameDuration(gameLogic.state.getGameDuration())
+      setTurnDuration(controller.getTurnTimerSeconds())
+      setGameDuration(controller.getGameTimerSeconds())
     }
 
-    updateDurations() // Update immediately
+    updateDurations()
 
     const interval = setInterval(() => {
-      gameLogic.timerTick()
+      controller.timerTick()
       updateDurations()
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [gameLogic, dependency])
+  }, [controller, dependency])
 
   return { turnDuration, gameDuration }
 }

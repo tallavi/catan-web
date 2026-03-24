@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import type { GameLogic } from '../../core'
+import type { SetupController } from '../../core/controllers/SetupController'
 import { IconButton } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import { EditableRow } from './EditableRow'
@@ -10,18 +10,18 @@ import Modal from '../Common/Modal/Modal'
 const MAX_NAME_LENGTH = 20
 
 interface SetupViewProps {
-  gameLogic: GameLogic
+  controller: SetupController
 }
 
-export const SetupView: React.FC<SetupViewProps> = ({ gameLogic }) => {
+export const SetupView: React.FC<SetupViewProps> = ({ controller }) => {
   const [players, setPlayers] = useState<string[]>(() => {
-    const initialPlayers = gameLogic.state.gameSaveData.players
+    const initialPlayers = controller.getGameSaveData().players
     return initialPlayers.length > 0
       ? initialPlayers
       : ['Player 1', 'Player 2', 'Player 3']
   })
   const [blockedNumbers, setBlockedNumbers] = useState<number[]>(
-    gameLogic.state.gameSaveData.blockedResults
+    controller.getGameSaveData().blockedResults
   )
   const [newBlockedNumber, setNewBlockedNumber] = useState('')
   const [newPlayerName, setNewPlayerName] = useState('')
@@ -60,12 +60,12 @@ export const SetupView: React.FC<SetupViewProps> = ({ gameLogic }) => {
   }
 
   useEffect(() => {
-    gameLogic.setPlayers(players.map(p => p.trim()))
-  }, [players, gameLogic])
+    controller.setPlayers(players.map(p => p.trim()))
+  }, [players, controller])
 
   useEffect(() => {
-    gameLogic.setBlockedResults(blockedNumbers)
-  }, [blockedNumbers, gameLogic])
+    controller.setBlockedResults(blockedNumbers)
+  }, [blockedNumbers, controller])
 
   const addPlayer = () => {
     const nameToAdd = newPlayerName.trim()
@@ -134,8 +134,7 @@ export const SetupView: React.FC<SetupViewProps> = ({ gameLogic }) => {
       shortcutDisplay: 'Y',
       keys: ['y'],
       action: () => {
-        gameLogic.newGame()
-        gameLogic.nextTurn()
+        controller.startGame()
         setIsConfirming(false)
       },
       isLongPress: true,

@@ -81,7 +81,7 @@ describe('PausedController', () => {
     expect(c.getGameState().gameSaveData.players).toEqual(['Alice'])
   })
 
-  it('nextTurnWithPredeterminedCubes adds a turn and invokes callback', () => {
+  it('nextTurnWithPredeterminedCubes invokes callback; does not mutate state in controller', () => {
     const state = oneTurnState()
     const callbacks = stubCallbacks()
     const c = new PausedController(state, callbacks)
@@ -89,8 +89,7 @@ describe('PausedController', () => {
 
     c.nextTurnWithPredeterminedCubes(4, 5)
 
-    expect(state.gameSaveData.gameTurns).toHaveLength(2)
-    expect(state.gameSaveData.gameTurns[1].cubes).toEqual(expectedCubes)
+    expect(state.gameSaveData.gameTurns).toHaveLength(1)
     expect(callbacks.nextTurnWithPredeterminedCubes).toHaveBeenCalledTimes(1)
     expect(callbacks.nextTurnWithPredeterminedCubes).toHaveBeenCalledWith(
       state,
