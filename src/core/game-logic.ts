@@ -8,7 +8,6 @@ import {
   CubesResult,
   EventsCubeResult,
   GameMode as GameStatus,
-  GameSaveData,
 } from './types/index'
 import { GameState } from './types/game-state'
 import { GameStorage } from './storage'
@@ -254,11 +253,7 @@ export class GameLogic {
    */
   newGame(): void {
     this._storage.clear()
-    const newSaveData = new GameSaveData(
-      this._gameState.gameSaveData.players,
-      this._gameState.gameSaveData.blockedResults,
-      []
-    )
+    const newSaveData = this._gameState.gameSaveData.asNewGame()
 
     const result = GameState.tryFromGameSaveData(newSaveData)
 

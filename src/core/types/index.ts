@@ -214,6 +214,15 @@ export class GameSaveData {
   }
 
   /**
+   * Copy of this snapshot with the same {@link GameSaveData.players} and
+   * {@link GameSaveData.blockedResults}, but no {@link GameSaveData.gameTurns}
+   * (e.g. start play from the current setup without prior turn history).
+   */
+  asNewGame(): GameSaveData {
+    return new GameSaveData(this.players, this.blockedResults, [])
+  }
+
+  /**
    * Serialize this snapshot to JSON. When `pretty` is true, uses 2-space indentation (default).
    */
   toJsonString(pretty: boolean = true): string {
