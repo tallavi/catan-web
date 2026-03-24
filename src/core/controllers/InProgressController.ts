@@ -1,12 +1,21 @@
-import type { GameTurn } from '../types'
-import { CubesResult, EventsCubeResult } from '../types'
+import type { GameSaveData, GameTurn } from '../types'
+import { CubesResult } from '../types'
 import type { GameState } from '../types/game-state'
-import { GameStorage } from '../storage'
 import { Timer } from '../timer'
-import { AppMode } from './IController'
-import type { ControllerTransitionState, IController } from './IController'
+import { AppMode, type IController } from './IController'
 
 const AUTO_SAVE_INTERVAL_SECONDS = 10
+
+/** Callbacks for {@link InProgressController} persistence and pausing (app-level transition). */
+export interface InProgressControllerCallbacks {
+  /** Persist the current save (e.g. delegate to {@link GameStorage.save}). */
+  save: (gameSaveData: GameSaveData) => void
+  /**
+   * Called from {@link InProgressController.pause} after timers are synced and stopped.
+   * App should switch to {@link PausedController} (or equivalent).
+   */
+  pause: () => void
+}
 
 /**
  * In-progress gameplay: turn timer, persistence, and advancing turns.
@@ -14,17 +23,15 @@ const AUTO_SAVE_INTERVAL_SECONDS = 10
  */
 export class InProgressController implements IController {
   private readonly _gameState: GameState
-  private readonly _storage: GameStorage
+  private readonly _callbacks: InProgressControllerCallbacks
   private readonly _turnTimer: Timer
   private _lastSaveTime: number = 0
 
-  constructor(
-    gameState: GameState,
-    turnTimerInitialSeconds: number = 0,
-    storage: GameStorage
-  ) {
+  constructor(gameState: GameState, callbacks: InProgressControllerCallbacks) {
     this._gameState = gameState
-    this._storage = storage
+    this._callbacks = callbacks
+    const turnTimerInitialSeconds =
+      gameState.gameSaveData?.gameTurns.at(-1)?.turnDuration ?? 0
     this._turnTimer = new Timer(turnTimerInitialSeconds)
     this._turnTimer.resume()
   }
@@ -53,16 +60,6 @@ export class InProgressController implements IController {
     return this._gameState.getGameDuration()
   }
 
-  toTransitionState(): ControllerTransitionState {
-    this._updateTurnDuration()
-    return {
-      mode: AppMode.InProgress,
-      gameState: this._gameState,
-      turnTimerSeconds: this._turnTimer.getCurrentDuration(),
-      gameTimerSeconds: this._gameState.getGameDuration(),
-    }
-  }
-
   private _updateTurnDuration(): void {
     if (!this._gameState.gameSaveData) return
 
@@ -76,7 +73,7 @@ export class InProgressController implements IController {
   private _save(): void {
     if (!this._gameState.gameSaveData) return
 
-    this._storage.save(this._gameState.gameSaveData)
+    this._callbacks.save(this._gameState.gameSaveData)
     this._lastSaveTime = Date.now() / 1000
   }
 
@@ -119,27 +116,17 @@ export class InProgressController implements IController {
   }
 
   /** Same as {@link GameLogic.nextTurnWithPredeterminedCubes}. */
-  nextTurnWithPredeterminedCubes(yellowCube: number, redCube: number): void {
-    if (yellowCube < 1 || yellowCube > 6) {
-      throw new Error(`Yellow cube must be between 1 and 6, got ${yellowCube}`)
-    }
-
-    if (redCube < 1 || redCube > 6) {
-      throw new Error(`Red cube must be between 1 and 6, got ${redCube}`)
-    }
-
-    const cubes = new CubesResult(yellowCube, redCube, true)
+  nextTurnWithPredeterminedCubes(cubes: CubesResult): void {
     this._innerNextTurn(cubes)
   }
 
   /**
-   * Same as the first part of {@link GameLogic.pause}: writes the live turn length from the {@link Timer}
-   * into the current turn on {@link GameState}, then pauses the timer. Call before switching to
-   * {@link PausedController} (paused mode has no timer; state holds the frozen duration).
+   * Syncs turn duration from the live timer, stops the timer, then notifies the app via {@link InProgressControllerCallbacks.pause}.
    */
-  pauseTimers(): void {
+  pause(): void {
     this._updateTurnDuration()
     this._turnTimer.pause()
+    this._callbacks.pause()
   }
 
   /** Same as {@link GameLogic.timerTick}. */
@@ -150,13 +137,6 @@ export class InProgressController implements IController {
     if (currentTime - this._lastSaveTime >= AUTO_SAVE_INTERVAL_SECONDS) {
       this._save()
     }
-  }
-
-  /** Same as {@link GameLogic.getFreeRoll}. */
-  static getFreeRoll(): [CubesResult, EventsCubeResult] {
-    const cubes = CubesResult.random()
-    const eventsCube = EventsCubeResult.random()
-    return [cubes, eventsCube]
   }
 
   private _randomChoice<T>(array: T[]): T {

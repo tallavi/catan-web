@@ -1,24 +1,27 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { PausedController } from '../controllers/PausedController'
 import {
-  CubesResult,
-  EventsCubeResult,
-  GameSaveData,
-} from '../types'
+  PausedController,
+  type PausedControllerCallbacks,
+} from '../controllers/PausedController'
+import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
 import { GameState } from '../types/game-state'
 
 describe('PausedController', () => {
-  let testKey: string
-
   beforeEach(() => {
-    testKey = `test-paused-ctrl-${Date.now()}-${Math.random()}`
     vi.spyOn(Math, 'random').mockReturnValue(0)
   })
 
   afterEach(() => {
     vi.restoreAllMocks()
-    localStorage.removeItem(testKey)
   })
+
+  function stubCallbacks(): PausedControllerCallbacks {
+    return {
+      newGame: vi.fn(),
+      resume: vi.fn(),
+      nextTurnWithPredeterminedCubes: vi.fn(),
+    }
+  }
 
   function oneTurnState(): GameState {
     const save = new GameSaveData(
@@ -41,7 +44,7 @@ describe('PausedController', () => {
 
   it('getDurationStats returns game duration when few turns', () => {
     const state = oneTurnState()
-    const c = new PausedController(state, testKey)
+    const c = new PausedController(state, stubCallbacks())
 
     const stats = c.getDurationStats()
     expect(stats).not.toBeNull()
@@ -50,48 +53,48 @@ describe('PausedController', () => {
 
   it('getCurrentTurnDurationSeconds matches last turn', () => {
     const state = oneTurnState()
-    const c = new PausedController(state, testKey)
+    const c = new PausedController(state, stubCallbacks())
     expect(c.getCurrentTurnDurationSeconds()).toBe(10)
   })
 
-  it('resume invokes callback', () => {
+  it('resume invokes callback with game state', () => {
     const state = oneTurnState()
-    let resumed = false
-    const c = new PausedController(state, testKey, {
-      onResume: () => {
-        resumed = true
-      },
-    })
+    const callbacks = stubCallbacks()
+    const c = new PausedController(state, callbacks)
 
     c.resume()
-    expect(resumed).toBe(true)
+
+    expect(callbacks.resume).toHaveBeenCalledTimes(1)
+    expect(callbacks.resume).toHaveBeenCalledWith(state)
   })
 
-  it('newGame clears turns and invokes callback', () => {
+  it('newGame clears turns and invokes callback with new game state', () => {
     const state = oneTurnState()
-    let newGameCalled = false
-    const c = new PausedController(state, testKey, {
-      onNewGame: () => {
-        newGameCalled = true
-      },
-    })
+    const callbacks = stubCallbacks()
+    const c = new PausedController(state, callbacks)
 
     c.newGame()
 
-    expect(newGameCalled).toBe(true)
+    expect(callbacks.newGame).toHaveBeenCalledTimes(1)
+    expect(callbacks.newGame).toHaveBeenCalledWith(c.getGameState())
     expect(c.getGameState().gameSaveData.gameTurns).toHaveLength(0)
     expect(c.getGameState().gameSaveData.players).toEqual(['Alice'])
   })
 
-  it('nextTurnWithPredeterminedCubes adds a turn', () => {
+  it('nextTurnWithPredeterminedCubes adds a turn and invokes callback', () => {
     const state = oneTurnState()
-    const c = new PausedController(state, testKey)
+    const callbacks = stubCallbacks()
+    const c = new PausedController(state, callbacks)
+    const expectedCubes = new CubesResult(4, 5, true)
 
     c.nextTurnWithPredeterminedCubes(4, 5)
 
     expect(state.gameSaveData.gameTurns).toHaveLength(2)
-    expect(state.gameSaveData.gameTurns[1].cubes).toEqual(
-      new CubesResult(4, 5, true)
+    expect(state.gameSaveData.gameTurns[1].cubes).toEqual(expectedCubes)
+    expect(callbacks.nextTurnWithPredeterminedCubes).toHaveBeenCalledTimes(1)
+    expect(callbacks.nextTurnWithPredeterminedCubes).toHaveBeenCalledWith(
+      state,
+      expectedCubes
     )
   })
 

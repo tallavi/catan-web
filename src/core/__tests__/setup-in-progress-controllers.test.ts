@@ -3,6 +3,7 @@ import { SetupController } from '../controllers/SetupController'
 import { InProgressController } from '../controllers/InProgressController'
 import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
 import { GameState } from '../types/game-state'
+import { GameStorage } from '../storage'
 
 describe('SetupController', () => {
   let testKey: string
@@ -17,7 +18,11 @@ describe('SetupController', () => {
 
   it('setPlayers and setBlockedResults persist via GameStorage', () => {
     const data = new GameSaveData([], [], [])
-    const c = new SetupController(data, testKey)
+    const storage = new GameStorage(testKey)
+    const c = new SetupController(data, {
+      save: d => storage.save(d),
+      startGame: vi.fn(),
+    })
 
     c.setPlayers(['A', 'B'])
     c.setBlockedResults([7])
@@ -29,6 +34,21 @@ describe('SetupController', () => {
     if (!parsed.ok) return
     expect(parsed.data.players).toEqual(['A', 'B'])
     expect(parsed.data.blockedResults).toEqual([7])
+  })
+
+  it('startGame invokes callback with current GameSaveData', () => {
+    const data = new GameSaveData([], [], [])
+    const storage = new GameStorage(testKey)
+    const startGame = vi.fn()
+    const c = new SetupController(data, {
+      save: d => storage.save(d),
+      startGame,
+    })
+
+    c.startGame()
+
+    expect(startGame).toHaveBeenCalledTimes(1)
+    expect(startGame).toHaveBeenCalledWith(data)
   })
 })
 
@@ -66,7 +86,11 @@ describe('InProgressController', () => {
 
   it('nextTurn appends a turn and saves', () => {
     const state = stateWithOneTurn()
-    const c = new InProgressController(state, 0, testKey)
+    const storage = new GameStorage(testKey)
+    const c = new InProgressController(state, {
+      save: d => storage.save(d),
+      pause: vi.fn(),
+    })
 
     c.nextTurn()
 
@@ -79,7 +103,11 @@ describe('InProgressController', () => {
 
   it('nextTurnWithPredeterminedCubes uses predetermined flag', () => {
     const state = stateWithOneTurn()
-    const c = new InProgressController(state, 0, testKey)
+    const storage = new GameStorage(testKey)
+    const c = new InProgressController(state, {
+      save: d => storage.save(d),
+      pause: vi.fn(),
+    })
 
     c.nextTurnWithPredeterminedCubes(4, 5)
 

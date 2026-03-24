@@ -1,40 +1,36 @@
 import type { Duration, DurationStats } from '../types'
-import type { GameTurn } from '../types'
 import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
 import { GameState } from '../types/game-state'
-import { GameStorage } from '../storage'
-import { AppMode } from './IController'
-import type { ControllerTransitionState, IController } from './IController'
+import { AppMode, type IController } from './IController'
 
-/** Optional hooks when {@link PausedController} performs actions that imply an app-level mode change. */
+/**
+ * App-level hooks for {@link PausedController} actions. This controller does not read or write
+ * persistence; the app should clear/save storage (e.g. on `newGame`) and switch modes as needed.
+ */
 export interface PausedControllerCallbacks {
-  /**
-   * Called after {@link PausedController.resume}. App should show in-progress UI and construct
-   * {@link InProgressController} with `turnTimerInitialSeconds` from the last turn’s saved
-   * `turnDuration` in {@link GameState} (already synced before pause).
-   */
-  onResume?: () => void
-  /** Called after {@link PausedController.newGame} (switch to setup UI). */
-  onNewGame?: () => void
+  /** After reset state is applied (empty `gameTurns`, same players / `blockedResults`). */
+  newGame: (gameState: GameState) => void
+  /** Current paused {@link GameState}; mount {@link InProgressController} with a fresh timer seeded from last turn’s `turnDuration`. */
+  resume: (gameState: GameState) => void
+  /** After advancing the turn with the given predetermined cubes (same `cubes` instance as in the new turn). */
+  nextTurnWithPredeterminedCubes: (
+    gameState: GameState,
+    cubesResult: CubesResult
+  ) => void
 }
 
 /**
  * Paused session: {@link GameState} only — current turn’s `turnDuration` is frozen at the value
- * {@link InProgressController.pauseTimers} wrote before entering pause.
+ * {@link InProgressController.pause} or {@link InProgressController.pauseTimers} wrote before entering pause.
+ * Does not persist; {@link PausedControllerCallbacks} delegate mode changes and storage to the app.
  * Pause-menu behavior matches {@link GameLogic} except {@link #resume} does not touch a timer (App rebuilds {@link InProgressController}).
  */
 export class PausedController implements IController {
   private _gameState: GameState
-  private readonly _storage: GameStorage
-  private readonly _callbacks?: PausedControllerCallbacks
+  private readonly _callbacks: PausedControllerCallbacks
 
-  constructor(
-    gameState: GameState,
-    storage: GameStorage,
-    callbacks?: PausedControllerCallbacks
-  ) {
+  constructor(gameState: GameState, callbacks: PausedControllerCallbacks) {
     this._gameState = gameState
-    this._storage = storage
     this._callbacks = callbacks
   }
 
@@ -53,25 +49,16 @@ export class PausedController implements IController {
     return turns[turns.length - 1].turnDuration
   }
 
-  toTransitionState(): ControllerTransitionState {
-    return {
-      mode: AppMode.Paused,
-      gameState: this._gameState,
-      turnTimerSeconds: this.getCurrentTurnDurationSeconds(),
-    }
-  }
-
   /**
    * Does not start a timer — {@link GameState} already holds the frozen turn length.
-   * Call {@link PausedControllerCallbacks.onResume} so the app can mount {@link InProgressController} with a fresh {@link Timer}.
+   * {@link PausedControllerCallbacks.resume} should mount {@link InProgressController} with a fresh {@link Timer}.
    */
   resume(): void {
-    this._callbacks?.onResume?.()
+    this._callbacks.resume(this._gameState)
   }
 
-  /** Same as {@link GameLogic.newGame}. */
+  /** Same in-memory reset as {@link GameLogic.newGame}; persistence is the app’s responsibility. */
   newGame(): void {
-    this._storage.clear()
     const newSaveData = new GameSaveData(
       this._gameState.gameSaveData.players,
       this._gameState.gameSaveData.blockedResults,
@@ -86,7 +73,7 @@ export class PausedController implements IController {
 
     this._gameState = result.state
 
-    this._callbacks?.onNewGame?.()
+    this._callbacks.newGame(this._gameState)
   }
 
   /** Same as {@link GameLogic.getDurationStats}. */
@@ -168,11 +155,10 @@ export class PausedController implements IController {
     return [cubes, eventsCube]
   }
 
-  /** Same as {@link GameLogic.nextTurn}. */
-  nextTurn(): void {
-    const cubes = this._randomChoice(this._gameState.possibleCubesResults)
-    this._innerNextTurn(cubes)
-  }
+  /**
+   * Same as {@link GameLogic.nextTurn}. Mutates {@link GameState} only; does not invoke callbacks or persist.
+   * For app-level save/sync after a random next turn, handle outside this controller.
+   */
 
   /** Same as {@link GameLogic.nextTurnWithPredeterminedCubes}. */
   nextTurnWithPredeterminedCubes(yellowCube: number, redCube: number): void {
@@ -185,50 +171,6 @@ export class PausedController implements IController {
     }
 
     const cubes = new CubesResult(yellowCube, redCube, true)
-    this._innerNextTurn(cubes)
-  }
-
-  private _save(): void {
-    if (!this._gameState.gameSaveData) return
-
-    this._storage.save(this._gameState.gameSaveData)
-  }
-
-  /**
-   * Current turn lengths are already in {@link GameState} (frozen at pause). No timer sync here.
-   */
-  private _innerNextTurn(cubes: CubesResult): void {
-    if (!this._gameState.gameSaveData) {
-      throw new Error('No game save data')
-    }
-
-    this._gameState.currentPlayerIndex =
-      (this._gameState.currentPlayerIndex + 1) %
-      this._gameState.gameSaveData.players.length
-    this._gameState.currentTurnNumber += 1
-
-    const eventsCube = this._randomChoice(
-      this._gameState.possibleEventsCubeResults
-    )
-
-    const gameTurn: GameTurn = {
-      turnNumber: this._gameState.currentTurnNumber,
-      playerIndex: this._gameState.currentPlayerIndex,
-      cubes,
-      eventsCube,
-      turnDuration: 0,
-    }
-
-    this._gameState.playTurn(gameTurn)
-
-    this._save()
-  }
-
-  private _randomChoice<T>(array: T[]): T {
-    if (array.length === 0) {
-      throw new Error('Cannot choose from empty array')
-    }
-    const index = Math.floor(Math.random() * array.length)
-    return array[index]
+    this._callbacks.nextTurnWithPredeterminedCubes(this._gameState, cubes)
   }
 }
