@@ -1,8 +1,8 @@
-import React, { useMemo, useState } from 'react'
+import React from 'react'
 import '../game.css'
 import './App.css'
-import { ControllerCoordinator } from '../../core/controllers/ControllerCoordinator'
-import { AppMode, type IController } from '../../core/controllers/IController'
+import { useControllerCoordinator } from './useControllerCoordinator'
+import { AppMode } from '../../core/controllers/IController'
 import { InProgressController } from '../../core/controllers/InProgressController'
 import { PausedController } from '../../core/controllers/PausedController'
 import { SetupController } from '../../core/controllers/SetupController'
@@ -11,20 +11,12 @@ import PausedView from '../PausedView/PausedView'
 import SetupView from '../SetupView/SetupView'
 
 export const App: React.FC = () => {
-  const [controllerOverride, setController] = useState<IController | null>(null)
-
-  const coordinator = useMemo(
-    () => new ControllerCoordinator(setController),
-    []
-  )
-  const rootController = useMemo(
-    () => coordinator.createInitialController(),
-    [coordinator]
-  )
-
-  const controller = controllerOverride ?? rootController
+  const controller = useControllerCoordinator()
 
   const renderView = () => {
+    if (!controller) {
+      return null
+    }
     const mode = controller.appMode()
     switch (mode) {
       case AppMode.Setup:
