@@ -5,9 +5,11 @@ import { useControllerCoordinator } from './useControllerCoordinator'
 import { AppMode } from '../../core/controllers/IController'
 import { InProgressController } from '../../core/controllers/InProgressController'
 import { PausedController } from '../../core/controllers/PausedController'
+import { RepairSaveController } from '../../core/controllers/RepairSaveController'
 import { SetupController } from '../../core/controllers/SetupController'
 import InProgressView from '../InProgressView/InProgressView'
 import PausedView from '../PausedView/PausedView'
+import RepairSaveView from '../RepairSaveView/RepairSaveView'
 import SetupView from '../SetupView/SetupView'
 
 export const App: React.FC = () => {
@@ -28,18 +30,7 @@ export const App: React.FC = () => {
       case AppMode.Paused:
         return <PausedView controller={controller as PausedController} />
       case AppMode.RepairSave:
-        return (
-          <div className="view">
-            <div className="view-title" style={{ fontSize: '1.2rem' }}>
-              Save could not be loaded
-            </div>
-            <p style={{ textAlign: 'center', marginTop: '1rem' }}>
-              This save is invalid or corrupted. A repair editor will be
-              available in a future update; for now you can clear site data or
-              fix the JSON in local storage under the game save key.
-            </p>
-          </div>
-        )
+        return <RepairSaveView controller={controller as RepairSaveController} />
       default: {
         const _exhaustive: never = mode
         return _exhaustive
