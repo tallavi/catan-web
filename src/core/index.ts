@@ -20,9 +20,6 @@ export {
 export type { GameStateTryFromResult } from './types/GameState'
 export { GameState } from './types/GameState'
 
-// Game Logic
-export { GameLogic } from './GameLogic'
-
 // Storage
 export type { GameStorageLoadResult } from './GameStorage'
 export { GameStorage, StorageError } from './GameStorage'
