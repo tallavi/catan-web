@@ -74,7 +74,7 @@ describe('PausedController', () => {
     expect(callbacks.editSave).toHaveBeenCalledWith(state)
   })
 
-  it('newGame clears turns and invokes callback with new game state', () => {
+  it('newGame invokes callback with rebuilt state; does not replace controller snapshot', () => {
     const state = oneTurnState()
     const callbacks = stubCallbacks()
     const c = new PausedController(state, callbacks)
@@ -82,9 +82,11 @@ describe('PausedController', () => {
     c.newGame()
 
     expect(callbacks.newGame).toHaveBeenCalledTimes(1)
-    expect(callbacks.newGame).toHaveBeenCalledWith(c.getGameState())
-    expect(c.getGameState().gameSaveData.gameTurns).toHaveLength(0)
-    expect(c.getGameState().gameSaveData.players).toEqual(['Alice'])
+    const passed = vi.mocked(callbacks.newGame).mock.calls[0][0]
+    expect(passed.gameSaveData.gameTurns).toHaveLength(0)
+    expect(passed.gameSaveData.players).toEqual(['Alice'])
+    expect(c.getGameState()).toBe(state)
+    expect(c.getGameState().gameSaveData.gameTurns).toHaveLength(1)
   })
 
   it('nextTurnWithPredeterminedCubes invokes callback; does not mutate state in controller', () => {

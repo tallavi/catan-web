@@ -63,8 +63,9 @@ export class PausedController implements IController {
   }
 
   /**
-   * Resets in-memory game state to a new game using current players and blocked results.
-   * Persistence is the app's responsibility.
+   * Notifies {@link PausedControllerCallbacks.newGame} with a fresh {@link GameState} built from
+   * current players / blocked results and empty turns. Does not replace this controller’s internal
+   * snapshot — the app typically swaps controllers when handling the callback.
    */
   newGame(): void {
     const newSaveData = this._gameState.gameSaveData.asNewGame()

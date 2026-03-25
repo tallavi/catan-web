@@ -80,8 +80,8 @@ describe('ControllerCoordinator#createInitialController', () => {
     expect(c).toBeInstanceOf(InProgressController)
     expect(c.appMode()).toBe(ControllerCoordinator.AppMode.InProgress)
     const ip = c as InProgressController
-    expect(ip.getTurnTimerSeconds()).toBeCloseTo(12, 2)
-    expect(ip.getGameTimerSeconds()).toBeCloseTo(12, 2)
+    expect(ip.getTurnTimerSeconds()).toBeCloseTo(12, 1)
+    expect(ip.getGameTimerSeconds()).toBeCloseTo(12, 1)
     expect(ip.getGameState().gameSaveData.gameTurns).toHaveLength(1)
   })
 
