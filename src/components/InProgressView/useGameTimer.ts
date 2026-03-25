@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import type { InProgressController } from '../core/controllers/InProgressController'
+import { useEffect, useState } from 'react'
+import type { InProgressController } from '../../core/controllers/InProgressController'
 
 export const useGameTimer = (
   controller: InProgressController,

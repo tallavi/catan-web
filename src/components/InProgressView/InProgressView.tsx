@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { formatTime } from '../../core'
-import { useGameTimer } from '../../hooks/useGameTimer'
+import { useGameTimer } from './useGameTimer'
 import { EventsCubeResult } from '../../core'
 import type { InProgressController } from '../../core/controllers/InProgressController'
 import CubeStatistics from './CubeStatistics'
