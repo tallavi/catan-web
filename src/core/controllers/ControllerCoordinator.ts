@@ -31,12 +31,9 @@ export class ControllerCoordinator {
   private readonly _storage: GameStorage
   private readonly _replaceController: (next: IController) => void
 
-  constructor(
-    replaceController: (next: IController) => void,
-    storage: GameStorage = new GameStorage()
-  ) {
+  constructor(replaceController: (next: IController) => void) {
     this._replaceController = replaceController
-    this._storage = storage
+    this._storage = new GameStorage()
     this._setupCallbacks = {} as SetupControllerCallbacks
     this._inProgressCallbacks = {} as InProgressControllerCallbacks
     this._pausedCallbacks = {} as PausedControllerCallbacks
@@ -75,11 +72,10 @@ export class ControllerCoordinator {
   }
 
   private _initializeCallbackMaps(): void {
-    this._inProgressCallbacks.save = d => this._storage.save(d)
-    this._inProgressCallbacks.pause = gameState =>
-      this._handlePauseFromInProgress(gameState)
+    this._inProgressCallbacks.save = d => this._handleSave(d)
+    this._inProgressCallbacks.pause = gameState => this._handlePause(gameState)
 
-    this._setupCallbacks.save = d => this._storage.save(d)
+    this._setupCallbacks.save = d => this._handleSave(d)
     this._setupCallbacks.startGame = gameSaveData =>
       this._handleStartGame(gameSaveData)
 
@@ -89,11 +85,16 @@ export class ControllerCoordinator {
       this._handleNextTurnWithPredeterminedCubes(gameState, cubes)
 
     this._repairCallbacks.continueStartup = gameState =>
-      this._handleRepairContinueStartup(gameState)
-    this._repairCallbacks.applyManualEdit = () => {}
+      this._handleContinueStartup(gameState)
+    this._repairCallbacks.applyManualEdit = gameState =>
+      this._handleApplyManualEdit(gameState)
   }
 
-  private _handlePauseFromInProgress(gameState: GameState): void {
+  private _handleSave(gameSaveData: GameSaveData): void {
+    this._storage.save(gameSaveData)
+  }
+
+  private _handlePause(gameState: GameState): void {
     this._replaceController(
       new PausedController(gameState, this._pausedCallbacks)
     )
@@ -135,7 +136,7 @@ export class ControllerCoordinator {
     this._replaceController(ipc)
   }
 
-  private _handleRepairContinueStartup(gameState: GameState): void {
+  private _handleContinueStartup(gameState: GameState): void {
     const save = gameState.gameSaveData
     if (!save) {
       throw new Error('Repair continueStartup: missing gameSaveData')
@@ -148,5 +149,11 @@ export class ControllerCoordinator {
         new InProgressController(gameState, this._inProgressCallbacks)
       )
     }
+  }
+
+  private _handleApplyManualEdit(gameState: GameState): void {
+    this._replaceController(
+      new PausedController(gameState, this._pausedCallbacks)
+    )
   }
 }

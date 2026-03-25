@@ -24,8 +24,9 @@ export const PausedView: React.FC<PausedViewProps> = ({ controller }) => {
     null
   )
   const stats = controller.getDurationStats()
+  const saveData = controller.getGameState().gameSaveData
 
-  const roll = () => {
+  const handleFreeRoll = () => {
     setFreeRollResult(PausedController.getFreeRoll())
   }
 
@@ -37,7 +38,7 @@ export const PausedView: React.FC<PausedViewProps> = ({ controller }) => {
         keys: ['y'],
         action: () => {
           controller.newGame()
-          setViewMode('Normal')
+          // setViewMode('Normal')
         },
         isLongPress: true,
       },
@@ -53,7 +54,7 @@ export const PausedView: React.FC<PausedViewProps> = ({ controller }) => {
         label: 'Roll Again',
         shortcutDisplay: 'Enter',
         keys: ['Enter'],
-        action: roll,
+        action: handleFreeRoll,
       },
       {
         label: 'Done',
@@ -74,7 +75,7 @@ export const PausedView: React.FC<PausedViewProps> = ({ controller }) => {
         shortcutDisplay: 'f',
         keys: ['f'],
         action: () => {
-          roll()
+          handleFreeRoll()
           setViewMode('FreeRoll')
         },
       },
@@ -105,7 +106,6 @@ export const PausedView: React.FC<PausedViewProps> = ({ controller }) => {
             setPredeterminedStage('red')
           } else {
             controller.nextTurnWithPredeterminedCubes(yellowCube, n)
-            controller.resume()
           }
         },
       })),
@@ -147,10 +147,7 @@ export const PausedView: React.FC<PausedViewProps> = ({ controller }) => {
               </div>
             </div>
           )}
-          <HistoryTable
-            gameSaveData={controller.getGameState().gameSaveData}
-            stats={stats}
-          />
+          <HistoryTable gameSaveData={saveData} stats={stats} />
         </div>
       </div>
       {viewMode === 'NewGame' && (

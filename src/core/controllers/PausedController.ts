@@ -1,5 +1,5 @@
 import type { Duration, DurationStats } from '../types'
-import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
+import { CubesResult, EventsCubeResult } from '../types'
 import { GameState } from '../types/GameState'
 import { AppMode, type IController } from './IController'
 
@@ -23,7 +23,8 @@ export interface PausedControllerCallbacks {
  * Paused session: {@link GameState} only — current turn’s `turnDuration` is frozen at the value
  * {@link InProgressController.pause} or {@link InProgressController.pauseTimers} wrote before entering pause.
  * Does not persist; {@link PausedControllerCallbacks} delegate mode changes and storage to the app.
- * Pause-menu behavior matches {@link GameLogic} except {@link #resume} does not touch a timer (App rebuilds {@link InProgressController}).
+ * Pause-menu behavior mirrors the in-progress controller's game-state logic, except {@link #resume}
+ * does not touch a timer (App rebuilds {@link InProgressController}).
  */
 export class PausedController implements IController {
   private _gameState: GameState
@@ -42,13 +43,6 @@ export class PausedController implements IController {
     return this._gameState
   }
 
-  /** Seconds recorded on the current (last) turn — use when constructing {@link InProgressController} after resume. */
-  getCurrentTurnDurationSeconds(): number {
-    const turns = this._gameState.gameSaveData?.gameTurns
-    if (!turns || turns.length === 0) return 0
-    return turns[turns.length - 1].turnDuration
-  }
-
   /**
    * Does not start a timer — {@link GameState} already holds the frozen turn length.
    * {@link PausedControllerCallbacks.resume} should mount {@link InProgressController} with a fresh {@link Timer}.
@@ -57,13 +51,12 @@ export class PausedController implements IController {
     this._callbacks.resume(this._gameState)
   }
 
-  /** Same in-memory reset as {@link GameLogic.newGame}; persistence is the app’s responsibility. */
+  /**
+   * Resets in-memory game state to a new game using current players and blocked results.
+   * Persistence is the app's responsibility.
+   */
   newGame(): void {
-    const newSaveData = new GameSaveData(
-      this._gameState.gameSaveData.players,
-      this._gameState.gameSaveData.blockedResults,
-      []
-    )
+    const newSaveData = this._gameState.gameSaveData.asNewGame()
 
     const result = GameState.tryFromGameSaveData(newSaveData)
 
@@ -76,14 +69,11 @@ export class PausedController implements IController {
     this._callbacks.newGame(this._gameState)
   }
 
-  /** Same as {@link GameLogic.getDurationStats}. */
+  /** Computes game duration and, when enough turns exist, shortest/longest/average turn stats. */
   getDurationStats(): DurationStats | null {
-    if (!this._gameState.gameSaveData) {
-      return null
-    }
-
-    const turns = [...this._gameState.gameSaveData.gameTurns]
-    const count = this._gameState.gameSaveData.players.length
+    const saveData = this._gameState.gameSaveData
+    const turns = [...saveData.gameTurns]
+    const count = saveData.players.length
 
     if (turns.length <= count) {
       return {
@@ -95,7 +85,7 @@ export class PausedController implements IController {
       (a, b) => a.turnDuration - b.turnDuration
     )
     const shortest = sortedByShortest.slice(0, count).map(turn => ({
-      playerName: this._gameState.gameSaveData!.players[turn.playerIndex],
+      playerName: saveData!.players[turn.playerIndex],
       duration: turn.turnDuration,
       turnNumber: turn.turnNumber,
     }))
@@ -104,7 +94,7 @@ export class PausedController implements IController {
       (a, b) => b.turnDuration - a.turnDuration
     )
     const longest = sortedByLongest.slice(0, count).map(turn => ({
-      playerName: this._gameState.gameSaveData!.players[turn.playerIndex],
+      playerName: saveData!.players[turn.playerIndex],
       duration: turn.turnDuration,
       turnNumber: turn.turnNumber,
     }))
@@ -120,8 +110,8 @@ export class PausedController implements IController {
     }
 
     const playerDurations: { [playerName: string]: number[] } = {}
-    for (const turn of this._gameState.gameSaveData.gameTurns) {
-      const playerName = this._gameState.gameSaveData!.players[turn.playerIndex]
+    for (const turn of saveData.gameTurns) {
+      const playerName = saveData!.players[turn.playerIndex]
       if (!playerDurations[playerName]) {
         playerDurations[playerName] = []
       }
@@ -148,7 +138,7 @@ export class PausedController implements IController {
     }
   }
 
-  /** Same as {@link GameLogic.getFreeRoll}. */
+  /** Returns a random pair of normal cubes and events cube results. */
   static getFreeRoll(): [CubesResult, EventsCubeResult] {
     const cubes = CubesResult.random()
     const eventsCube = EventsCubeResult.random()
@@ -156,11 +146,11 @@ export class PausedController implements IController {
   }
 
   /**
-   * Same as {@link GameLogic.nextTurn}. Mutates {@link GameState} only; does not invoke callbacks or persist.
+   * Advances the game state to the next turn in memory only; does not invoke callbacks or persist.
    * For app-level save/sync after a random next turn, handle outside this controller.
    */
 
-  /** Same as {@link GameLogic.nextTurnWithPredeterminedCubes}. */
+  /** Advances to the next turn using the provided cube values after range validation. */
   nextTurnWithPredeterminedCubes(yellowCube: number, redCube: number): void {
     if (yellowCube < 1 || yellowCube > 6) {
       throw new Error(`Yellow cube must be between 1 and 6, got ${yellowCube}`)

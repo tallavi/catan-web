@@ -51,12 +51,6 @@ describe('PausedController', () => {
     expect(stats!.gameDuration).toBe(10)
   })
 
-  it('getCurrentTurnDurationSeconds matches last turn', () => {
-    const state = oneTurnState()
-    const c = new PausedController(state, stubCallbacks())
-    expect(c.getCurrentTurnDurationSeconds()).toBe(10)
-  })
-
   it('resume invokes callback with game state', () => {
     const state = oneTurnState()
     const callbacks = stubCallbacks()
