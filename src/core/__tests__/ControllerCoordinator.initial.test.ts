@@ -1,9 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { ControllerCoordinator } from '../controllers/ControllerCoordinator'
-import { InProgressController } from '../controllers/InProgressController'
-import { RepairSaveController } from '../controllers/RepairSaveController'
-import { SetupController } from '../controllers/SetupController'
-import { AppMode } from '../controllers/IController'
+import { ControllerCoordinator } from '../controllers/coordinator/ControllerCoordinator'
+import { InProgressController } from '../controllers/concrete/InProgressController'
+import { RepairSaveController } from '../controllers/concrete/RepairSaveController'
+import { SetupController } from '../controllers/concrete/SetupController'
 import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
 import { GameStorage } from '../GameStorage'
 
@@ -30,7 +29,7 @@ describe('ControllerCoordinator#createInitialController', () => {
   it('returns SetupController when storage is empty (same default as GameLogic)', () => {
     const c = createInitial(storage)
     expect(c).toBeInstanceOf(SetupController)
-    expect(c.appMode()).toBe(AppMode.Setup)
+    expect(c.appMode()).toBe(ControllerCoordinator.AppMode.Setup)
     expect((c as SetupController).getGameSaveData().gameTurns).toEqual([])
   })
 
@@ -38,7 +37,7 @@ describe('ControllerCoordinator#createInitialController', () => {
     localStorage.setItem(testKey, 'not json {')
     const c = createInitial(storage)
     expect(c).toBeInstanceOf(RepairSaveController)
-    expect(c.appMode()).toBe(AppMode.RepairSave)
+    expect(c.appMode()).toBe(ControllerCoordinator.AppMode.RepairSave)
     expect((c as RepairSaveController).getRawSaveText()).toBe('not json {')
     expect((c as RepairSaveController).isStartupRecovery()).toBe(true)
   })
@@ -47,7 +46,7 @@ describe('ControllerCoordinator#createInitialController', () => {
     localStorage.setItem(testKey, JSON.stringify({ foo: 1 }))
     const c = createInitial(storage)
     expect(c).toBeInstanceOf(RepairSaveController)
-    expect(c.appMode()).toBe(AppMode.RepairSave)
+    expect(c.appMode()).toBe(ControllerCoordinator.AppMode.RepairSave)
   })
 
   it('returns SetupController when valid save has no turns', () => {
@@ -55,7 +54,7 @@ describe('ControllerCoordinator#createInitialController', () => {
     localStorage.setItem(testKey, data.toJsonString(true))
     const c = createInitial(storage)
     expect(c).toBeInstanceOf(SetupController)
-    expect(c.appMode()).toBe(AppMode.Setup)
+    expect(c.appMode()).toBe(ControllerCoordinator.AppMode.Setup)
     expect((c as SetupController).getGameSaveData().players).toEqual([
       'Alice',
       'Bob',
@@ -79,7 +78,7 @@ describe('ControllerCoordinator#createInitialController', () => {
     localStorage.setItem(testKey, data.toJsonString(true))
     const c = createInitial(storage)
     expect(c).toBeInstanceOf(InProgressController)
-    expect(c.appMode()).toBe(AppMode.InProgress)
+    expect(c.appMode()).toBe(ControllerCoordinator.AppMode.InProgress)
     const ip = c as InProgressController
     expect(ip.getTurnTimerSeconds()).toBeCloseTo(12, 2)
     expect(ip.getGameTimerSeconds()).toBeCloseTo(12, 2)
@@ -104,7 +103,7 @@ describe('ControllerCoordinator#createInitialController', () => {
     localStorage.setItem(testKey, raw)
     const c = createInitial(storage)
     expect(c).toBeInstanceOf(RepairSaveController)
-    expect(c.appMode()).toBe(AppMode.RepairSave)
+    expect(c.appMode()).toBe(ControllerCoordinator.AppMode.RepairSave)
     expect((c as RepairSaveController).getRawSaveText()).toBe(raw)
   })
 })

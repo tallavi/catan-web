@@ -1,6 +1,10 @@
-import { GameSaveData } from '../types'
-import { GameState } from '../types/GameState'
-import { AppMode, type IController } from './IController'
+import { GameSaveData } from '../../types'
+import { GameState } from '../../types/GameState'
+import {
+  ControllerCoordinator,
+  type AppMode,
+  type IController,
+} from '../coordinator/ControllerCoordinator'
 
 /** Callbacks for {@link RepairSaveController} after a successful {@link RepairSaveController.apply}. */
 export interface RepairSaveControllerCallbacks {
@@ -29,7 +33,7 @@ export class RepairSaveController implements IController {
   }
 
   appMode(): AppMode {
-    return AppMode.RepairSave
+    return ControllerCoordinator.AppMode.RepairSave
   }
 
   getRawSaveText(): string {

@@ -1,7 +1,11 @@
-import type { Duration, DurationStats } from '../types'
-import { CubesResult, EventsCubeResult } from '../types'
-import { GameState } from '../types/GameState'
-import { AppMode, type IController } from './IController'
+import type { Duration, DurationStats } from '../../types'
+import { CubesResult, EventsCubeResult } from '../../types'
+import { GameState } from '../../types/GameState'
+import {
+  ControllerCoordinator,
+  type AppMode,
+  type IController,
+} from '../coordinator/ControllerCoordinator'
 
 /**
  * App-level hooks for {@link PausedController} actions. This controller does not read or write
@@ -36,7 +40,7 @@ export class PausedController implements IController {
   }
 
   appMode(): AppMode {
-    return AppMode.Paused
+    return ControllerCoordinator.AppMode.Paused
   }
 
   getGameState(): GameState {

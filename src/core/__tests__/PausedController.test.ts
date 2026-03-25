@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
   PausedController,
   type PausedControllerCallbacks,
-} from '../controllers/PausedController'
+} from '../controllers/concrete/PausedController'
 import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
 import { GameState } from '../types/GameState'
 

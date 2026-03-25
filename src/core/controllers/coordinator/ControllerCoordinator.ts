@@ -1,21 +1,20 @@
-import type { CubesResult, GameSaveData } from '../types'
-import { GameState } from '../types/GameState'
-import { GameStorage } from '../GameStorage'
-import type { IController } from './IController'
+import type { CubesResult, GameSaveData } from '../../types'
+import { GameState } from '../../types/GameState'
+import { GameStorage } from '../../GameStorage'
 import {
   InProgressController,
   type InProgressControllerCallbacks,
-} from './InProgressController'
+} from '../concrete/InProgressController'
 import {
   PausedController,
   type PausedControllerCallbacks,
-} from './PausedController'
-import type { RepairSaveControllerCallbacks } from './RepairSaveController'
-import { RepairSaveController } from './RepairSaveController'
+} from '../concrete/PausedController'
+import type { RepairSaveControllerCallbacks } from '../concrete/RepairSaveController'
+import { RepairSaveController } from '../concrete/RepairSaveController'
 import {
   SetupController,
   type SetupControllerCallbacks,
-} from './SetupController'
+} from '../concrete/SetupController'
 
 /**
  * Owns {@link GameStorage} and wires mutually recursive controller callbacks.
@@ -23,6 +22,13 @@ import {
  * (load → repair vs setup vs {@link GameState.tryFromGameSaveData} → repair vs in-progress).
  */
 export class ControllerCoordinator {
+  static readonly AppMode = {
+    RepairSave: 'RepairSave',
+    Setup: 'Setup',
+    InProgress: 'InProgress',
+    Paused: 'Paused',
+  } as const
+
   private readonly _setupCallbacks: SetupControllerCallbacks
   private readonly _inProgressCallbacks: InProgressControllerCallbacks
   private readonly _pausedCallbacks: PausedControllerCallbacks
@@ -111,12 +117,12 @@ export class ControllerCoordinator {
     if (!result.ok) {
       throw new Error(result.errors[0])
     }
-    const ipc = new InProgressController(
+    const inProgressController = new InProgressController(
       result.state,
       this._inProgressCallbacks
     )
-    ipc.nextTurn()
-    this._replaceController(ipc)
+    inProgressController.nextTurn()
+    this._replaceController(inProgressController)
   }
 
   private _handleResume(gameState: GameState): void {
@@ -135,9 +141,12 @@ export class ControllerCoordinator {
     gameState: GameState,
     cubes: CubesResult
   ): void {
-    const ipc = new InProgressController(gameState, this._inProgressCallbacks)
-    ipc.nextTurnWithPredeterminedCubes(cubes)
-    this._replaceController(ipc)
+    const inProgressController = new InProgressController(
+      gameState,
+      this._inProgressCallbacks
+    )
+    inProgressController.nextTurnWithPredeterminedCubes(cubes)
+    this._replaceController(inProgressController)
   }
 
   private _handleContinueStartup(gameState: GameState): void {
@@ -160,4 +169,11 @@ export class ControllerCoordinator {
       new PausedController(gameState, this._pausedCallbacks)
     )
   }
+}
+
+export type AppMode =
+  (typeof ControllerCoordinator.AppMode)[keyof typeof ControllerCoordinator.AppMode]
+
+export interface IController {
+  appMode(): AppMode
 }

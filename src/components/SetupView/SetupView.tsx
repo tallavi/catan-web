@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import type { SetupController } from '../../core/controllers/SetupController'
+import type { SetupController } from '../../core/controllers/concrete/SetupController'
 import { IconButton } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import { EditableRow } from './EditableRow'
@@ -135,7 +135,6 @@ export const SetupView: React.FC<SetupViewProps> = ({ controller }) => {
       keys: ['y'],
       action: () => {
         controller.startGame()
-        setIsConfirming(false)
       },
       isLongPress: true,
     },

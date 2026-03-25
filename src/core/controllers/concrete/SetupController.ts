@@ -1,5 +1,9 @@
-import type { GameSaveData } from '../types'
-import { AppMode, type IController } from './IController'
+import type { GameSaveData } from '../../types'
+import {
+  ControllerCoordinator,
+  type AppMode,
+  type IController,
+} from '../coordinator/ControllerCoordinator'
 
 /** Callbacks for {@link SetupController} persistence and leaving setup (app-level transition). */
 export interface SetupControllerCallbacks {
@@ -23,7 +27,7 @@ export class SetupController implements IController {
   }
 
   appMode(): AppMode {
-    return AppMode.Setup
+    return ControllerCoordinator.AppMode.Setup
   }
 
   getGameSaveData(): GameSaveData {

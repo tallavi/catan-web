@@ -1,8 +1,12 @@
-import type { GameSaveData, GameTurn } from '../types'
-import { CubesResult } from '../types'
-import type { GameState } from '../types/GameState'
-import { Timer } from '../timer'
-import { AppMode, type IController } from './IController'
+import type { GameSaveData, GameTurn } from '../../types'
+import { CubesResult } from '../../types'
+import type { GameState } from '../../types/GameState'
+import { Timer } from '../../timer'
+import {
+  ControllerCoordinator,
+  type AppMode,
+  type IController,
+} from '../coordinator/ControllerCoordinator'
 
 const AUTO_SAVE_INTERVAL_SECONDS = 10
 
@@ -30,13 +34,14 @@ export class InProgressController implements IController {
   constructor(gameState: GameState, callbacks: InProgressControllerCallbacks) {
     this._gameState = gameState
     this._callbacks = callbacks
-    const turnTimerInitialSeconds = gameState.getCurrentTurn()!.turnDuration
+    const turnTimerInitialSeconds =
+      gameState.getCurrentTurn()?.turnDuration ?? 0 // if it's a new game, there are no turns yet
     this._turnTimer = new Timer(turnTimerInitialSeconds)
     this._saveTimer = new Timer()
   }
 
   appMode(): AppMode {
-    return AppMode.InProgress
+    return ControllerCoordinator.AppMode.InProgress
   }
 
   getGameState(): GameState {

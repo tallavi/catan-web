@@ -1,5 +1,5 @@
 import React from 'react'
-import type { RepairSaveController } from '../../core/controllers/RepairSaveController'
+import type { RepairSaveController } from '../../core/controllers/concrete/RepairSaveController'
 
 interface RepairSaveViewProps {
   controller: RepairSaveController

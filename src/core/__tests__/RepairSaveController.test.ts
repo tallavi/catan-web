@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import {
   RepairSaveController,
   type RepairSaveControllerCallbacks,
-} from '../controllers/RepairSaveController'
+} from '../controllers/concrete/RepairSaveController'
 import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
 
 function repairCallbacks(): RepairSaveControllerCallbacks {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { type CubesResult, EventsCubeResult } from '../../core/types'
-import { PausedController } from '../../core/controllers/PausedController'
+import { PausedController } from '../../core/controllers/concrete/PausedController'
 import DurationTable from './DurationTable'
 import ActionBar from '../Common/ActionBar/ActionBar'
 import type { Action } from '../Common/ActionBar/ActionBar.types'
