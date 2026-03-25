@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { ActionButton } from './ActionButton'
 import type { Action } from './ActionBar.types'
+import { isActionBarKeyboardTargetIgnored } from './actionBarKeyboard'
 import './ActionBar.css'
 
 interface ActionBarProps {
@@ -16,12 +17,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement
-      if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.tagName === 'SELECT'
-      ) {
+      if (isActionBarKeyboardTargetIgnored(e.target)) {
         return
       }
       const keyIsPressed = pressedKeys.includes(e.key)
@@ -35,12 +31,7 @@ export const ActionBar: React.FC<ActionBarProps> = ({
     }
 
     const onKeyUp = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement
-      if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.tagName === 'SELECT'
-      ) {
+      if (isActionBarKeyboardTargetIgnored(e.target)) {
         return
       }
       const targetAction = actions.find(a => a.keys.includes(e.key))
