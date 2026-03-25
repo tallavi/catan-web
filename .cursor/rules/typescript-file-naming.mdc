@@ -1,0 +1,36 @@
+---
+description: TypeScript file naming: PascalCase for class/component files, camelCase for utilities; no kebab-case
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# TypeScript file naming
+
+## No kebab-case filenames
+Do not create new `.ts` / `.tsx` files with kebab-case (e.g. `game-state.ts`).
+
+## Files whose primary symbol is a single class
+If a file primarily defines/exports a single class, the filename must match the class name in **PascalCase**.
+
+Examples:
+- ✅ `RepairSaveController.ts` exports `class RepairSaveController`
+- ❌ `repairSaveController.ts`
+- ❌ `repair-save-controller.ts`
+
+## React component files
+If a file primarily defines/exports a single React component, the filename must match the component name in **PascalCase**.
+
+Examples:
+- ✅ `PausedView.tsx` exports `function PausedView(...) { ... }` (or equivalent)
+- ❌ `pausedView.tsx`
+- ❌ `paused-view.tsx`
+
+## Utility / small module files
+For non-class, non-component modules (helpers, utilities, constants, types, small modules), use **camelCase** filenames.
+
+Examples:
+- ✅ `storage.ts`, `timer.ts`, `gameState.ts`
+- ❌ `game-state.ts`
+
+## Barrel files
+`index.ts` / `index.tsx` is allowed for barrel files.

@@ -1,0 +1,31 @@
+---
+description: Prefix private class fields and methods with underscore in TypeScript
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# TypeScript private members: underscore prefix
+
+Use a leading underscore for **private** instance fields and methods (and for `private static` members the same way). Public and protected members stay unprefixed.
+
+```typescript
+// ❌ BAD
+class GameController {
+  private timerId: number | null = null;
+  private scheduleNext() {
+    /* ... */
+  }
+}
+
+// ✅ GOOD
+class GameController {
+  private _timerId: number | null = null;
+  private _scheduleNext() {
+    /* ... */
+  }
+}
+```
+
+**Applies to:** `private` class members only. Do not rename public API, interface implementations, or symbols required by external contracts.
+
+**Note:** `#` private fields are fine if the project already uses them consistently; this rule targets the `private` keyword style with underscore naming.
