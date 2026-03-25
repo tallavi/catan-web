@@ -9,8 +9,8 @@ import {
   EventsCubeResult,
   GameMode as GameStatus,
 } from './types/index'
-import { GameState } from './types/game-state'
-import { GameStorage } from './storage'
+import { GameState } from './types/GameState'
+import { GameStorage } from './GameStorage'
 import { Timer } from './timer'
 
 const AUTO_SAVE_INTERVAL_SECONDS = 10

@@ -1,6 +1,6 @@
 import type { CubesResult, GameSaveData } from '../types'
-import { GameState } from '../types/game-state'
-import { GameStorage } from '../storage'
+import { GameState } from '../types/GameState'
+import { GameStorage } from '../GameStorage'
 import type { IController } from './IController'
 import {
   InProgressController,

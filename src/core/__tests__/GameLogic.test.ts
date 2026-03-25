@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { GameLogic } from '../game-logic'
-import { GameStorage } from '../storage'
+import { GameLogic } from '../GameLogic'
+import { GameStorage } from '../GameStorage'
 import { CubesResult, EventsCubeResult, GameMode as GameStatus } from '../types'
 
 describe('GameLogic', () => {

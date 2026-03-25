@@ -1,6 +1,6 @@
 import type { GameSaveData, GameTurn } from '../types'
 import { CubesResult } from '../types'
-import type { GameState } from '../types/game-state'
+import type { GameState } from '../types/GameState'
 import { Timer } from '../timer'
 import { AppMode, type IController } from './IController'
 

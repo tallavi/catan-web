@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import {
   type GameStorageLoadResult,
   GameStorage,
-} from '../storage'
+} from '../GameStorage'
 import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
 
 type GameStorageLoadOk = Extract<GameStorageLoadResult, { ok: true }>

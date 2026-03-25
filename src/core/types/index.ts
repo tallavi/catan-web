@@ -6,7 +6,7 @@ import { safeParse } from 'valibot'
 import {
   type EventsCubeLabel,
   gameSaveJsonSchema,
-} from './game-save-json-schema'
+} from './gameSaveJsonSchema'
 
 /**
  * Represents a duration record for a player's turn

@@ -17,15 +17,15 @@ export {
   GameMode,
   GameSaveData,
 } from './types/index'
-export type { GameStateTryFromResult } from './types/game-state'
-export { GameState } from './types/game-state'
+export type { GameStateTryFromResult } from './types/GameState'
+export { GameState } from './types/GameState'
 
 // Game Logic
-export { GameLogic } from './game-logic'
+export { GameLogic } from './GameLogic'
 
 // Storage
-export type { GameStorageLoadResult } from './storage'
-export { GameStorage, StorageError } from './storage'
+export type { GameStorageLoadResult } from './GameStorage'
+export { GameStorage, StorageError } from './GameStorage'
 
 // Timer
 export { Timer, formatTime, formatTimeDetailed } from './timer'

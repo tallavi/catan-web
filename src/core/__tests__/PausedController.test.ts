@@ -4,7 +4,7 @@ import {
   type PausedControllerCallbacks,
 } from '../controllers/PausedController'
 import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
-import { GameState } from '../types/game-state'
+import { GameState } from '../types/GameState'
 
 describe('PausedController', () => {
   beforeEach(() => {

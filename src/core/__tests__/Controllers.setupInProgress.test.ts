@@ -3,8 +3,8 @@ import { SetupController } from '../controllers/SetupController'
 import { InProgressController } from '../controllers/InProgressController'
 import { PausedController } from '../controllers/PausedController'
 import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
-import { GameState } from '../types/game-state'
-import { GameStorage } from '../storage'
+import { GameState } from '../types/GameState'
+import { GameStorage } from '../GameStorage'
 
 describe('SetupController', () => {
   let testKey: string

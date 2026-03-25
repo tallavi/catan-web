@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { ControllerCoordinator } from '../controllers/controllerCoordinator'
+import { ControllerCoordinator } from '../controllers/ControllerCoordinator'
 import { InProgressController } from '../controllers/InProgressController'
 import { RepairSaveController } from '../controllers/RepairSaveController'
 import { SetupController } from '../controllers/SetupController'
 import { AppMode } from '../controllers/IController'
 import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
-import { GameStorage } from '../storage'
+import { GameStorage } from '../GameStorage'
 
 describe('ControllerCoordinator#createInitialController', () => {
   let testKey: string

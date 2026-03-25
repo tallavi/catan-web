@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { GameState } from '../types/game-state'
+import { GameState } from '../types/GameState'
 import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
 
 describe('GameState.tryFromGameSaveData', () => {

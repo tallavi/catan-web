@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import '../game.css'
 import './App.css'
-import { ControllerCoordinator } from '../../core/controllers/controllerCoordinator'
+import { ControllerCoordinator } from '../../core/controllers/ControllerCoordinator'
 import { AppMode, type IController } from '../../core/controllers/IController'
 import { InProgressController } from '../../core/controllers/InProgressController'
 import { PausedController } from '../../core/controllers/PausedController'

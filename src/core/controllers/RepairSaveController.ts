@@ -1,5 +1,5 @@
 import { GameSaveData } from '../types'
-import { GameState } from '../types/game-state'
+import { GameState } from '../types/GameState'
 import { AppMode, type IController } from './IController'
 
 /** Callbacks for {@link RepairSaveController} after a successful {@link RepairSaveController.apply}. */

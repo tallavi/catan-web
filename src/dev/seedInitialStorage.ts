@@ -4,7 +4,7 @@
  * bootstrap routes that to `RepairSaveController` (GameLogic still throws on invalid load).
  */
 
-import { DEFAULT_GAME_STORAGE_KEY } from '../core/storage'
+import { DEFAULT_GAME_STORAGE_KEY } from '../core/GameStorage'
 import initialSaveText from './initial-game-save.json?raw'
 
 /** When true, replaces the save key with the file contents on each load (dev only). */
