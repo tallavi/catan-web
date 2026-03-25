@@ -36,6 +36,7 @@ export class InProgressController implements IController {
     this._callbacks = callbacks
     const turnTimerInitialSeconds =
       gameState.getCurrentTurn()?.turnDuration ?? 0 // if it's a new game, there are no turns yet
+
     this._turnTimer = new Timer(turnTimerInitialSeconds)
     this._saveTimer = new Timer()
   }
@@ -71,10 +72,6 @@ export class InProgressController implements IController {
   }
 
   private _innerNextTurn(cubes: CubesResult): void {
-    if (!this._gameState.gameSaveData) {
-      throw new Error('No game save data')
-    }
-
     this._gameState.currentPlayerIndex =
       (this._gameState.currentPlayerIndex + 1) %
       this._gameState.gameSaveData.players.length
@@ -117,6 +114,7 @@ export class InProgressController implements IController {
    */
   pause(): void {
     this._updateTurnDuration()
+    this._save()
     this._callbacks.pause(this._gameState)
   }
 

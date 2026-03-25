@@ -1,4 +1,5 @@
 import type { GameSaveData } from '../../types'
+import { GameState } from '../../types/GameState'
 import {
   ControllerCoordinator,
   type AppMode,
@@ -13,7 +14,7 @@ export interface SetupControllerCallbacks {
    * Called from {@link SetupController.startGame}. App should transition to in-progress and build
    * {@link InProgressController} (or equivalent) using the provided {@link GameSaveData}.
    */
-  startGame: (gameSaveData: GameSaveData) => void
+  startGame: (gameState: GameState) => void
 }
 
 export class SetupController implements IController {
@@ -36,7 +37,11 @@ export class SetupController implements IController {
 
   /** Notifies the consumer to start the game with the current {@link GameSaveData}. */
   startGame(): void {
-    this._callbacks.startGame(this._gameSaveData)
+    const result = GameState.tryFromGameSaveData(this._gameSaveData)
+    if (!result.ok) {
+      throw new Error(result.errors[0])
+    }
+    this._callbacks.startGame(result.state)
   }
 
   /**

@@ -68,9 +68,7 @@ export class PausedController implements IController {
       throw new Error(result.errors[0])
     }
 
-    this._gameState = result.state
-
-    this._callbacks.newGame(this._gameState)
+    this._callbacks.newGame(result.state)
   }
 
   /** Computes game duration and, when enough turns exist, shortest/longest/average turn stats. */

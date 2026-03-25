@@ -111,14 +111,9 @@ export class GameState {
    * Updates game state by removing used cubes/events and managing pirates track
    */
   playTurn(gameTurn: GameTurn): void {
-    if (!this.gameSaveData) {
-      throw new Error('No game save data')
-    }
-
     // Add the duration of the previous turn (if it exists) to the total
     if (this.gameSaveData.gameTurns.length > 0) {
-      const previousTurn =
-        this.gameSaveData.gameTurns[this.gameSaveData.gameTurns.length - 1]
+      const previousTurn = this.getCurrentTurn()!
       this.totalTimeOfFinishedTurns += previousTurn.turnDuration
     }
 

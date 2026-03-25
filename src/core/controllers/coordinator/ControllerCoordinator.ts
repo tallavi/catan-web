@@ -104,21 +104,14 @@ export class ControllerCoordinator {
   }
 
   private _handlePause(gameState: GameState): void {
-    this._handleSave(gameState.gameSaveData)
     this._replaceController(
       new PausedController(gameState, this._pausedCallbacks)
     )
   }
 
-  private _handleStartGame(gameSaveData: GameSaveData): void {
-    this._storage.clear()
-    const data = gameSaveData.asNewGame()
-    const result = GameState.tryFromGameSaveData(data)
-    if (!result.ok) {
-      throw new Error(result.errors[0])
-    }
+  private _handleStartGame(gameState: GameState): void {
     const inProgressController = new InProgressController(
-      result.state,
+      gameState,
       this._inProgressCallbacks
     )
     inProgressController.nextTurn()
@@ -165,6 +158,8 @@ export class ControllerCoordinator {
   }
 
   private _handleApplyManualEdit(gameState: GameState): void {
+    this._storage.save(gameState.gameSaveData)
+
     this._replaceController(
       new PausedController(gameState, this._pausedCallbacks)
     )
