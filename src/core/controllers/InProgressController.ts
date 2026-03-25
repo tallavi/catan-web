@@ -25,13 +25,14 @@ export class InProgressController implements IController {
   private readonly _gameState: GameState
   private readonly _callbacks: InProgressControllerCallbacks
   private readonly _turnTimer: Timer
-  private _lastSaveTime: number = 0
+  private readonly _saveTimer: Timer
 
   constructor(gameState: GameState, callbacks: InProgressControllerCallbacks) {
     this._gameState = gameState
     this._callbacks = callbacks
     const turnTimerInitialSeconds = gameState.getCurrentTurn()!.turnDuration
     this._turnTimer = new Timer(turnTimerInitialSeconds)
+    this._saveTimer = new Timer()
   }
 
   appMode(): AppMode {
@@ -61,7 +62,7 @@ export class InProgressController implements IController {
 
   private _save(): void {
     this._callbacks.save(this._gameState.gameSaveData)
-    this._lastSaveTime = Date.now() / 1000
+    this._saveTimer.reset()
   }
 
   private _innerNextTurn(cubes: CubesResult): void {
@@ -118,8 +119,7 @@ export class InProgressController implements IController {
   timerTick(): void {
     this._updateTurnDuration()
 
-    const currentTime = Date.now() / 1000
-    if (currentTime - this._lastSaveTime >= AUTO_SAVE_INTERVAL_SECONDS) {
+    if (this._saveTimer.getCurrentDuration() >= AUTO_SAVE_INTERVAL_SECONDS) {
       this._save()
     }
   }
