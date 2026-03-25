@@ -14,7 +14,6 @@ export type {
 export {
   EventsCubeResult,
   CubesResult,
-  GameMode,
   GameSaveData,
 } from './types/index'
 export type { GameStateTryFromResult } from './types/GameState'

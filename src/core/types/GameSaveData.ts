@@ -1,5 +1,7 @@
+import * as v from 'valibot'
 import { safeParse } from 'valibot'
-import { type EventsCubeLabel, gameSaveJsonSchema } from './gameSaveJsonSchema'
+
+type EventsCubeLabel = 'GREEN' | 'BLUE' | 'YELLOW' | 'PIRATES'
 
 /**
  * Events cube results
@@ -158,6 +160,29 @@ type GameSaveDataJsonParseResult =
  * Data structure for saving/loading game state (serializable game snapshot).
  */
 export class GameSaveData {
+  private static readonly _eventsCubeLabelSchema = v.picklist([
+    'GREEN',
+    'BLUE',
+    'YELLOW',
+    'PIRATES',
+  ])
+
+  private static readonly _gameTurnJsonSchema = v.object({
+    turnNumber: v.number(),
+    playerIndex: v.number(),
+    yellowCube: v.number(),
+    redCube: v.number(),
+    predetermined: v.optional(v.boolean()),
+    eventsCube: GameSaveData._eventsCubeLabelSchema,
+    turnDuration: v.number(),
+  })
+
+  private static readonly _gameSaveJsonSchema = v.object({
+    players: v.array(v.string()),
+    blockedResults: v.array(v.number()),
+    gameTurns: v.array(GameSaveData._gameTurnJsonSchema),
+  })
+
   players: string[]
   blockedResults: number[]
   gameTurns: GameTurn[]
@@ -217,7 +242,7 @@ export class GameSaveData {
   }
 
   private static parsePlainObject(plain: unknown): GameSaveDataJsonParseResult {
-    const result = safeParse(gameSaveJsonSchema, plain)
+    const result = safeParse(GameSaveData._gameSaveJsonSchema, plain)
     if (!result.success) {
       return {
         ok: false,
