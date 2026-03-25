@@ -56,7 +56,7 @@ export const RepairSaveView: React.FC<RepairSaveViewProps> = ({
     })
   }
 
-  const title = isStartupRecovery ? 'Repair Save' : 'Edit Save'
+  const title = isStartupRecovery ? 'REPAIR SAVE' : 'EDIT SAVE'
 
   return (
     <>
