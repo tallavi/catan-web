@@ -19,13 +19,15 @@ describe('RepairSaveController', () => {
     expect(c.getApplyErrors()).toEqual([])
   })
 
-  it('setRawSaveText updates structural errors and clears apply errors', () => {
+  it('setRawSaveText updates structural errors and live apply (replay) errors', () => {
     const valid = new GameSaveData(['A'], [], [])
     const goodText = valid.toJsonString(true)
-    const c = new RepairSaveController(goodText, true, repairCallbacks())
+    const callbacks = repairCallbacks()
+    const c = new RepairSaveController(goodText, true, callbacks)
 
     c.apply()
     expect(c.getApplyErrors()).toEqual([])
+    expect(callbacks.continueStartup).toHaveBeenCalledTimes(1)
 
     const badTurn = new GameSaveData(
       ['Alice'],
@@ -43,10 +45,11 @@ describe('RepairSaveController', () => {
     const badReplayText = badTurn.toJsonString(true)
     c.setRawSaveText(badReplayText)
     expect(c.getStructuralErrors()).toEqual([])
-    expect(c.getApplyErrors()).toEqual([])
+    expect(c.getApplyErrors().length).toBeGreaterThan(0)
 
     c.apply()
     expect(c.getApplyErrors().length).toBeGreaterThan(0)
+    expect(callbacks.continueStartup).toHaveBeenCalledTimes(1)
 
     c.setRawSaveText('{')
     expect(c.getStructuralErrors().length).toBeGreaterThan(0)
@@ -61,7 +64,7 @@ describe('RepairSaveController', () => {
     expect(c.getApplyErrors()).toEqual([])
   })
 
-  it('apply sets apply errors when structure ok but replay fails', () => {
+  it('live validation sets apply errors when structure ok but replay fails', () => {
     const badTurn = new GameSaveData(
       ['Alice'],
       [],
@@ -75,14 +78,18 @@ describe('RepairSaveController', () => {
         },
       ]
     )
+    const callbacks = repairCallbacks()
     const c = new RepairSaveController(
       badTurn.toJsonString(true),
       true,
-      repairCallbacks()
+      callbacks
     )
-    c.apply()
     expect(c.getStructuralErrors()).toEqual([])
     expect(c.getApplyErrors().length).toBeGreaterThan(0)
+
+    c.apply()
+    expect(c.getApplyErrors().length).toBeGreaterThan(0)
+    expect(callbacks.continueStartup).not.toHaveBeenCalled()
   })
 
   it('apply on success calls continueStartup when isStartupRecovery', () => {
@@ -123,7 +130,11 @@ describe('RepairSaveController', () => {
       ]
     )
     const callbacks = repairCallbacks()
-    const c = new RepairSaveController(data.toJsonString(true), false, callbacks)
+    const c = new RepairSaveController(
+      data.toJsonString(true),
+      false,
+      callbacks
+    )
     c.apply()
     expect(callbacks.applyManualEdit).toHaveBeenCalledTimes(1)
     expect(callbacks.continueStartup).not.toHaveBeenCalled()

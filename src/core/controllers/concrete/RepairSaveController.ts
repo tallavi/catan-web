@@ -31,7 +31,7 @@ export class RepairSaveController implements IController {
     this._rawSaveText = rawSaveText
     this._isStartupRecovery = isStartupRecovery
     this._callbacks = callbacks
-    this._recomputeStructuralFromRaw(rawSaveText)
+    this._recomputeFromRaw(rawSaveText)
   }
 
   appMode(): AppMode {
@@ -44,36 +44,27 @@ export class RepairSaveController implements IController {
 
   setRawSaveText(text: string): void {
     this._rawSaveText = text
-    this._recomputeStructuralFromRaw(text)
+    this._recomputeFromRaw(text)
   }
 
   /**
    * Parse JSON into {@link GameSaveData}, then {@link GameState.tryFromGameSaveData}.
-   * Updates error lists; on success calls {@link RepairSaveControllerCallbacks.continueStartup}
+   * On success calls {@link RepairSaveControllerCallbacks.continueStartup}
    * or {@link RepairSaveControllerCallbacks.applyManualEdit} depending on startup vs manual repair.
    */
   apply(): void {
-    const parsed = GameSaveData.tryFromJsonString(this._rawSaveText)
-    if (!parsed.ok) {
-      this._structuralErrors = parsed.errors
-      this._applyErrors = []
+    const v = this._validateRaw(this._rawSaveText)
+    if (!v.ok) {
+      this._structuralErrors = v.structural
+      this._applyErrors = v.apply
       return
     }
-
-    const stateResult = GameState.tryFromGameSaveData(parsed.data)
-    if (!stateResult.ok) {
-      this._structuralErrors = []
-      this._applyErrors = stateResult.errors
-      return
-    }
-
     this._structuralErrors = []
     this._applyErrors = []
-
     if (this._isStartupRecovery) {
-      this._callbacks.continueStartup(stateResult.state)
+      this._callbacks.continueStartup(v.state)
     } else {
-      this._callbacks.applyManualEdit(stateResult.state)
+      this._callbacks.applyManualEdit(v.state)
     }
   }
 
@@ -99,9 +90,30 @@ export class RepairSaveController implements IController {
     return this._applyErrors
   }
 
-  private _recomputeStructuralFromRaw(text: string): void {
+  private _recomputeFromRaw(text: string): void {
+    const v = this._validateRaw(text)
+    if (!v.ok) {
+      this._structuralErrors = v.structural
+      this._applyErrors = v.apply
+    } else {
+      this._structuralErrors = []
+      this._applyErrors = []
+    }
+  }
+
+  private _validateRaw(
+    text: string
+  ):
+    | { ok: true; state: GameState }
+    | { ok: false; structural: string[]; apply: string[] } {
     const parsed = GameSaveData.tryFromJsonString(text)
-    this._structuralErrors = parsed.ok ? [] : parsed.errors
-    this._applyErrors = []
+    if (!parsed.ok) {
+      return { ok: false, structural: parsed.errors, apply: [] }
+    }
+    const stateResult = GameState.tryFromGameSaveData(parsed.data)
+    if (!stateResult.ok) {
+      return { ok: false, structural: [], apply: stateResult.errors }
+    }
+    return { ok: true, state: stateResult.state }
   }
 }
