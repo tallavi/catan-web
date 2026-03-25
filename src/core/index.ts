@@ -25,4 +25,4 @@ export type { GameStorageLoadResult } from './GameStorage'
 export { GameStorage, StorageError } from './GameStorage'
 
 // Timer
-export { Timer, formatTime, formatTimeDetailed } from './timer'
+export { Timer } from './timer'

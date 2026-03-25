@@ -1,6 +1,6 @@
 import React from 'react'
 import type { Duration } from '../../core'
-import { formatTime } from '../../core'
+import { formatTime } from '../Common/timeFormat'
 
 interface DurationTableProps {
   title: string

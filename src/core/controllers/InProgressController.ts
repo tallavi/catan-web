@@ -30,10 +30,8 @@ export class InProgressController implements IController {
   constructor(gameState: GameState, callbacks: InProgressControllerCallbacks) {
     this._gameState = gameState
     this._callbacks = callbacks
-    const turnTimerInitialSeconds =
-      gameState.gameSaveData?.gameTurns.at(-1)?.turnDuration ?? 0
+    const turnTimerInitialSeconds = gameState.getCurrentTurn()!.turnDuration
     this._turnTimer = new Timer(turnTimerInitialSeconds)
-    this._turnTimer.resume()
   }
 
   appMode(): AppMode {
@@ -42,11 +40,6 @@ export class InProgressController implements IController {
 
   getGameState(): GameState {
     return this._gameState
-  }
-
-  /** Same as {@link GameLogic.turnTimerInstance}. */
-  get turnTimerInstance(): Timer {
-    return this._turnTimer
   }
 
   /** Elapsed seconds for the current turn (from the live {@link Timer}). */
@@ -98,7 +91,6 @@ export class InProgressController implements IController {
     this._gameState.playTurn(gameTurn)
 
     this._turnTimer.reset()
-    this._turnTimer.resume()
 
     this._save()
   }

@@ -5,8 +5,9 @@ import {
   type GameTurn,
 } from '../../core/types'
 import './HistoryTable.css'
-import { formatTime, type DurationStats } from '../../core'
+import type { DurationStats } from '../../core'
 import HorizontalScrollContainer from '../Common/HorizontalScrollContainer'
+import { formatTime } from '../Common/timeFormat'
 
 interface HistoryTableProps {
   stats: DurationStats

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { formatTime } from '../../core'
+import { formatTime } from '../Common/timeFormat'
 import { useGameTimer } from './useGameTimer'
 import { EventsCubeResult } from '../../core'
 import type { InProgressController } from '../../core/controllers/InProgressController'
