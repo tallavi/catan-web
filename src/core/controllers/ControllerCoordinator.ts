@@ -31,9 +31,12 @@ export class ControllerCoordinator {
   private readonly _storage: GameStorage
   private readonly _replaceController: (next: IController) => void
 
-  constructor(replaceController: (next: IController) => void) {
+  constructor(
+    replaceController: (next: IController) => void,
+    storage: GameStorage = new GameStorage()
+  ) {
     this._replaceController = replaceController
-    this._storage = new GameStorage()
+    this._storage = storage
     this._setupCallbacks = {} as SetupControllerCallbacks
     this._inProgressCallbacks = {} as InProgressControllerCallbacks
     this._pausedCallbacks = {} as PausedControllerCallbacks
