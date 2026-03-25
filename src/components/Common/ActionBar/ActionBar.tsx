@@ -20,6 +20,9 @@ export const ActionBar: React.FC<ActionBarProps> = ({
       if (isActionBarKeyboardTargetIgnored(e.target)) {
         return
       }
+      if (e.repeat) {
+        return
+      }
       const keyIsPressed = pressedKeys.includes(e.key)
       if (keyIsPressed) return
 
@@ -40,7 +43,11 @@ export const ActionBar: React.FC<ActionBarProps> = ({
         return
       }
 
-      if (!targetAction.isLongPress && !targetAction.disabled) {
+      if (
+        !targetAction.isLongPress &&
+        !targetAction.disabled &&
+        pressedKeys.includes(e.key)
+      ) {
         targetAction.action()
       }
       setPressedKeys(prev => prev.filter(k => k !== e.key))
