@@ -61,18 +61,12 @@ export class InProgressController implements IController {
   }
 
   private _updateTurnDuration(): void {
-    if (!this._gameState.gameSaveData) return
-
-    const turns = this._gameState.gameSaveData.gameTurns
-    if (turns.length === 0) return
-
-    const currentTurn = turns[turns.length - 1]
+    const currentTurn = this._gameState.getCurrentTurn()
+    if (!currentTurn) return
     currentTurn.turnDuration = this._turnTimer.getCurrentDuration()
   }
 
   private _save(): void {
-    if (!this._gameState.gameSaveData) return
-
     this._callbacks.save(this._gameState.gameSaveData)
     this._lastSaveTime = Date.now() / 1000
   }
@@ -125,7 +119,6 @@ export class InProgressController implements IController {
    */
   pause(): void {
     this._updateTurnDuration()
-    this._turnTimer.pause()
     this._callbacks.pause(this._gameState)
   }
 

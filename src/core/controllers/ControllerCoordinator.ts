@@ -98,6 +98,7 @@ export class ControllerCoordinator {
   }
 
   private _handlePause(gameState: GameState): void {
+    this._handleSave(gameState.gameSaveData)
     this._replaceController(
       new PausedController(gameState, this._pausedCallbacks)
     )

@@ -22,7 +22,7 @@ export const InProgressView: React.FC<InProgressViewProps> = ({
   const { turnDuration, gameDuration } = useGameTimer(controller, renderCounter)
 
   const gameState = controller.getGameState()
-  const currentTurn = gameState.getCurrentTurn()
+  const currentTurn = gameState.getCurrentTurn()!
   const currentPlayer = gameState.getCurrentPlayerName() || 'Unknown'
 
   const actions: Action[] = [

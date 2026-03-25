@@ -223,10 +223,9 @@ export class GameState {
   /**
    * Get the current turn (which is the last one in the list)
    */
-  getCurrentTurn(): GameTurn {
-    //TODO: make sure this is not called when there are no turns. If there are no turns we should not be in normal view, we should be in StartGameView.
+  getCurrentTurn(): GameTurn | null {
     const turns = this.gameSaveData.gameTurns
-
+    if (turns.length === 0) return null
     return turns[turns.length - 1]
   }
 }
