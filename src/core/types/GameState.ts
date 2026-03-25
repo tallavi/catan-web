@@ -1,8 +1,8 @@
 /**
  * Game state management for the Catan game
  */
-import { GameSaveData, type GameTurn } from './index'
-import { CubesResult, EventsCubeResult } from './index'
+import { CubesResult, GameSaveData, type GameTurn } from './GameSaveData'
+import { EventsCubeResult } from './index'
 
 export type GameStateTryFromResult =
   | { ok: true; state: GameState }
@@ -101,8 +101,6 @@ export class GameState {
    * Calculate total game duration from all turns
    */
   getGameDuration(): number {
-    if (!this.gameSaveData) return 0
-
     const currentTurn = this.getCurrentTurn()
     const currentTurnDuration = currentTurn ? currentTurn.turnDuration : 0
     return this.totalTimeOfFinishedTurns + currentTurnDuration
