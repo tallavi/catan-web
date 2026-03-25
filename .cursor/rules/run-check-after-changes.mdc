@@ -1,0 +1,10 @@
+---
+description: Run project checks after code changes
+alwaysApply: true
+---
+
+# Run Checks After Changes
+
+- After making code changes, run `npm run check` before finishing.
+- Treat failures in lint, typecheck, or tests as blockers.
+- If checks fail, fix issues and rerun `npm run check`.
