@@ -116,7 +116,7 @@ describe('InProgressController', () => {
     expect(last?.cubes).toEqual(new CubesResult(4, 5, true))
   })
 
-  it('PausedController.getFreeRoll matches GameLogic.getFreeRoll shape', () => {
+  it('PausedController.getFreeRoll returns CubesResult and event roll', () => {
     const [cubes, ev] = PausedController.getFreeRoll()
     expect(cubes).toBeInstanceOf(CubesResult)
     expect(typeof ev).toBe('number')

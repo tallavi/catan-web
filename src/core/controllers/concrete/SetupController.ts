@@ -44,17 +44,13 @@ export class SetupController implements IController {
     this._callbacks.startGame(result.state)
   }
 
-  /**
-   * Same behavior as {@link GameLogic.setPlayers}.
-   */
+  /** Replaces {@link GameSaveData.players} and persists. */
   setPlayers(players: string[]): void {
     this._gameSaveData.players = players
     this._save()
   }
 
-  /**
-   * Same behavior as {@link GameLogic.setBlockedResults}.
-   */
+  /** Replaces {@link GameSaveData.blockedResults} and persists. */
   setBlockedResults(results: number[]): void {
     this._gameSaveData.blockedResults = results
     this._save()

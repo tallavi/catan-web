@@ -1,7 +1,7 @@
 /**
  * Dev-only: optionally overwrite localStorage with raw text from initial-game-save.json
  * before the app loads. Invalid JSON yields `GameStorage.load()` with `ok: false`;
- * bootstrap routes that to `RepairSaveController` (GameLogic still throws on invalid load).
+ * bootstrap routes that to `RepairSaveController`.
  */
 
 import { DEFAULT_GAME_STORAGE_KEY } from '../core/GameStorage'

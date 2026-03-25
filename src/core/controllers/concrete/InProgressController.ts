@@ -23,7 +23,7 @@ export interface InProgressControllerCallbacks {
 
 /**
  * In-progress gameplay: turn timer, persistence, and advancing turns.
- * Logic mirrored from {@link GameLogic} (without setup/pause/resume/newGame).
+ * Setup, pause/resume, and starting a new game are handled by other controllers.
  */
 export class InProgressController implements IController {
   private readonly _gameState: GameState
@@ -98,13 +98,13 @@ export class InProgressController implements IController {
     this._save()
   }
 
-  /** Same as {@link GameLogic.nextTurn}. */
+  /** Picks random cubes from {@link GameState.possibleCubesResults} and advances the turn. */
   nextTurn(): void {
     const cubes = this._randomChoice(this._gameState.possibleCubesResults)
     this._innerNextTurn(cubes)
   }
 
-  /** Same as {@link GameLogic.nextTurnWithPredeterminedCubes}. */
+  /** Advances the turn using the given cube result (e.g. tests or replays). */
   nextTurnWithPredeterminedCubes(cubes: CubesResult): void {
     this._innerNextTurn(cubes)
   }
@@ -118,7 +118,7 @@ export class InProgressController implements IController {
     this._callbacks.pause(this._gameState)
   }
 
-  /** Same as {@link GameLogic.timerTick}. */
+  /** Syncs turn duration from the timer; persists when the autosave interval elapses. */
   timerTick(): void {
     this._updateTurnDuration()
 

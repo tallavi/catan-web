@@ -26,7 +26,7 @@ describe('ControllerCoordinator#createInitialController', () => {
     ).createInitialController()
   }
 
-  it('returns SetupController when storage is empty (same default as GameLogic)', () => {
+  it('returns SetupController when storage is empty (bootstrap default)', () => {
     const c = createInitial(storage)
     expect(c).toBeInstanceOf(SetupController)
     expect(c.appMode()).toBe(ControllerCoordinator.AppMode.Setup)
