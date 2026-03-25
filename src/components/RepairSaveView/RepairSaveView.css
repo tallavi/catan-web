@@ -1,0 +1,57 @@
+.repair-save-view .repair-save-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 0.5rem;
+}
+
+.repair-save-editor-wrap {
+  flex: 1 1 auto;
+  min-height: 50vh;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--panel);
+  box-shadow: 0 2px 8px rgba(16, 24, 40, 0.06);
+}
+
+.repair-save-cm .cm-editor {
+  font-size: 0.9rem;
+}
+
+.repair-save-cm .cm-scroller {
+  font-family:
+    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+.repair-save-errors {
+  text-align: left;
+  padding: 0.75rem 1rem;
+}
+
+.repair-save-error-heading {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+.repair-save-error-list {
+  margin: 0 0 0.75rem 1rem;
+  padding: 0;
+  color: var(--red);
+  font-size: 0.9rem;
+}
+
+.repair-save-error-group:last-child .repair-save-error-list {
+  margin-bottom: 0;
+}
+
+.repair-save-error-line {
+  margin-bottom: 0.25rem;
+}
