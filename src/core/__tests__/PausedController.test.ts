@@ -20,6 +20,7 @@ describe('PausedController', () => {
       newGame: vi.fn(),
       resume: vi.fn(),
       nextTurnWithPredeterminedCubes: vi.fn(),
+      editSave: vi.fn(),
     }
   }
 
@@ -60,6 +61,17 @@ describe('PausedController', () => {
 
     expect(callbacks.resume).toHaveBeenCalledTimes(1)
     expect(callbacks.resume).toHaveBeenCalledWith(state)
+  })
+
+  it('editSave invokes callback with game state', () => {
+    const state = oneTurnState()
+    const callbacks = stubCallbacks()
+    const c = new PausedController(state, callbacks)
+
+    c.editSave()
+
+    expect(callbacks.editSave).toHaveBeenCalledTimes(1)
+    expect(callbacks.editSave).toHaveBeenCalledWith(state)
   })
 
   it('newGame clears turns and invokes callback with new game state', () => {

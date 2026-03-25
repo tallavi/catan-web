@@ -21,6 +21,8 @@ export interface PausedControllerCallbacks {
     gameState: GameState,
     cubesResult: CubesResult
   ) => void
+  /** Open JSON repair UI for the current save (non-startup); coordinator mounts {@link RepairSaveController} with `isStartupRecovery: false`. */
+  editSave: (gameState: GameState) => void
 }
 
 /**
@@ -53,6 +55,11 @@ export class PausedController implements IController {
    */
   resume(): void {
     this._callbacks.resume(this._gameState)
+  }
+
+  /** Delegates to {@link PausedControllerCallbacks.editSave} with the current paused {@link GameState}. */
+  editSave(): void {
+    this._callbacks.editSave(this._gameState)
   }
 
   /**

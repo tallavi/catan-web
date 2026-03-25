@@ -12,6 +12,8 @@ export interface RepairSaveControllerCallbacks {
   continueStartup: (gameState: GameState) => void
   /** App should apply the repaired save from a manual edit (e.g. return to paused/in-progress). */
   applyManualEdit: (gameState: GameState) => void
+  /** When {@link RepairSaveController} was opened from pause (`!isStartupRecovery`), restore paused UI without applying edits. */
+  cancelManualEdit?: () => void
 }
 
 export class RepairSaveController implements IController {
@@ -81,6 +83,12 @@ export class RepairSaveController implements IController {
 
   canCancel(): boolean {
     return !this._isStartupRecovery
+  }
+
+  /** No-op when {@link canCancel} is false or no `cancelManualEdit` callback was provided. */
+  cancel(): void {
+    if (!this.canCancel()) return
+    this._callbacks.cancelManualEdit?.()
   }
 
   getStructuralErrors(): string[] {

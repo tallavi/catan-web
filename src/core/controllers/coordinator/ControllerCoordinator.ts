@@ -92,6 +92,7 @@ export class ControllerCoordinator {
     this._pausedCallbacks.newGame = gameState => this._handleNewGame(gameState)
     this._pausedCallbacks.nextTurnWithPredeterminedCubes = (gameState, cubes) =>
       this._handleNextTurnWithPredeterminedCubes(gameState, cubes)
+    this._pausedCallbacks.editSave = gameState => this._handleEditSave(gameState)
 
     this._repairCallbacks.continueStartup = gameState =>
       this._handleContinueStartup(gameState)
@@ -162,6 +163,20 @@ export class ControllerCoordinator {
 
     this._replaceController(
       new PausedController(gameState, this._pausedCallbacks)
+    )
+  }
+
+  private _handleEditSave(gameState: GameState): void {
+    const frozenState = gameState
+    const raw = gameState.gameSaveData.toJsonString(true)
+    this._replaceController(
+      new RepairSaveController(raw, false, {
+        ...this._repairCallbacks,
+        cancelManualEdit: () =>
+          this._replaceController(
+            new PausedController(frozenState, this._pausedCallbacks)
+          ),
+      })
     )
   }
 }

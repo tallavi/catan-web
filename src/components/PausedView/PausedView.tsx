@@ -94,6 +94,12 @@ export const PausedView: React.FC<PausedViewProps> = ({ controller }) => {
         keys: ['n'],
         action: () => setViewMode('NewGame'),
       },
+      {
+        label: 'Edit save',
+        shortcutDisplay: 'e',
+        keys: ['e'],
+        action: () => controller.editSave(),
+      },
     ],
     Predetermined: [
       ...[1, 2, 3, 4, 5, 6].map(n => ({

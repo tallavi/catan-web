@@ -37,7 +37,7 @@ describe('SetupController', () => {
     expect(parsed.data.blockedResults).toEqual([7])
   })
 
-  it('startGame invokes callback with current GameSaveData', () => {
+  it('startGame invokes callback with GameState built from current save', () => {
     const data = new GameSaveData([], [], [])
     const storage = new GameStorage(testKey)
     const startGame = vi.fn()
@@ -49,7 +49,11 @@ describe('SetupController', () => {
     c.startGame()
 
     expect(startGame).toHaveBeenCalledTimes(1)
-    expect(startGame).toHaveBeenCalledWith(data)
+    const arg = startGame.mock.calls[0][0]
+    expect(arg).toBeInstanceOf(GameState)
+    expect(arg.gameSaveData.players).toEqual(data.players)
+    expect(arg.gameSaveData.blockedResults).toEqual(data.blockedResults)
+    expect(arg.gameSaveData.gameTurns).toEqual([])
   })
 })
 
