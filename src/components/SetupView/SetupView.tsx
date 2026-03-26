@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import type { SetupController } from '../../core/controllers/concrete/SetupController'
+import { GameSaveData } from '../../core/types'
 import { IconButton } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import { EditableRow } from './EditableRow'
 import ActionBar from '../Common/ActionBar/ActionBar'
 import type { Action } from '../Common/ActionBar/ActionBar.types'
 import Modal from '../Common/Modal/Modal'
-
-const MAX_NAME_LENGTH = 20
 
 interface SetupViewProps {
   controller: SetupController
@@ -27,37 +26,7 @@ export const SetupView: React.FC<SetupViewProps> = ({ controller }) => {
   const [newPlayerName, setNewPlayerName] = useState('')
   const [isConfirming, setIsConfirming] = useState(false)
 
-  const validationErrors = new Set<string>()
-  if (players.length === 0) {
-    validationErrors.add('• There must be at least one player.')
-  }
-  const playerNames = new Set()
-  for (const player of players) {
-    const trimmed = player.trim()
-
-    if (!trimmed) {
-      validationErrors.add('• Player names must not be empty.')
-      continue
-    }
-    if (playerNames.has(trimmed)) {
-      validationErrors.add("• Player names must be unique ('" + trimmed + "').")
-      continue
-    }
-    playerNames.add(trimmed)
-  }
-  if (blockedNumbers.length >= 11) {
-    const allBlocked = new Set(blockedNumbers)
-    let allPossibleBlocked = true
-    for (let i = 2; i <= 12; i++) {
-      if (!allBlocked.has(i)) {
-        allPossibleBlocked = false
-        break
-      }
-    }
-    if (allPossibleBlocked) {
-      validationErrors.add('• There must be at least one unblocked result.')
-    }
-  }
+  const validationErrors = GameSaveData.validateSetup(players, blockedNumbers)
 
   useEffect(() => {
     controller.setPlayers(players.map(p => p.trim()))
@@ -79,7 +48,12 @@ export const SetupView: React.FC<SetupViewProps> = ({ controller }) => {
 
   const isBlockedNumberValid = () => {
     const num = parseInt(newBlockedNumber, 10)
-    return !isNaN(num) && num >= 2 && num <= 12 && !blockedNumbers.includes(num)
+    return (
+      !isNaN(num) &&
+      num >= GameSaveData.BLOCKED_RESULT_MIN &&
+      num <= GameSaveData.BLOCKED_RESULT_MAX &&
+      !blockedNumbers.includes(num)
+    )
   }
 
   const removePlayer = (index: number) => {
@@ -108,7 +82,12 @@ export const SetupView: React.FC<SetupViewProps> = ({ controller }) => {
 
   const addBlockedNumber = () => {
     const num = parseInt(newBlockedNumber, 10)
-    if (!isNaN(num) && num >= 2 && num <= 12 && !blockedNumbers.includes(num)) {
+    if (
+      !isNaN(num) &&
+      num >= GameSaveData.BLOCKED_RESULT_MIN &&
+      num <= GameSaveData.BLOCKED_RESULT_MAX &&
+      !blockedNumbers.includes(num)
+    ) {
       setBlockedNumbers([...blockedNumbers, num].sort((a, b) => a - b))
       setNewBlockedNumber('')
     }
@@ -124,7 +103,7 @@ export const SetupView: React.FC<SetupViewProps> = ({ controller }) => {
       shortcutDisplay: 'Enter',
       keys: ['Enter'],
       action: () => setIsConfirming(true),
-      disabled: validationErrors.size > 0,
+      disabled: validationErrors.length > 0,
     },
   ]
 
@@ -166,7 +145,7 @@ export const SetupView: React.FC<SetupViewProps> = ({ controller }) => {
                       firstColumnContent={
                         <input
                           type="text"
-                          maxLength={MAX_NAME_LENGTH}
+                          maxLength={GameSaveData.PLAYER_NAME_MAX_LENGTH}
                           value={player}
                           onChange={e =>
                             updatePlayerName(index, e.target.value)
@@ -189,7 +168,7 @@ export const SetupView: React.FC<SetupViewProps> = ({ controller }) => {
                     <td style={{ paddingTop: '10px', width: '50%' }}>
                       <input
                         type="text"
-                        maxLength={MAX_NAME_LENGTH}
+                        maxLength={GameSaveData.PLAYER_NAME_MAX_LENGTH}
                         value={newPlayerName}
                         onChange={e => setNewPlayerName(e.target.value)}
                         placeholder="Add player"
@@ -244,9 +223,9 @@ export const SetupView: React.FC<SetupViewProps> = ({ controller }) => {
                         type="number"
                         value={newBlockedNumber}
                         onChange={e => setNewBlockedNumber(e.target.value)}
-                        placeholder="Add blocked number (2-12)"
-                        min="2"
-                        max="12"
+                        placeholder={`Add blocked number (${GameSaveData.BLOCKED_RESULT_MIN}-${GameSaveData.BLOCKED_RESULT_MAX})`}
+                        min={String(GameSaveData.BLOCKED_RESULT_MIN)}
+                        max={String(GameSaveData.BLOCKED_RESULT_MAX)}
                         style={{
                           fontSize: 'inherit',
                           width: '100%',
@@ -286,11 +265,11 @@ export const SetupView: React.FC<SetupViewProps> = ({ controller }) => {
               </table>
             </div>
           </div>
-          {validationErrors.size > 0 && (
+          {validationErrors.length > 0 && (
             <div
               style={{ color: 'red', textAlign: 'center', marginTop: '1rem' }}
             >
-              {Array.from(validationErrors).map((error, index) => (
+              {validationErrors.map((error, index) => (
                 <div key={index}>{error}</div>
               ))}
             </div>

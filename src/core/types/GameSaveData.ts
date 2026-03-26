@@ -160,6 +160,10 @@ type GameSaveDataJsonParseResult =
  * Data structure for saving/loading game state (serializable game snapshot).
  */
 export class GameSaveData {
+  static readonly PLAYER_NAME_MAX_LENGTH = 20
+  static readonly BLOCKED_RESULT_MIN = 2
+  static readonly BLOCKED_RESULT_MAX = 12
+
   private static readonly _eventsCubeLabelSchema = v.picklist([
     'GREEN',
     'BLUE',
@@ -198,6 +202,75 @@ export class GameSaveData {
   }
 
   /**
+   * Validate setup fields (players + blocked results) and return bulleted errors.
+   * This is shared between setup UI and Repair Save.
+   */
+  static validateSetup(players: string[], blockedResults: number[]): string[] {
+    const errors = new Set<string>()
+
+    // Players
+    if (players.length === 0) {
+      errors.add('• There must be at least one player.')
+    }
+
+    const names = new Set<string>()
+    for (const raw of players) {
+      const trimmed = raw.trim()
+      if (!trimmed) {
+        errors.add('• Player names must not be empty.')
+        continue
+      }
+      if (trimmed.length > GameSaveData.PLAYER_NAME_MAX_LENGTH) {
+        errors.add(
+          `• Player names must be at most ${GameSaveData.PLAYER_NAME_MAX_LENGTH} characters ('${trimmed}').`
+        )
+        continue
+      }
+      if (names.has(trimmed)) {
+        errors.add(`• Player names must be unique ('${trimmed}').`)
+        continue
+      }
+      names.add(trimmed)
+    }
+
+    // Blocked results
+    const blocked = new Set<number>()
+    for (const n of blockedResults) {
+      if (
+        n < GameSaveData.BLOCKED_RESULT_MIN ||
+        n > GameSaveData.BLOCKED_RESULT_MAX
+      ) {
+        errors.add(
+          `• Blocked results must be between ${GameSaveData.BLOCKED_RESULT_MIN} and ${GameSaveData.BLOCKED_RESULT_MAX} (${n}).`
+        )
+        continue
+      }
+      if (blocked.has(n)) {
+        errors.add(`• Blocked results must be unique (${n}).`)
+        continue
+      }
+      blocked.add(n)
+    }
+
+    let hasUnblocked = false
+    for (
+      let i = GameSaveData.BLOCKED_RESULT_MIN;
+      i <= GameSaveData.BLOCKED_RESULT_MAX;
+      i++
+    ) {
+      if (!blocked.has(i)) {
+        hasUnblocked = true
+        break
+      }
+    }
+    if (!hasUnblocked) {
+      errors.add('• There must be at least one unblocked result.')
+    }
+
+    return Array.from(errors)
+  }
+
+  /**
    * Parse JSON text into structural {@link GameSaveData} (non-throwing).
    * Suitable for live editor validation; does not run {@link GameState.tryFromGameSaveData}.
    */
@@ -209,7 +282,23 @@ export class GameSaveData {
       const msg = e instanceof Error ? e.message : String(e)
       return { ok: false, errors: [`Invalid JSON: ${msg}`] }
     }
-    return GameSaveData.parsePlainObject(plain)
+
+    const parsed = GameSaveData.parsePlainObject(plain)
+
+    if (!parsed.ok) {
+      return { ok: false, errors: parsed.errors }
+    }
+
+    const errors = GameSaveData.validateSetup(
+      parsed.data.players,
+      parsed.data.blockedResults
+    )
+
+    if (errors.length > 0) {
+      return { ok: false, errors: errors }
+    }
+
+    return { ok: true, data: parsed.data }
   }
 
   /**

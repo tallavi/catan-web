@@ -91,6 +91,17 @@ describe('RepairSaveController', () => {
     expect(callbacks.repairSaveApplied).not.toHaveBeenCalled()
   })
 
+  it('live validation sets errors when structure ok but setup is invalid', () => {
+    const data = new GameSaveData(['Alice'], [13], [])
+    const callbacks = repairCallbacks()
+    const c = new RepairSaveController(data.toJsonString(true), true, callbacks)
+    expect(c.getErrors().length).toBeGreaterThan(0)
+
+    c.apply()
+    expect(c.getErrors().length).toBeGreaterThan(0)
+    expect(callbacks.repairSaveApplied).not.toHaveBeenCalled()
+  })
+
   it('apply on success calls repairSaveApplied with InProgressFromStartupRepair when isStartupRecovery', () => {
     const data = new GameSaveData(
       ['Alice'],

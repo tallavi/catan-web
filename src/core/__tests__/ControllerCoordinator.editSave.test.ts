@@ -65,12 +65,16 @@ describe('ControllerCoordinator#editSave', () => {
     ;(current as InProgressController).pause()
     const pausedBefore = current as PausedController
     const stateBefore = pausedBefore.getGameState()
+    const rawBefore = stateBefore.gameSaveData.toJsonString(true)
 
     pausedBefore.editSave()
     expect(current).toBeInstanceOf(RepairSaveController)
     ;(current as RepairSaveController).cancel()
 
     expect(current).toBeInstanceOf(PausedController)
-    expect((current as PausedController).getGameState()).toBe(stateBefore)
+    expect((current as PausedController).getGameState()).not.toBe(stateBefore)
+    expect(
+      (current as PausedController).getGameState().gameSaveData.toJsonString(true)
+    ).toBe(rawBefore)
   })
 })
