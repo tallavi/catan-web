@@ -67,7 +67,6 @@ export const RepairSaveView: React.FC<RepairSaveViewProps> = ({
             <CodeMirror
               value={value}
               theme="light"
-              minHeight="50vh"
               className="repair-save-cm"
               extensions={extensions}
               onChange={handleChange}
