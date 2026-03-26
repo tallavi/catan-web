@@ -13,12 +13,9 @@ interface SetupViewProps {
 }
 
 export const SetupView: React.FC<SetupViewProps> = ({ controller }) => {
-  const [players, setPlayers] = useState<string[]>(() => {
-    const initialPlayers = controller.getGameSaveData().players
-    return initialPlayers.length > 0
-      ? initialPlayers
-      : ['Player 1', 'Player 2', 'Player 3']
-  })
+  const [players, setPlayers] = useState<string[]>(() =>
+    controller.getGameSaveData().players
+  )
   const [blockedNumbers, setBlockedNumbers] = useState<number[]>(
     controller.getGameSaveData().blockedResults
   )
@@ -104,6 +101,12 @@ export const SetupView: React.FC<SetupViewProps> = ({ controller }) => {
       keys: ['Enter'],
       action: () => setIsConfirming(true),
       disabled: validationErrors.length > 0,
+    },
+    {
+      label: 'Edit save',
+      shortcutDisplay: 'e',
+      keys: ['e'],
+      action: () => controller.editSave(),
     },
   ]
 

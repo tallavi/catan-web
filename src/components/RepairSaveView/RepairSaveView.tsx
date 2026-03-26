@@ -44,6 +44,15 @@ export const RepairSaveView: React.FC<RepairSaveViewProps> = ({
       invalidate()
     },
   })
+  if (isStartupRecovery) {
+    actions.push({
+      label: 'Clear',
+      shortcutDisplay: 'c',
+      keys: ['c'],
+      isLongPress: true,
+      action: () => controller.clear(),
+    })
+  }
   if (controller.canCancel()) {
     actions.push({
       label: 'Cancel',

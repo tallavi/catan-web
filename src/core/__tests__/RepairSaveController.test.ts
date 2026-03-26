@@ -154,4 +154,25 @@ describe('RepairSaveController', () => {
       { kind: RepairSaveContinuationKind.ManualEditWithTurns }
     )
   })
+
+  it('clear is a no-op when not startup recovery', () => {
+    const data = new GameSaveData(['Alice'], [], [])
+    const callbacks = repairCallbacks()
+    const c = new RepairSaveController(data.toJsonString(true), false, callbacks)
+    c.clear()
+    expect(callbacks.repairSaveApplied).not.toHaveBeenCalled()
+  })
+
+  it('clear on startup recovery calls repairSaveApplied with default game state and NewGame continuation', () => {
+    const data = new GameSaveData(['Alice'], [], [])
+    const callbacks = repairCallbacks()
+    const c = new RepairSaveController(data.toJsonString(true), true, callbacks)
+    c.clear()
+    expect(callbacks.repairSaveApplied).toHaveBeenCalledTimes(1)
+    const [gameState, next] = vi.mocked(callbacks.repairSaveApplied).mock.calls[0]
+    expect(next).toEqual({ kind: RepairSaveContinuationKind.NewGame })
+    expect(gameState.gameSaveData.toJsonString(true)).toBe(
+      GameSaveData.createDefault().toJsonString(true)
+    )
+  })
 })

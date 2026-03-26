@@ -102,6 +102,19 @@ export class RepairSaveController implements IController {
     this._callbacks.cancelManualEdit?.()
   }
 
+  /** In startup recovery only, clears to a default save and exits to setup. */
+  clear(): void {
+    if (!this._isStartupRecovery) return
+    const data = GameSaveData.createDefault()
+    const state = GameState.tryFromGameSaveData(data)
+    if (!state.ok) {
+      throw new Error(state.errors[0])
+    }
+    this._callbacks.repairSaveApplied(state.state, {
+      kind: RepairSaveContinuationKind.NewGame,
+    })
+  }
+
   getErrors(): string[] {
     return this._errors
   }

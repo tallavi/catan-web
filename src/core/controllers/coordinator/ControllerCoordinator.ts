@@ -10,11 +10,11 @@ import {
   type PausedControllerCallbacks,
 } from '../concrete/PausedController'
 import {
-  RepairSaveContinuationKind,
   type RepairSaveContinuation,
   type RepairSaveControllerCallbacks,
 } from '../concrete/RepairSaveController'
 import { RepairSaveController } from '../concrete/RepairSaveController'
+import { RepairSaveContinuationKind } from '../concrete/RepairSaveController'
 import {
   SetupController,
   type SetupControllerCallbacks,
@@ -89,6 +89,8 @@ export class ControllerCoordinator {
     this._inProgressCallbacks.pause = gameState => this._handlePause(gameState)
 
     this._setupCallbacks.save = d => this._handleSave(d)
+    this._setupCallbacks.editSave = gameSaveData =>
+      this._handleEditSave(gameSaveData)
     this._setupCallbacks.startGame = gameSaveData =>
       this._handleStartGame(gameSaveData)
 
@@ -96,8 +98,8 @@ export class ControllerCoordinator {
     this._pausedCallbacks.newGame = gameState => this._handleNewGame(gameState)
     this._pausedCallbacks.nextTurnWithPredeterminedCubes = (gameState, cubes) =>
       this._handleNextTurnWithPredeterminedCubes(gameState, cubes)
-    this._pausedCallbacks.editSave = gameState =>
-      this._handleEditSave(gameState)
+    this._pausedCallbacks.editSave = gameSaveData =>
+      this._handleEditSave(gameSaveData)
 
     this._repairCallbacks.repairSaveApplied = (gameState, next) =>
       this._handleRepairSaveApplied(gameState, next)
@@ -177,27 +179,15 @@ export class ControllerCoordinator {
     }
   }
 
-  private _handleEditSave(gameState: GameState): void {
-    const raw = gameState.gameSaveData.toJsonString(true)
+  private _handleEditSave(gameSaveData: GameSaveData): void {
+    const raw = gameSaveData.toJsonString(true)
     this._replaceController(
       new RepairSaveController(raw, false, this._repairCallbacks)
     )
   }
 
   private _handleCancelManualEdit(): void {
-    const loaded = this._storage.load()
-    if (!loaded.ok) {
-      throw new Error('Failed to load game state')
-    }
-
-    const gameState = GameState.tryFromGameSaveData(loaded.data)
-    if (!gameState.ok) {
-      throw new Error('Failed to load game state')
-    }
-
-    this._replaceController(
-      new PausedController(gameState.state, this._pausedCallbacks)
-    )
+    this._replaceController(this.createInitialController())
   }
 }
 

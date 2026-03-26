@@ -97,11 +97,11 @@ describe('GameStorage', () => {
     it('should return empty save when loading non-existent data', () => {
       const loaded = storage.load()
       assertGameStorageLoadOk(loaded)
-      expect(loaded.data.players).toEqual([])
+      expect(loaded.data.players).toEqual(['Player 1', 'Player 2', 'Player 3'])
       expect(loaded.data.blockedResults).toEqual([])
       expect(loaded.data.gameTurns).toEqual([])
       expect(loaded.rawString).toBe(
-        new GameSaveData([], [], []).toJsonString(true)
+        GameSaveData.createDefault().toJsonString(true)
       )
     })
 
@@ -176,7 +176,7 @@ describe('GameStorage', () => {
       expect(storage.exists()).toBe(false)
       const after = storage.load()
       assertGameStorageLoadOk(after)
-      expect(after.data.players).toEqual([])
+      expect(after.data.players).toEqual(['Player 1', 'Player 2', 'Player 3'])
     })
   })
 })

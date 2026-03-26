@@ -163,6 +163,9 @@ export class GameSaveData {
   static readonly PLAYER_NAME_MAX_LENGTH = 20
   static readonly BLOCKED_RESULT_MIN = 2
   static readonly BLOCKED_RESULT_MAX = 12
+  static createDefault(): GameSaveData {
+    return new GameSaveData(['Player 1', 'Player 2', 'Player 3'], [], [])
+  }
 
   private static readonly _eventsCubeLabelSchema = v.picklist([
     'GREEN',

@@ -22,6 +22,7 @@ describe('SetupController', () => {
     const storage = new GameStorage(testKey)
     const c = new SetupController(data, {
       save: d => storage.save(d),
+      editSave: vi.fn(),
       startGame: vi.fn(),
     })
 
@@ -43,6 +44,7 @@ describe('SetupController', () => {
     const startGame = vi.fn()
     const c = new SetupController(data, {
       save: d => storage.save(d),
+      editSave: vi.fn(),
       startGame,
     })
 

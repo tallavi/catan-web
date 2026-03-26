@@ -10,6 +10,8 @@ import {
 export interface SetupControllerCallbacks {
   /** Persist the current save (e.g. delegate to {@link GameStorage.save}). */
   save: (gameSaveData: GameSaveData) => void
+  /** Open JSON repair UI for the current save (non-startup). */
+  editSave: (gameSaveData: GameSaveData) => void
   /**
    * Called from {@link SetupController.startGame}. App should transition to in-progress and build
    * {@link InProgressController} (or equivalent) using the provided {@link GameSaveData}.
@@ -33,6 +35,11 @@ export class SetupController implements IController {
 
   getGameSaveData(): GameSaveData {
     return this._gameSaveData
+  }
+
+  /** Delegates to {@link SetupControllerCallbacks.editSave} with the current setup {@link GameSaveData}. */
+  editSave(): void {
+    this._callbacks.editSave(this._gameSaveData)
   }
 
   /** Notifies the consumer to start the game with the current {@link GameSaveData}. */

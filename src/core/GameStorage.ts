@@ -72,7 +72,7 @@ export class GameStorage {
     }
 
     if (serialized === null) {
-      const data = new GameSaveData([], [], [])
+      const data = GameSaveData.createDefault()
       return { ok: true, data, rawString: data.toJsonString(true) }
     }
 

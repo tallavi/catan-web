@@ -63,7 +63,7 @@ describe('PausedController', () => {
     expect(callbacks.resume).toHaveBeenCalledWith(state)
   })
 
-  it('editSave invokes callback with game state', () => {
+  it('editSave invokes callback with game save data', () => {
     const state = oneTurnState()
     const callbacks = stubCallbacks()
     const c = new PausedController(state, callbacks)
@@ -71,7 +71,7 @@ describe('PausedController', () => {
     c.editSave()
 
     expect(callbacks.editSave).toHaveBeenCalledTimes(1)
-    expect(callbacks.editSave).toHaveBeenCalledWith(state)
+    expect(callbacks.editSave).toHaveBeenCalledWith(state.gameSaveData)
   })
 
   it('newGame invokes callback with rebuilt state; does not replace controller snapshot', () => {

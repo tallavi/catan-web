@@ -1,4 +1,4 @@
-import type { Duration, DurationStats } from '../../types'
+import type { Duration, DurationStats, GameSaveData } from '../../types'
 import { CubesResult, EventsCubeResult } from '../../types'
 import { GameState } from '../../types/GameState'
 import {
@@ -22,7 +22,7 @@ export interface PausedControllerCallbacks {
     cubesResult: CubesResult
   ) => void
   /** Open JSON repair UI for the current save (non-startup); coordinator mounts {@link RepairSaveController} with `isStartupRecovery: false`. */
-  editSave: (gameState: GameState) => void
+  editSave: (gameSaveData: GameSaveData) => void
 }
 
 /**
@@ -59,7 +59,7 @@ export class PausedController implements IController {
 
   /** Delegates to {@link PausedControllerCallbacks.editSave} with the current paused {@link GameState}. */
   editSave(): void {
-    this._callbacks.editSave(this._gameState)
+    this._callbacks.editSave(this._gameState.gameSaveData)
   }
 
   /**
