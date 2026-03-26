@@ -9,6 +9,7 @@
   --blue: #3182ce;
   --bold: #2d3748;
   --action-bar-height: 72px; /* space reserved for fixed action bar */
+  --app-shell-vertical-padding: 4rem; /* game-view + view-content vertical padding */
 }
 
 .game-view {
@@ -17,7 +18,8 @@
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
     Arial, sans-serif;
-  min-height: 100vh;
+  min-height: 100dvh;
+  box-sizing: border-box;
   padding: 1rem;
 }
 

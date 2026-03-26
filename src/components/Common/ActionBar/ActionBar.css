@@ -3,10 +3,12 @@
   left: 0;
   right: 0;
   bottom: 0;
+  min-height: var(--action-bar-height);
+  box-sizing: border-box;
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  padding: 0.6rem;
+  padding: 0.6rem 0.6rem calc(0.6rem + env(safe-area-inset-bottom));
   border-radius: 0;
   justify-content: center;
   background: rgb(102, 126, 234);

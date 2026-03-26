@@ -2,8 +2,12 @@
 .view {
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 2rem);
-  padding-bottom: 72px; /* reserve space for fixed action bar */
+  min-height: calc(
+    100dvh - var(--app-shell-vertical-padding) - var(--action-bar-height)
+  );
+  padding-bottom: calc(
+    var(--action-bar-height) + env(safe-area-inset-bottom)
+  ); /* ensure content is never hidden behind fixed action bar */
   margin-left: calc(
     -2rem
   ); /* offset all parent padding (game-view + view-content) */
