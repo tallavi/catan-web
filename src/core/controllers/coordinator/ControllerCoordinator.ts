@@ -9,7 +9,11 @@ import {
   PausedController,
   type PausedControllerCallbacks,
 } from '../concrete/PausedController'
-import type { RepairSaveControllerCallbacks } from '../concrete/RepairSaveController'
+import {
+  RepairSaveContinuationKind,
+  type RepairSaveContinuation,
+  type RepairSaveControllerCallbacks,
+} from '../concrete/RepairSaveController'
 import { RepairSaveController } from '../concrete/RepairSaveController'
 import {
   SetupController,
@@ -92,12 +96,14 @@ export class ControllerCoordinator {
     this._pausedCallbacks.newGame = gameState => this._handleNewGame(gameState)
     this._pausedCallbacks.nextTurnWithPredeterminedCubes = (gameState, cubes) =>
       this._handleNextTurnWithPredeterminedCubes(gameState, cubes)
-    this._pausedCallbacks.editSave = gameState => this._handleEditSave(gameState)
+    this._pausedCallbacks.editSave = gameState =>
+      this._handleEditSave(gameState)
 
-    this._repairCallbacks.continueStartup = gameState =>
-      this._handleContinueStartup(gameState)
-    this._repairCallbacks.applyManualEdit = gameState =>
-      this._handleApplyManualEdit(gameState)
+    this._repairCallbacks.repairSaveApplied = (gameState, next) =>
+      this._handleRepairSaveApplied(gameState, next)
+
+    this._repairCallbacks.cancelManualEdit = () =>
+      this._handleCancelManualEdit()
   }
 
   private _handleSave(gameSaveData: GameSaveData): void {
@@ -143,40 +149,54 @@ export class ControllerCoordinator {
     this._replaceController(inProgressController)
   }
 
-  private _handleContinueStartup(gameState: GameState): void {
+  private _handleRepairSaveApplied(
+    gameState: GameState,
+    next: RepairSaveContinuation
+  ): void {
     const save = gameState.gameSaveData
-    if (!save) {
-      throw new Error('Repair continueStartup: missing gameSaveData')
-    }
-    this._storage.save(save)
-    if (save.gameTurns.length === 0) {
-      this._replaceController(new SetupController(save, this._setupCallbacks))
-    } else {
-      this._replaceController(
-        new InProgressController(gameState, this._inProgressCallbacks)
-      )
-    }
-  }
+    this._handleSave(save)
 
-  private _handleApplyManualEdit(gameState: GameState): void {
-    this._storage.save(gameState.gameSaveData)
-
-    this._replaceController(
-      new PausedController(gameState, this._pausedCallbacks)
-    )
+    switch (next.kind) {
+      case RepairSaveContinuationKind.NewGame:
+        this._replaceController(new SetupController(save, this._setupCallbacks))
+        return
+      case RepairSaveContinuationKind.StartupRepairWithTurns:
+        this._replaceController(
+          new InProgressController(gameState, this._inProgressCallbacks)
+        )
+        return
+      case RepairSaveContinuationKind.ManualEditWithTurns:
+        this._replaceController(
+          new PausedController(gameState, this._pausedCallbacks)
+        )
+        return
+      default: {
+        const _exhaustive: never = next
+        throw new Error(`Unhandled repair continuation: ${_exhaustive}`)
+      }
+    }
   }
 
   private _handleEditSave(gameState: GameState): void {
-    const frozenState = gameState
     const raw = gameState.gameSaveData.toJsonString(true)
     this._replaceController(
-      new RepairSaveController(raw, false, {
-        ...this._repairCallbacks,
-        cancelManualEdit: () =>
-          this._replaceController(
-            new PausedController(frozenState, this._pausedCallbacks)
-          ),
-      })
+      new RepairSaveController(raw, false, this._repairCallbacks)
+    )
+  }
+
+  private _handleCancelManualEdit(): void {
+    const loaded = this._storage.load()
+    if (!loaded.ok) {
+      throw new Error('Failed to load game state')
+    }
+
+    const gameState = GameState.tryFromGameSaveData(loaded.data)
+    if (!gameState.ok) {
+      throw new Error('Failed to load game state')
+    }
+
+    this._replaceController(
+      new PausedController(gameState.state, this._pausedCallbacks)
     )
   }
 }

@@ -29,10 +29,8 @@ export const RepairSaveView: React.FC<RepairSaveViewProps> = ({
     invalidate()
   }
 
-  const structuralErrors = controller.getStructuralErrors()
-  const applyErrors = controller.getApplyErrors()
-  const hasBlockingErrors =
-    structuralErrors.length > 0 || applyErrors.length > 0 || value.trim() === ''
+  const errors = controller.getErrors()
+  const hasBlockingErrors = errors.length > 0 || value.trim() === ''
 
   const actions: Action[] = []
   actions.push({
@@ -77,28 +75,13 @@ export const RepairSaveView: React.FC<RepairSaveViewProps> = ({
               }}
             />
           </div>
-          {(structuralErrors.length > 0 || applyErrors.length > 0) && (
+          {errors.length > 0 && (
             <div className="repair-save-errors card" role="alert">
-              {structuralErrors.length > 0 && (
+              {errors.length > 0 && (
                 <div className="repair-save-error-group">
-                  <div className="repair-save-error-heading">
-                    JSON / save shape
-                  </div>
                   <ul className="repair-save-error-list">
-                    {structuralErrors.map((msg, i) => (
+                    {errors.map((msg, i) => (
                       <li key={`s-${i}`} className="repair-save-error-line">
-                        {msg}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {applyErrors.length > 0 && (
-                <div className="repair-save-error-group">
-                  <div className="repair-save-error-heading">Game state</div>
-                  <ul className="repair-save-error-list">
-                    {applyErrors.map((msg, i) => (
-                      <li key={`a-${i}`} className="repair-save-error-line">
                         {msg}
                       </li>
                     ))}

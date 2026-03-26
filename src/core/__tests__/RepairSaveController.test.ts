@@ -1,22 +1,21 @@
 import { describe, it, expect, vi } from 'vitest'
 import {
   RepairSaveController,
+  RepairSaveContinuationKind,
   type RepairSaveControllerCallbacks,
 } from '../controllers/concrete/RepairSaveController'
 import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
 
 function repairCallbacks(): RepairSaveControllerCallbacks {
   return {
-    continueStartup: vi.fn(),
-    applyManualEdit: vi.fn(),
+    repairSaveApplied: vi.fn(),
   }
 }
 
 describe('RepairSaveController', () => {
   it('runs structural validation in constructor', () => {
     const c = new RepairSaveController('not json {', true, repairCallbacks())
-    expect(c.getStructuralErrors().length).toBeGreaterThan(0)
-    expect(c.getApplyErrors()).toEqual([])
+    expect(c.getErrors().length).toBeGreaterThan(0)
   })
 
   it('setRawSaveText updates structural errors and live apply (replay) errors', () => {
@@ -26,8 +25,12 @@ describe('RepairSaveController', () => {
     const c = new RepairSaveController(goodText, true, callbacks)
 
     c.apply()
-    expect(c.getApplyErrors()).toEqual([])
-    expect(callbacks.continueStartup).toHaveBeenCalledTimes(1)
+    expect(c.getErrors()).toEqual([])
+    expect(callbacks.repairSaveApplied).toHaveBeenCalledTimes(1)
+    expect(callbacks.repairSaveApplied).toHaveBeenCalledWith(
+      expect.anything(),
+      { kind: RepairSaveContinuationKind.NewGame }
+    )
 
     const badTurn = new GameSaveData(
       ['Alice'],
@@ -44,24 +47,21 @@ describe('RepairSaveController', () => {
     )
     const badReplayText = badTurn.toJsonString(true)
     c.setRawSaveText(badReplayText)
-    expect(c.getStructuralErrors()).toEqual([])
-    expect(c.getApplyErrors().length).toBeGreaterThan(0)
+    expect(c.getErrors().length).toBeGreaterThan(0)
 
     c.apply()
-    expect(c.getApplyErrors().length).toBeGreaterThan(0)
-    expect(callbacks.continueStartup).toHaveBeenCalledTimes(1)
+    expect(c.getErrors().length).toBeGreaterThan(0)
+    expect(callbacks.repairSaveApplied).toHaveBeenCalledTimes(1)
 
     c.setRawSaveText('{')
-    expect(c.getStructuralErrors().length).toBeGreaterThan(0)
-    expect(c.getApplyErrors()).toEqual([])
+    expect(c.getErrors().length).toBeGreaterThan(0)
   })
 
   it('apply leaves structural errors only when JSON parse fails', () => {
     const c = new RepairSaveController('{}', true, repairCallbacks())
     c.setRawSaveText('not json')
     c.apply()
-    expect(c.getStructuralErrors().length).toBeGreaterThan(0)
-    expect(c.getApplyErrors()).toEqual([])
+    expect(c.getErrors().length).toBeGreaterThan(0)
   })
 
   it('live validation sets apply errors when structure ok but replay fails', () => {
@@ -84,15 +84,14 @@ describe('RepairSaveController', () => {
       true,
       callbacks
     )
-    expect(c.getStructuralErrors()).toEqual([])
-    expect(c.getApplyErrors().length).toBeGreaterThan(0)
+    expect(c.getErrors().length).toBeGreaterThan(0)
 
     c.apply()
-    expect(c.getApplyErrors().length).toBeGreaterThan(0)
-    expect(callbacks.continueStartup).not.toHaveBeenCalled()
+    expect(c.getErrors().length).toBeGreaterThan(0)
+    expect(callbacks.repairSaveApplied).not.toHaveBeenCalled()
   })
 
-  it('apply on success calls continueStartup when isStartupRecovery', () => {
+  it('apply on success calls repairSaveApplied with InProgressFromStartupRepair when isStartupRecovery', () => {
     const data = new GameSaveData(
       ['Alice'],
       [],
@@ -109,13 +108,15 @@ describe('RepairSaveController', () => {
     const callbacks = repairCallbacks()
     const c = new RepairSaveController(data.toJsonString(true), true, callbacks)
     c.apply()
-    expect(callbacks.continueStartup).toHaveBeenCalledTimes(1)
-    expect(callbacks.applyManualEdit).not.toHaveBeenCalled()
-    expect(c.getStructuralErrors()).toEqual([])
-    expect(c.getApplyErrors()).toEqual([])
+    expect(callbacks.repairSaveApplied).toHaveBeenCalledTimes(1)
+    expect(callbacks.repairSaveApplied).toHaveBeenCalledWith(
+      expect.anything(),
+      { kind: RepairSaveContinuationKind.StartupRepairWithTurns }
+    )
+    expect(c.getErrors()).toEqual([])
   })
 
-  it('apply on success calls applyManualEdit when not startup recovery', () => {
+  it('apply on success calls repairSaveApplied with PausedFromManualEdit when not startup recovery', () => {
     const data = new GameSaveData(
       ['Alice'],
       [],
@@ -136,7 +137,10 @@ describe('RepairSaveController', () => {
       callbacks
     )
     c.apply()
-    expect(callbacks.applyManualEdit).toHaveBeenCalledTimes(1)
-    expect(callbacks.continueStartup).not.toHaveBeenCalled()
+    expect(callbacks.repairSaveApplied).toHaveBeenCalledTimes(1)
+    expect(callbacks.repairSaveApplied).toHaveBeenCalledWith(
+      expect.anything(),
+      { kind: RepairSaveContinuationKind.ManualEditWithTurns }
+    )
   })
 })

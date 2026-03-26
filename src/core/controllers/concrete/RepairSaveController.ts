@@ -8,20 +8,31 @@ import {
 
 /** Callbacks for {@link RepairSaveController} after a successful {@link RepairSaveController.apply}. */
 export interface RepairSaveControllerCallbacks {
-  /** App should transition from startup repair using the rebuilt {@link GameState} (e.g. setup or in-progress). */
-  continueStartup: (gameState: GameState) => void
-  /** App should apply the repaired save from a manual edit (e.g. return to paused/in-progress). */
-  applyManualEdit: (gameState: GameState) => void
+  repairSaveApplied: (
+    gameState: GameState,
+    next: RepairSaveContinuation
+  ) => void
   /** When {@link RepairSaveController} was opened from pause (`!isStartupRecovery`), restore paused UI without applying edits. */
   cancelManualEdit?: () => void
 }
+
+export class RepairSaveContinuationKind {
+  static readonly NewGame = 'SetupFromStartupRepair' as const
+  static readonly StartupRepairWithTurns =
+    'InProgressFromStartupRepair' as const
+  static readonly ManualEditWithTurns = 'PausedFromManualEdit' as const
+}
+
+export type RepairSaveContinuation =
+  | { kind: typeof RepairSaveContinuationKind.NewGame }
+  | { kind: typeof RepairSaveContinuationKind.StartupRepairWithTurns }
+  | { kind: typeof RepairSaveContinuationKind.ManualEditWithTurns }
 
 export class RepairSaveController implements IController {
   private readonly _isStartupRecovery: boolean
   private readonly _callbacks: RepairSaveControllerCallbacks
   private _rawSaveText: string
-  private _structuralErrors: string[] = []
-  private _applyErrors: string[] = []
+  private _errors: string[] = []
 
   constructor(
     rawSaveText: string,
@@ -49,23 +60,32 @@ export class RepairSaveController implements IController {
 
   /**
    * Parse JSON into {@link GameSaveData}, then {@link GameState.tryFromGameSaveData}.
-   * On success calls {@link RepairSaveControllerCallbacks.continueStartup}
-   * or {@link RepairSaveControllerCallbacks.applyManualEdit} depending on startup vs manual repair.
+   * On success calls {@link RepairSaveControllerCallbacks.repairSaveApplied} with a typed continuation
+   * describing where the app should go next.
    */
   apply(): void {
     const v = this._validateRaw(this._rawSaveText)
     if (!v.ok) {
-      this._structuralErrors = v.structural
-      this._applyErrors = v.apply
+      this._errors = v.errors
       return
     }
-    this._structuralErrors = []
-    this._applyErrors = []
-    if (this._isStartupRecovery) {
-      this._callbacks.continueStartup(v.state)
-    } else {
-      this._callbacks.applyManualEdit(v.state)
+    this._errors = []
+    const save = v.state.gameSaveData
+    if (!save) {
+      throw new Error('Repair apply: missing gameSaveData')
     }
+
+    let next: RepairSaveContinuation
+
+    if (save.gameTurns.length === 0) {
+      next = { kind: RepairSaveContinuationKind.NewGame }
+    } else if (this._isStartupRecovery) {
+      next = { kind: RepairSaveContinuationKind.StartupRepairWithTurns }
+    } else {
+      next = { kind: RepairSaveContinuationKind.ManualEditWithTurns }
+    }
+
+    this._callbacks.repairSaveApplied(v.state, next)
   }
 
   isStartupRecovery(): boolean {
@@ -82,37 +102,29 @@ export class RepairSaveController implements IController {
     this._callbacks.cancelManualEdit?.()
   }
 
-  getStructuralErrors(): string[] {
-    return this._structuralErrors
-  }
-
-  getApplyErrors(): string[] {
-    return this._applyErrors
+  getErrors(): string[] {
+    return this._errors
   }
 
   private _recomputeFromRaw(text: string): void {
     const v = this._validateRaw(text)
     if (!v.ok) {
-      this._structuralErrors = v.structural
-      this._applyErrors = v.apply
+      this._errors = v.errors
     } else {
-      this._structuralErrors = []
-      this._applyErrors = []
+      this._errors = []
     }
   }
 
   private _validateRaw(
     text: string
-  ):
-    | { ok: true; state: GameState }
-    | { ok: false; structural: string[]; apply: string[] } {
+  ): { ok: true; state: GameState } | { ok: false; errors: string[] } {
     const parsed = GameSaveData.tryFromJsonString(text)
     if (!parsed.ok) {
-      return { ok: false, structural: parsed.errors, apply: [] }
+      return { ok: false, errors: parsed.errors }
     }
     const stateResult = GameState.tryFromGameSaveData(parsed.data)
     if (!stateResult.ok) {
-      return { ok: false, structural: [], apply: stateResult.errors }
+      return { ok: false, errors: stateResult.errors }
     }
     return { ok: true, state: stateResult.state }
   }
