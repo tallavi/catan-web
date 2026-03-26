@@ -25,9 +25,9 @@ The project started as a Python CLI tool. I later decided to port it to a web ap
 ☑ **Timing & stats** — Track turn times, total game time, and statistics (longest/shortest/average turn duration).  
 ☑ **Predetermined results** — Set specific dice results in advance (e.g. for the Alchemist card in _Cities and Knights_).  
 ☑ **Cities and Knights** — Events cube randomization and pirate track status.  
-☑ **Turn history** — View the history of previous turns.
+☑ **Turn history** — View the history of previous turns.  
+☑ **Import/export game** — Save game to and load game from a json file.
 
-☐ **Import/export game** — Save and load game state to a file.  
 ☐ **Settings**  
 &nbsp;&nbsp;&nbsp;&nbsp;☐ Light/dark mode  
 &nbsp;&nbsp;&nbsp;&nbsp;☐ Show/hide Cities and Knights–related elements  
