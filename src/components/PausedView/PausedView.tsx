@@ -80,7 +80,7 @@ export const PausedView: React.FC<PausedViewProps> = ({ controller }) => {
         },
       },
       {
-        label: 'Next turn with predetermined cubes',
+        label: 'Next Turn with Predetermined Cubes',
         shortcutDisplay: 'p',
         keys: ['p'],
         action: () => {
