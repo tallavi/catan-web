@@ -1,9 +1,20 @@
+.repair-save-view {
+  height: calc(
+    100dvh - var(--app-shell-vertical-padding) - var(--action-bar-height)
+  );
+  max-height: calc(
+    100dvh - var(--app-shell-vertical-padding) - var(--action-bar-height)
+  );
+  overflow: hidden;
+}
+
 .repair-save-view .repair-save-body {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   min-height: 0;
+  overflow: hidden;
   width: 100%;
   box-sizing: border-box;
   max-width: none;
@@ -12,7 +23,8 @@
 }
 
 .repair-save-editor-wrap {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
   box-sizing: border-box;
   margin-inline: 0;
@@ -23,16 +35,24 @@
   box-shadow: 0 2px 8px rgba(16, 24, 40, 0.06);
 }
 
+.repair-save-cm,
 .repair-save-cm .cm-editor {
+  height: 100%;
+  min-height: 0;
   font-size: 0.9rem;
 }
 
 .repair-save-cm .cm-scroller {
+  height: 100%;
+  min-height: 0;
   font-family:
     ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
 }
 
 .repair-save-errors {
+  flex: 0 0 auto;
+  max-height: 25%;
+  overflow: auto;
   text-align: left;
   padding: 0.75rem 1rem;
 }

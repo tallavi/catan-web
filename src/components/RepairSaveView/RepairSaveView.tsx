@@ -77,17 +77,15 @@ export const RepairSaveView: React.FC<RepairSaveViewProps> = ({
           </div>
           {errors.length > 0 && (
             <div className="repair-save-errors card" role="alert">
-              {errors.length > 0 && (
-                <div className="repair-save-error-group">
-                  <ul className="repair-save-error-list">
-                    {errors.map((msg, i) => (
-                      <li key={`s-${i}`} className="repair-save-error-line">
-                        {msg}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              <div className="repair-save-error-group">
+                <ul className="repair-save-error-list">
+                  {errors.map((msg, i) => (
+                    <li key={`s-${i}`} className="repair-save-error-line">
+                      {msg}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           )}
         </div>
