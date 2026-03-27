@@ -1,11 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { CssFallback } from '../../../utils/CssFallback'
+
+const DEFAULT_STROKE_WIDTH = 4
+const DEFAULT_BORDER_RADIUS = 8
 
 export const ProgressBorder: React.FC<{
   progress: number
   strokeWidth: number
   strokeColor: string
   buttonRef: React.RefObject<HTMLButtonElement | null>
-}> = ({ progress, strokeWidth, strokeColor, buttonRef }) => {
+}> = ({ progress, strokeWidth: strokeWidthProp, strokeColor, buttonRef }) => {
+  const strokeWidth = CssFallback.positiveIntOr(
+    strokeWidthProp,
+    DEFAULT_STROKE_WIDTH
+  )
   const [dimensions, setDimensions] = useState({
     width: 0,
     height: 0,
@@ -17,14 +25,18 @@ export const ProgressBorder: React.FC<{
       const parentElement = buttonRef.current
       const { width, height } = parentElement.getBoundingClientRect()
       const computedStyle = window.getComputedStyle(parentElement)
-      const borderRadius = parseInt(
-        computedStyle.borderRadius.replace('px', ''),
+      const borderRadiusParsed = parseInt(
+        computedStyle.borderRadius.replace(/px/g, '').trim(),
         10
       )
+      const borderRadius =
+        Number.isFinite(borderRadiusParsed) && borderRadiusParsed >= 0
+          ? borderRadiusParsed
+          : DEFAULT_BORDER_RADIUS
       setDimensions({
         width: width + 1,
         height: height,
-        borderRadius: borderRadius,
+        borderRadius,
       })
     }
   }, [strokeWidth, buttonRef])

@@ -2,7 +2,21 @@ import React, { useState, useRef, useEffect } from 'react'
 import type { Action } from './ActionBar.types'
 import { useLongPress } from './useLongPress'
 import { ProgressBorder } from './ProgressBorder'
+import { CssFallback } from '../../../utils/CssFallback'
 import './ActionButton.css'
+
+/** Matches defaults in ActionButton.css; used when getComputedStyle omits or invalidates custom props (e.g. test env). */
+type LongPressStyle = {
+  strokeColor: string
+  strokeWidth: number
+  duration: number
+}
+
+const DEFAULT_LONG_PRESS_STYLE: LongPressStyle = {
+  strokeColor: 'black',
+  strokeWidth: 4,
+  duration: 2000,
+}
 
 interface ActionButtonProps {
   action: Action
@@ -16,9 +30,9 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   debugProgress,
 }) => {
   const [styleProps, setStyleProps] = useState({
-    strokeColor: 'black',
-    strokeWidth: 4,
-    duration: 2000,
+    strokeColor: DEFAULT_LONG_PRESS_STYLE.strokeColor,
+    strokeWidth: DEFAULT_LONG_PRESS_STYLE.strokeWidth,
+    duration: DEFAULT_LONG_PRESS_STYLE.duration,
   })
   const buttonRef = useRef<HTMLButtonElement>(null)
   const { isPressing, progress, startPress, resetPress } = useLongPress(
@@ -29,19 +43,19 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   const updateStyleProperties = () => {
     if (buttonRef.current) {
       const buttonStyle = window.getComputedStyle(buttonRef.current)
-      const duration = parseInt(
-        buttonStyle.getPropertyValue('--long-press-duration').trim(),
-        10
-      )
       setStyleProps({
-        strokeColor: buttonStyle
-          .getPropertyValue('--long-press-border-color')
-          .trim(),
-        strokeWidth: parseInt(
-          buttonStyle.getPropertyValue('--long-press-border-width').trim(),
-          10
+        strokeColor: CssFallback.nonEmptyTrimmedOr(
+          buttonStyle.getPropertyValue('--long-press-border-color'),
+          DEFAULT_LONG_PRESS_STYLE.strokeColor
         ),
-        duration: !isNaN(duration) ? duration : 2000,
+        strokeWidth: CssFallback.positiveIntOr(
+          buttonStyle.getPropertyValue('--long-press-border-width'),
+          DEFAULT_LONG_PRESS_STYLE.strokeWidth
+        ),
+        duration: CssFallback.positiveIntOr(
+          buttonStyle.getPropertyValue('--long-press-duration'),
+          DEFAULT_LONG_PRESS_STYLE.duration
+        ),
       })
     }
   }
