@@ -55,7 +55,7 @@ describe('ControllerCoordinator#createInitialController', () => {
     expect(c).toBeInstanceOf(RepairSaveController)
     expect(c.appMode()).toBe(ControllerCoordinator.AppMode.RepairSave)
     expect((c as RepairSaveController).getRawSaveText()).toBe('not json {')
-    expect((c as RepairSaveController).canCancel()).toBe(true)
+    expect((c as RepairSaveController).canCancel()).toBe(false)
   })
 
   it('returns RepairSaveController when save fails structural schema', () => {

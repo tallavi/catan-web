@@ -172,7 +172,7 @@ describe('RepairSaveController', () => {
     )
   })
 
-  it('clear is a no-op when cancel is enabled', () => {
+  it('clear throws when cancel is enabled', () => {
     const data = new GameSaveData(['Alice'], [], [])
     const callbacks = repairCallbacks()
     const c = new RepairSaveController(
@@ -181,7 +181,7 @@ describe('RepairSaveController', () => {
       false,
       callbacks
     )
-    c.clear()
+    expect(() => c.clear()).toThrow('Cannot clear when cancel is enabled')
     expect(callbacks.repairSaveApply).not.toHaveBeenCalled()
   })
 

@@ -45,7 +45,7 @@ describe('ControllerCoordinator#editSave', () => {
     localStorage.removeItem(testKey)
   })
 
-  it('from pause, editSave mounts RepairSaveController with canCancel false and save JSON', () => {
+  it('from pause, editSave mounts RepairSaveController with canCancel true and save JSON', () => {
     expect(current).toBeInstanceOf(InProgressController)
     ;(current as InProgressController).pause()
     expect(current).toBeInstanceOf(PausedController)
@@ -58,18 +58,18 @@ describe('ControllerCoordinator#editSave', () => {
 
     expect(current).toBeInstanceOf(RepairSaveController)
     const repair = current as RepairSaveController
-    expect(repair.canCancel()).toBe(false)
+    expect(repair.canCancel()).toBe(true)
     expect(repair.getRawSaveText()).toBe(expectedRaw)
   })
 
-  it('cancel is a no-op when editSave came from pause (canCancel false)', () => {
+  it('from pause, cancel on repair returns to PausedController', () => {
     ;(current as InProgressController).pause()
     const pausedBefore = current as PausedController
 
     pausedBefore.editSave()
     expect(current).toBeInstanceOf(RepairSaveController)
     ;(current as RepairSaveController).cancel()
-    expect(current).toBeInstanceOf(RepairSaveController)
+    expect(current).toBeInstanceOf(PausedController)
   })
 
   it('from setup, apply routes to InProgress when edited save has turns', () => {

@@ -205,7 +205,7 @@ export class GameSaveData {
   }
 
   /**
-   * Validate setup fields (players + blocked results) and return bulleted errors.
+   * Validate setup fields (players + blocked results) and return error messages.
    * This is shared between setup UI and Repair Save.
    */
   static validateSetup(players: string[], blockedResults: number[]): string[] {
