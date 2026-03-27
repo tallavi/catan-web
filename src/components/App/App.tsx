@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import '../game.css'
 import './App.css'
 import { useControllerCoordinator } from './useControllerCoordinator'
@@ -11,8 +11,11 @@ import {
 } from '../../core/controllers/concrete'
 import InProgressView from '../InProgressView/InProgressView'
 import PausedView from '../PausedView/PausedView'
-import RepairSaveView from '../RepairSaveView/RepairSaveView'
 import SetupView from '../SetupView/SetupView'
+
+const RepairSaveViewLazy = React.lazy(
+  () => import('../RepairSaveView/RepairSaveView'),
+)
 
 export const App: React.FC = () => {
   const controller = useControllerCoordinator()
@@ -32,7 +35,17 @@ export const App: React.FC = () => {
       case ControllerCoordinator.AppMode.Paused:
         return <PausedView controller={controller as PausedController} />
       case ControllerCoordinator.AppMode.RepairSave:
-        return <RepairSaveView controller={controller as RepairSaveController} />
+        return (
+          <Suspense
+            fallback={
+              <div className="repairSaveView-loading">loading...</div>
+            }
+          >
+            <RepairSaveViewLazy
+              controller={controller as RepairSaveController}
+            />
+          </Suspense>
+        )
       default: {
         const _exhaustive: never = mode
         return _exhaustive
