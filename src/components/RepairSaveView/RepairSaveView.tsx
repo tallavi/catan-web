@@ -14,7 +14,7 @@ interface RepairSaveViewProps {
 export const RepairSaveView: React.FC<RepairSaveViewProps> = ({
   controller,
 }) => {
-  const isStartupRecovery = controller.isStartupRecovery()
+  const canCancel = controller.canCancel()
   const [value, setValue] = useState(() => controller.getRawSaveText())
   const [, invalidate] = useReducer((n: number) => n + 1, 0)
 
@@ -44,16 +44,8 @@ export const RepairSaveView: React.FC<RepairSaveViewProps> = ({
       invalidate()
     },
   })
-  if (isStartupRecovery) {
-    actions.push({
-      label: 'Clear',
-      shortcutDisplay: 'c',
-      keys: ['c'],
-      isLongPress: true,
-      action: () => controller.clear(),
-    })
-  }
-  if (controller.canCancel()) {
+
+  if (canCancel) {
     actions.push({
       label: 'Cancel',
       shortcutDisplay: 'Esc',
@@ -61,9 +53,17 @@ export const RepairSaveView: React.FC<RepairSaveViewProps> = ({
       isLongPress: true,
       action: () => controller.cancel(),
     })
+  } else {
+    actions.push({
+      label: 'Clear',
+      shortcutDisplay: 'Esc',
+      keys: ['Escape'],
+      isLongPress: true,
+      action: () => controller.clear(),
+    })
   }
 
-  const title = isStartupRecovery ? 'REPAIR SAVE' : 'EDIT SAVE'
+  const title = canCancel ? 'EDIT SAVE' : 'REPAIR SAVE'
 
   return (
     <>

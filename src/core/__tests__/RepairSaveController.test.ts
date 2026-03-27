@@ -1,20 +1,25 @@
 import { describe, it, expect, vi } from 'vitest'
 import {
   RepairSaveController,
-  RepairSaveContinuationKind,
   type RepairSaveControllerCallbacks,
 } from '../controllers/concrete/RepairSaveController'
 import { CubesResult, EventsCubeResult, GameSaveData } from '../types'
 
 function repairCallbacks(): RepairSaveControllerCallbacks {
   return {
-    repairSaveApplied: vi.fn(),
+    repairSaveApply: vi.fn(),
+    repairSaveCancel: vi.fn(),
   }
 }
 
 describe('RepairSaveController', () => {
   it('runs structural validation in constructor', () => {
-    const c = new RepairSaveController('not json {', true, repairCallbacks())
+    const c = new RepairSaveController(
+      'not json {',
+      true,
+      false,
+      repairCallbacks()
+    )
     expect(c.getErrors().length).toBeGreaterThan(0)
   })
 
@@ -22,14 +27,14 @@ describe('RepairSaveController', () => {
     const valid = new GameSaveData(['A'], [], [])
     const goodText = valid.toJsonString(true)
     const callbacks = repairCallbacks()
-    const c = new RepairSaveController(goodText, true, callbacks)
+    const c = new RepairSaveController(goodText, true, false, callbacks)
 
     c.apply()
     expect(c.getErrors()).toEqual([])
-    expect(callbacks.repairSaveApplied).toHaveBeenCalledTimes(1)
-    expect(callbacks.repairSaveApplied).toHaveBeenCalledWith(
+    expect(callbacks.repairSaveApply).toHaveBeenCalledTimes(1)
+    expect(callbacks.repairSaveApply).toHaveBeenCalledWith(
       expect.anything(),
-      { kind: RepairSaveContinuationKind.NewGame }
+      false
     )
 
     const badTurn = new GameSaveData(
@@ -51,14 +56,14 @@ describe('RepairSaveController', () => {
 
     c.apply()
     expect(c.getErrors().length).toBeGreaterThan(0)
-    expect(callbacks.repairSaveApplied).toHaveBeenCalledTimes(1)
+    expect(callbacks.repairSaveApply).toHaveBeenCalledTimes(1)
 
     c.setRawSaveText('{')
     expect(c.getErrors().length).toBeGreaterThan(0)
   })
 
   it('apply leaves structural errors only when JSON parse fails', () => {
-    const c = new RepairSaveController('{}', true, repairCallbacks())
+    const c = new RepairSaveController('{}', true, false, repairCallbacks())
     c.setRawSaveText('not json')
     c.apply()
     expect(c.getErrors().length).toBeGreaterThan(0)
@@ -82,27 +87,33 @@ describe('RepairSaveController', () => {
     const c = new RepairSaveController(
       badTurn.toJsonString(true),
       true,
+      false,
       callbacks
     )
     expect(c.getErrors().length).toBeGreaterThan(0)
 
     c.apply()
     expect(c.getErrors().length).toBeGreaterThan(0)
-    expect(callbacks.repairSaveApplied).not.toHaveBeenCalled()
+    expect(callbacks.repairSaveApply).not.toHaveBeenCalled()
   })
 
   it('live validation sets errors when structure ok but setup is invalid', () => {
     const data = new GameSaveData(['Alice'], [13], [])
     const callbacks = repairCallbacks()
-    const c = new RepairSaveController(data.toJsonString(true), true, callbacks)
+    const c = new RepairSaveController(
+      data.toJsonString(true),
+      true,
+      false,
+      callbacks
+    )
     expect(c.getErrors().length).toBeGreaterThan(0)
 
     c.apply()
     expect(c.getErrors().length).toBeGreaterThan(0)
-    expect(callbacks.repairSaveApplied).not.toHaveBeenCalled()
+    expect(callbacks.repairSaveApply).not.toHaveBeenCalled()
   })
 
-  it('apply on success calls repairSaveApplied with InProgressFromStartupRepair when isStartupRecovery', () => {
+  it('apply on success forwards isPaused false', () => {
     const data = new GameSaveData(
       ['Alice'],
       [],
@@ -117,17 +128,22 @@ describe('RepairSaveController', () => {
       ]
     )
     const callbacks = repairCallbacks()
-    const c = new RepairSaveController(data.toJsonString(true), true, callbacks)
+    const c = new RepairSaveController(
+      data.toJsonString(true),
+      true,
+      false,
+      callbacks
+    )
     c.apply()
-    expect(callbacks.repairSaveApplied).toHaveBeenCalledTimes(1)
-    expect(callbacks.repairSaveApplied).toHaveBeenCalledWith(
+    expect(callbacks.repairSaveApply).toHaveBeenCalledTimes(1)
+    expect(callbacks.repairSaveApply).toHaveBeenCalledWith(
       expect.anything(),
-      { kind: RepairSaveContinuationKind.StartupRepairWithTurns }
+      false
     )
     expect(c.getErrors()).toEqual([])
   })
 
-  it('apply on success calls repairSaveApplied with PausedFromManualEdit when not startup recovery', () => {
+  it('apply on success forwards isPaused true', () => {
     const data = new GameSaveData(
       ['Alice'],
       [],
@@ -145,34 +161,53 @@ describe('RepairSaveController', () => {
     const c = new RepairSaveController(
       data.toJsonString(true),
       false,
+      true,
       callbacks
     )
     c.apply()
-    expect(callbacks.repairSaveApplied).toHaveBeenCalledTimes(1)
-    expect(callbacks.repairSaveApplied).toHaveBeenCalledWith(
+    expect(callbacks.repairSaveApply).toHaveBeenCalledTimes(1)
+    expect(callbacks.repairSaveApply).toHaveBeenCalledWith(
       expect.anything(),
-      { kind: RepairSaveContinuationKind.ManualEditWithTurns }
+      true
     )
   })
 
-  it('clear is a no-op when not startup recovery', () => {
+  it('clear is a no-op when cancel is enabled', () => {
     const data = new GameSaveData(['Alice'], [], [])
     const callbacks = repairCallbacks()
-    const c = new RepairSaveController(data.toJsonString(true), false, callbacks)
+    const c = new RepairSaveController(
+      data.toJsonString(true),
+      true,
+      false,
+      callbacks
+    )
     c.clear()
-    expect(callbacks.repairSaveApplied).not.toHaveBeenCalled()
+    expect(callbacks.repairSaveApply).not.toHaveBeenCalled()
   })
 
-  it('clear on startup recovery calls repairSaveApplied with default game state and NewGame continuation', () => {
+  it('clear when cancel is disabled applies default game state', () => {
     const data = new GameSaveData(['Alice'], [], [])
     const callbacks = repairCallbacks()
-    const c = new RepairSaveController(data.toJsonString(true), true, callbacks)
+    const c = new RepairSaveController(
+      data.toJsonString(true),
+      false,
+      true,
+      callbacks
+    )
     c.clear()
-    expect(callbacks.repairSaveApplied).toHaveBeenCalledTimes(1)
-    const [gameState, next] = vi.mocked(callbacks.repairSaveApplied).mock.calls[0]
-    expect(next).toEqual({ kind: RepairSaveContinuationKind.NewGame })
+    expect(callbacks.repairSaveApply).toHaveBeenCalledTimes(1)
+    const [gameState, isPaused] = vi.mocked(callbacks.repairSaveApply).mock
+      .calls[0]
+    expect(isPaused).toBe(true)
     expect(gameState.gameSaveData.toJsonString(true)).toBe(
       GameSaveData.createDefault().toJsonString(true)
     )
+  })
+
+  it('cancel forwards isPaused when cancel is enabled', () => {
+    const callbacks = repairCallbacks()
+    const c = new RepairSaveController('{}', true, true, callbacks)
+    c.cancel()
+    expect(callbacks.repairSaveCancel).toHaveBeenCalledWith(true)
   })
 })

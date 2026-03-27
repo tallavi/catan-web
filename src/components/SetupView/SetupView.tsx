@@ -13,8 +13,8 @@ interface SetupViewProps {
 }
 
 export const SetupView: React.FC<SetupViewProps> = ({ controller }) => {
-  const [players, setPlayers] = useState<string[]>(() =>
-    controller.getGameSaveData().players
+  const [players, setPlayers] = useState<string[]>(
+    () => controller.getGameSaveData().players
   )
   const [blockedNumbers, setBlockedNumbers] = useState<number[]>(
     controller.getGameSaveData().blockedResults
@@ -269,13 +269,13 @@ export const SetupView: React.FC<SetupViewProps> = ({ controller }) => {
             </div>
           </div>
           {validationErrors.length > 0 && (
-            <div
+            <ul
               style={{ color: 'red', textAlign: 'center', marginTop: '1rem' }}
             >
               {validationErrors.map((error, index) => (
-                <div key={index}>{error}</div>
+                <li key={`setup-${index}`}>{error}</li>
               ))}
-            </div>
+            </ul>
           )}
         </div>
       </div>

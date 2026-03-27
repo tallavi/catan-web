@@ -9,12 +9,8 @@ import {
   PausedController,
   type PausedControllerCallbacks,
 } from '../concrete/PausedController'
-import {
-  type RepairSaveContinuation,
-  type RepairSaveControllerCallbacks,
-} from '../concrete/RepairSaveController'
+import { type RepairSaveControllerCallbacks } from '../concrete/RepairSaveController'
 import { RepairSaveController } from '../concrete/RepairSaveController'
-import { RepairSaveContinuationKind } from '../concrete/RepairSaveController'
 import {
   SetupController,
   type SetupControllerCallbacks,
@@ -23,7 +19,7 @@ import {
 /**
  * Owns {@link GameStorage} and wires mutually recursive controller callbacks.
  * Initial load from persistence is {@link ControllerCoordinator.createInitialController}
- * (load → repair vs setup vs {@link GameState.tryFromGameSaveData} → repair vs in-progress).
+ * (delegates to {@link ControllerCoordinator._innerCreateInitialController} with `isPaused: false`).
  */
 export class ControllerCoordinator {
   static readonly AppMode = {
@@ -55,15 +51,24 @@ export class ControllerCoordinator {
   }
 
   /**
-   * Load persisted JSON, then return the appropriate controller (invalid / bad state →
-   * {@link RepairSaveController} with startup recovery).
+   * Load persisted JSON for app bootstrap. Always uses `isPaused: false` (in-progress vs paused
+   * after cancel is handled via {@link ControllerCoordinator._innerCreateInitialController}).
    */
   createInitialController(): IController {
+    return this._innerCreateInitialController(false)
+  }
+
+  /**
+   * Shared bootstrap from storage. `isPaused` affects repair controller wiring and whether a
+   * valid save with turns becomes {@link PausedController} vs {@link InProgressController}.
+   */
+  private _innerCreateInitialController(isPaused: boolean): IController {
     const loaded = this._storage.load()
     if (!loaded.ok) {
       return new RepairSaveController(
         loaded.rawString,
-        true,
+        false,
+        isPaused,
         this._repairCallbacks
       )
     }
@@ -76,9 +81,14 @@ export class ControllerCoordinator {
     if (!result.ok) {
       return new RepairSaveController(
         loaded.rawString,
-        true,
+        false,
+        isPaused,
         this._repairCallbacks
       )
+    }
+
+    if (isPaused) {
+      return new PausedController(result.state, this._pausedCallbacks)
     }
 
     return new InProgressController(result.state, this._inProgressCallbacks)
@@ -90,7 +100,7 @@ export class ControllerCoordinator {
 
     this._setupCallbacks.save = d => this._handleSave(d)
     this._setupCallbacks.editSave = gameSaveData =>
-      this._handleEditSave(gameSaveData)
+      this._handleEditSave(gameSaveData, false)
     this._setupCallbacks.startGame = gameSaveData =>
       this._handleStartGame(gameSaveData)
 
@@ -99,13 +109,13 @@ export class ControllerCoordinator {
     this._pausedCallbacks.nextTurnWithPredeterminedCubes = (gameState, cubes) =>
       this._handleNextTurnWithPredeterminedCubes(gameState, cubes)
     this._pausedCallbacks.editSave = gameSaveData =>
-      this._handleEditSave(gameSaveData)
+      this._handleEditSave(gameSaveData, true)
 
-    this._repairCallbacks.repairSaveApplied = (gameState, next) =>
-      this._handleRepairSaveApplied(gameState, next)
+    this._repairCallbacks.repairSaveApply = (gameState, isPaused) =>
+      this._handleRepairSaveApply(gameState, isPaused)
 
-    this._repairCallbacks.cancelManualEdit = () =>
-      this._handleCancelManualEdit()
+    this._repairCallbacks.repairSaveCancel = isPaused =>
+      this._handleRepairSaveCancel(isPaused)
   }
 
   private _handleSave(gameSaveData: GameSaveData): void {
@@ -151,43 +161,39 @@ export class ControllerCoordinator {
     this._replaceController(inProgressController)
   }
 
-  private _handleRepairSaveApplied(
+  private _handleRepairSaveApply(
     gameState: GameState,
-    next: RepairSaveContinuation
+    isPaused: boolean
   ): void {
     const save = gameState.gameSaveData
     this._handleSave(save)
 
-    switch (next.kind) {
-      case RepairSaveContinuationKind.NewGame:
-        this._replaceController(new SetupController(save, this._setupCallbacks))
-        return
-      case RepairSaveContinuationKind.StartupRepairWithTurns:
-        this._replaceController(
-          new InProgressController(gameState, this._inProgressCallbacks)
-        )
-        return
-      case RepairSaveContinuationKind.ManualEditWithTurns:
-        this._replaceController(
-          new PausedController(gameState, this._pausedCallbacks)
-        )
-        return
-      default: {
-        const _exhaustive: never = next
-        throw new Error(`Unhandled repair continuation: ${_exhaustive}`)
-      }
+    if (save.gameTurns.length === 0) {
+      this._replaceController(new SetupController(save, this._setupCallbacks))
+      return
     }
-  }
 
-  private _handleEditSave(gameSaveData: GameSaveData): void {
-    const raw = gameSaveData.toJsonString(true)
+    if (isPaused) {
+      this._replaceController(
+        new PausedController(gameState, this._pausedCallbacks)
+      )
+      return
+    }
+
     this._replaceController(
-      new RepairSaveController(raw, false, this._repairCallbacks)
+      new InProgressController(gameState, this._inProgressCallbacks)
     )
   }
 
-  private _handleCancelManualEdit(): void {
-    this._replaceController(this.createInitialController())
+  private _handleEditSave(gameSaveData: GameSaveData, isPaused: boolean): void {
+    const raw = gameSaveData.toJsonString(true)
+    this._replaceController(
+      new RepairSaveController(raw, true, isPaused, this._repairCallbacks)
+    )
+  }
+
+  private _handleRepairSaveCancel(isPaused: boolean): void {
+    this._replaceController(this._innerCreateInitialController(isPaused))
   }
 }
 

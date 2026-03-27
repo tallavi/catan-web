@@ -213,24 +213,24 @@ export class GameSaveData {
 
     // Players
     if (players.length === 0) {
-      errors.add('• There must be at least one player.')
+      errors.add('There must be at least one player.')
     }
 
     const names = new Set<string>()
     for (const raw of players) {
       const trimmed = raw.trim()
       if (!trimmed) {
-        errors.add('• Player names must not be empty.')
+        errors.add('Player names must not be empty.')
         continue
       }
       if (trimmed.length > GameSaveData.PLAYER_NAME_MAX_LENGTH) {
         errors.add(
-          `• Player names must be at most ${GameSaveData.PLAYER_NAME_MAX_LENGTH} characters ('${trimmed}').`
+          `Player names must be at most ${GameSaveData.PLAYER_NAME_MAX_LENGTH} characters ('${trimmed}').`
         )
         continue
       }
       if (names.has(trimmed)) {
-        errors.add(`• Player names must be unique ('${trimmed}').`)
+        errors.add(`Player names must be unique ('${trimmed}').`)
         continue
       }
       names.add(trimmed)
@@ -244,12 +244,12 @@ export class GameSaveData {
         n > GameSaveData.BLOCKED_RESULT_MAX
       ) {
         errors.add(
-          `• Blocked results must be between ${GameSaveData.BLOCKED_RESULT_MIN} and ${GameSaveData.BLOCKED_RESULT_MAX} (${n}).`
+          `Blocked results must be between ${GameSaveData.BLOCKED_RESULT_MIN} and ${GameSaveData.BLOCKED_RESULT_MAX} (${n}).`
         )
         continue
       }
       if (blocked.has(n)) {
-        errors.add(`• Blocked results must be unique (${n}).`)
+        errors.add(`Blocked results must be unique (${n}).`)
         continue
       }
       blocked.add(n)
@@ -267,7 +267,7 @@ export class GameSaveData {
       }
     }
     if (!hasUnblocked) {
-      errors.add('• There must be at least one unblocked result.')
+      errors.add('There must be at least one unblocked result.')
     }
 
     return Array.from(errors)

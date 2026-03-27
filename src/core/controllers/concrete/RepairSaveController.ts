@@ -8,39 +8,26 @@ import {
 
 /** Callbacks for {@link RepairSaveController} after a successful {@link RepairSaveController.apply}. */
 export interface RepairSaveControllerCallbacks {
-  repairSaveApplied: (
-    gameState: GameState,
-    next: RepairSaveContinuation
-  ) => void
-  /** When {@link RepairSaveController} was opened from pause (`!isStartupRecovery`), restore paused UI without applying edits. */
-  cancelManualEdit?: () => void
+  repairSaveApply: (gameState: GameState, isPaused: boolean) => void
+  repairSaveCancel?: (isPaused: boolean) => void
 }
-
-export class RepairSaveContinuationKind {
-  static readonly NewGame = 'SetupFromStartupRepair' as const
-  static readonly StartupRepairWithTurns =
-    'InProgressFromStartupRepair' as const
-  static readonly ManualEditWithTurns = 'PausedFromManualEdit' as const
-}
-
-export type RepairSaveContinuation =
-  | { kind: typeof RepairSaveContinuationKind.NewGame }
-  | { kind: typeof RepairSaveContinuationKind.StartupRepairWithTurns }
-  | { kind: typeof RepairSaveContinuationKind.ManualEditWithTurns }
 
 export class RepairSaveController implements IController {
-  private readonly _isStartupRecovery: boolean
+  private readonly _canCancel: boolean
+  private readonly _isPaused: boolean
   private readonly _callbacks: RepairSaveControllerCallbacks
   private _rawSaveText: string
   private _errors: string[] = []
 
   constructor(
     rawSaveText: string,
-    isStartupRecovery: boolean,
+    canCancel: boolean,
+    isPaused: boolean,
     callbacks: RepairSaveControllerCallbacks
   ) {
     this._rawSaveText = rawSaveText
-    this._isStartupRecovery = isStartupRecovery
+    this._canCancel = canCancel
+    this._isPaused = isPaused
     this._callbacks = callbacks
     this._recomputeFromRaw(rawSaveText)
   }
@@ -58,11 +45,7 @@ export class RepairSaveController implements IController {
     this._recomputeFromRaw(text)
   }
 
-  /**
-   * Parse JSON into {@link GameSaveData}, then {@link GameState.tryFromGameSaveData}.
-   * On success calls {@link RepairSaveControllerCallbacks.repairSaveApplied} with a typed continuation
-   * describing where the app should go next.
-   */
+  /** Parse JSON into {@link GameSaveData}, then {@link GameState.tryFromGameSaveData}. */
   apply(): void {
     const v = this._validateRaw(this._rawSaveText)
     if (!v.ok) {
@@ -70,49 +53,30 @@ export class RepairSaveController implements IController {
       return
     }
     this._errors = []
-    const save = v.state.gameSaveData
-    if (!save) {
-      throw new Error('Repair apply: missing gameSaveData')
-    }
-
-    let next: RepairSaveContinuation
-
-    if (save.gameTurns.length === 0) {
-      next = { kind: RepairSaveContinuationKind.NewGame }
-    } else if (this._isStartupRecovery) {
-      next = { kind: RepairSaveContinuationKind.StartupRepairWithTurns }
-    } else {
-      next = { kind: RepairSaveContinuationKind.ManualEditWithTurns }
-    }
-
-    this._callbacks.repairSaveApplied(v.state, next)
-  }
-
-  isStartupRecovery(): boolean {
-    return this._isStartupRecovery
+    this._callbacks.repairSaveApply(v.state, this._isPaused)
   }
 
   canCancel(): boolean {
-    return !this._isStartupRecovery
+    return this._canCancel
   }
 
-  /** No-op when {@link canCancel} is false or no `cancelManualEdit` callback was provided. */
+  /** No-op when {@link canCancel} is false or no `cancel` callback was provided. */
   cancel(): void {
-    if (!this.canCancel()) return
-    this._callbacks.cancelManualEdit?.()
+    if (!this.canCancel())
+      throw new Error('Cannot cancel when cancel is disabled')
+    this._callbacks.repairSaveCancel?.(this._isPaused)
   }
 
-  /** In startup recovery only, clears to a default save and exits to setup. */
+  /** Only available when cancel is disabled; applies default save state. */
   clear(): void {
-    if (!this._isStartupRecovery) return
+    if (this._canCancel) throw new Error('Cannot clear when cancel is enabled')
+
     const data = GameSaveData.createDefault()
     const state = GameState.tryFromGameSaveData(data)
     if (!state.ok) {
       throw new Error(state.errors[0])
     }
-    this._callbacks.repairSaveApplied(state.state, {
-      kind: RepairSaveContinuationKind.NewGame,
-    })
+    this._callbacks.repairSaveApply(state.state, this._isPaused)
   }
 
   getErrors(): string[] {
