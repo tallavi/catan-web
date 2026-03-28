@@ -28,8 +28,11 @@ Configuration: root [`playwright.config.ts`](../playwright.config.ts) (`baseURL`
 |------|------|
 | [`fixtures/storage.ts`](fixtures/storage.ts) | `DEFAULT_GAME_STORAGE_KEY` (sync with [`GameStorage.ts`](../src/core/GameStorage.ts)), `registerAppE2EInitScripts` (clear save + fix `Math.random`) |
 | [`helpers/actionBar.ts`](helpers/actionBar.ts) | `focusNeutralForActionBar`, `longPress` for ~2s ActionBar buttons |
+| [`helpers/setup.ts`](helpers/setup.ts) | SetupView: player names, add player/blocked, **Start** + long-press **Yes** |
+| [`helpers/paused.ts`](helpers/paused.ts) | PausedView: pause/resume, **Free Roll** / **Predetermined**, repair **Apply** |
 | [`smoke.spec.ts`](smoke.spec.ts) | Fast sanity check |
-| [`app-full-flow.spec.ts`](app-full-flow.spec.ts) | Full coordinator journey |
+| [`app-full-flow.spec.ts`](app-full-flow.spec.ts) | Minimal full coordinator journey |
+| [`app-extended-flow.spec.ts`](app-extended-flow.spec.ts) | Extended journey (setup edits, ≥2 turns, paused sub-modes, second pause → repair) |
 
 ## Concepts (map to this repo)
 
